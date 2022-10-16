@@ -7,8 +7,6 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-console.log("supabase", supabase);
-
 export async function db_getAllImages() {
   // load all from supabase
   const { data, error } = await supabase.from("images").select("*");

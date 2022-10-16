@@ -9,7 +9,7 @@ import {
   SdImage,
 } from "../../libs/shared-types/src";
 
-const pathToImg = `.`;
+const pathToImg = __dirname;
 
 export default async function handler(req, res) {
   const imgGenReq: ImageGenRequest = req.body as ImageGenRequest;
@@ -45,11 +45,17 @@ export default async function handler(req, res) {
 
       const fileKey = result.filePath.replace(pathToImg + "/", "");
 
-      const s3res = await uploadImageToS3({
+      const s3MetaData = {
         filename: result.filePath,
         key: fileKey,
         mimetype: "image/png",
-      });
+      };
+
+      console.log("s3MetaData", s3MetaData);
+
+      const s3res = await uploadImageToS3(s3MetaData);
+
+      // delete the file after done ?
 
       const imgResult: SdImage = {
         id: getUuid(),

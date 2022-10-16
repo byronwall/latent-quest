@@ -35,7 +35,7 @@ export async function uploadImageToS3(file: FileUploadS3) {
 
   const command = new PutObjectCommand(params);
 
-  await s3.send(command);
+  return await s3.send(command);
 }
 
 export async function getImagesFromS3(file: FileDownloadS3) {
