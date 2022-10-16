@@ -9,7 +9,8 @@ import {
   SdImage,
 } from "../../libs/shared-types/src";
 
-const pathToImg = __dirname;
+const pathToImg = "/tmp";
+console.log("pathToImg", pathToImg);
 
 export default async function handler(req, res) {
   const imgGenReq: ImageGenRequest = req.body as ImageGenRequest;
@@ -36,7 +37,7 @@ export default async function handler(req, res) {
       width: 512,
       samples: 1,
       outDir: pathToImg,
-      debug: true,
+      debug: false,
       noStore: false,
     })) as any;
 
