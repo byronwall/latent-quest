@@ -331,9 +331,7 @@ function createTransformHolder(
     case "seed": {
       // build the row headers
       let rowHeaders = diffSummary[rowVar] ?? [mainImage[rowVar]];
-      extraChoiceMap[rowVar].forEach((c) =>
-        rowHeaders.push(rowVar === "artist" ? c : +c)
-      );
+      extraChoiceMap[rowVar].forEach((c) => rowHeaders.push(+c));
 
       rowHeaders = uniq(rowHeaders);
       rowHeaders.sort((a, b) =>
