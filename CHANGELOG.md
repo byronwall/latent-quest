@@ -6,6 +6,7 @@
   - Also track bad files and do not load more than once -- will need to track count or something
 - Remove prompt pieces -- all are now "unknown"
 - Default transform to be based on the full prompt instead of a delta (update later?)
+- Default the sort to be based on total prompt length (more commas = more items)
 
 ## 2022-10-15 23:31:53
 

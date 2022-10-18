@@ -327,7 +327,6 @@ function createTransformHolder(
   switch (rowVar) {
     case "cfg":
     case "steps":
-    case "artist":
     case "unknown":
     case "seed": {
       // build the row headers
@@ -337,7 +336,9 @@ function createTransformHolder(
       );
 
       rowHeaders = uniq(rowHeaders);
-      rowHeaders.sort((a, b) => a - b);
+      rowHeaders.sort((a, b) =>
+        typeof a === "string" || Array.isArray(a) ? a.length - b.length : a - b
+      );
 
       rowTransformHolder = generateSimpleTransformHolder(
         "row simple",
