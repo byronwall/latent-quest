@@ -2,67 +2,67 @@ import {
   isImageSameAsPlaceHolder,
   SdImage,
   SdImagePlaceHolder,
-} from './shared-types';
+} from "./shared-types";
 
 const placeholder: SdImagePlaceHolder = {
-  groupId: '5a83069f-2ce1-4ba5-8014-3efe687be13d',
+  groupId: "5a83069f-2ce1-4ba5-8014-3efe687be13d",
   promptBreakdown: {
     parts: [
       {
-        text: 'cover of a astronaut',
-        label: 'main',
+        text: "cover of a astronaut",
+        label: "unknown",
       },
       {
-        text: 'cloudy sky background',
-        label: 'modifiers',
+        text: "cloudy sky background",
+        label: "unknown",
       },
       {
-        text: 'lush landscape',
-        label: 'modifiers',
+        text: "lush landscape",
+        label: "unknown",
       },
       {
-        text: 'illustration concept art',
-        label: 'style',
+        text: "illustration concept art",
+        label: "unknown",
       },
       {
-        text: 'anime',
-        label: 'style',
+        text: "anime",
+        label: "unknown",
       },
       {
-        text: 'key visual',
-        label: 'style',
+        text: "key visual",
+        label: "unknown",
       },
       {
-        text: 'trending pixiv',
-        label: 'makeItGood',
+        text: "trending pixiv",
+        label: "unknown",
       },
       {
-        text: 'fanbox',
-        label: 'makeItGood',
+        text: "fanbox",
+        label: "unknown",
       },
       {
-        text: 'by ilya kuvshinov',
-        label: 'artist',
+        text: "by ilya kuvshinov",
+        label: "unknown",
       },
       {
-        text: 'by greg rutkowski',
-        label: 'artist',
+        text: "by greg rutkowski",
+        label: "unknown",
       },
       {
-        text: 'by victo ngai',
-        label: 'artist',
+        text: "by victo ngai",
+        label: "unknown",
       },
       {
-        text: 'makoto shinkai',
-        label: 'artist',
+        text: "makoto shinkai",
+        label: "unknown",
       },
       {
-        text: 'takashi takeuchi',
-        label: 'artist',
+        text: "takashi takeuchi",
+        label: "unknown",
       },
       {
-        text: 'studio ghibli',
-        label: 'artist',
+        text: "studio ghibli",
+        label: "unknown",
       },
     ],
   },
@@ -72,77 +72,77 @@ const placeholder: SdImagePlaceHolder = {
 };
 
 const image: SdImage = {
-  id: '52e4c2e5-576f-40c8-895e-69762878f82c',
-  groupId: '5a83069f-2ce1-4ba5-8014-3efe687be13d',
+  id: "52e4c2e5-576f-40c8-895e-69762878f82c",
+  groupId: "5a83069f-2ce1-4ba5-8014-3efe687be13d",
   promptBreakdown: {
     parts: [
       {
-        text: 'cover of a astronaut',
-        label: 'main',
+        text: "cover of a astronaut",
+        label: "unknown",
       },
       {
-        text: 'cloudy sky background',
-        label: 'modifiers',
+        text: "cloudy sky background",
+        label: "unknown",
       },
       {
-        text: 'lush landscape',
-        label: 'modifiers',
+        text: "lush landscape",
+        label: "unknown",
       },
       {
-        text: 'by ilya kuvshinov',
-        label: 'artist',
+        text: "by ilya kuvshinov",
+        label: "unknown",
       },
       {
-        text: 'by greg rutkowski',
-        label: 'artist',
+        text: "by greg rutkowski",
+        label: "unknown",
       },
       {
-        text: 'by victo ngai',
-        label: 'artist',
+        text: "by victo ngai",
+        label: "unknown",
       },
       {
-        text: 'makoto shinkai',
-        label: 'artist',
+        text: "makoto shinkai",
+        label: "unknown",
       },
       {
-        text: 'takashi takeuchi',
-        label: 'artist',
+        text: "takashi takeuchi",
+        label: "unknown",
       },
       {
-        text: 'studio ghibli',
-        label: 'artist',
+        text: "studio ghibli",
+        label: "unknown",
       },
       {
-        text: 'illustration concept art',
-        label: 'style',
+        text: "illustration concept art",
+        label: "unknown",
       },
       {
-        text: 'anime',
-        label: 'style',
+        text: "anime",
+        label: "unknown",
       },
       {
-        text: 'key visual',
-        label: 'style',
+        text: "key visual",
+        label: "unknown",
       },
       {
-        text: 'trending pixiv',
-        label: 'makeItGood',
+        text: "trending pixiv",
+        label: "unknown",
       },
       {
-        text: 'fanbox',
-        label: 'makeItGood',
+        text: "fanbox",
+        label: "unknown",
       },
     ],
   },
   seed: 444,
   cfg: 10,
-  url: 'generation-a75be1ab-1a00-4874-b855-656e129ddb7f:0-1c76c09f-5c19-4c70-82b1-c3c147c1adaa-0.png',
-  dateCreated: '2022-10-03T03:15:39.768Z',
+  url: "generation-a75be1ab-1a00-4874-b855-656e129ddb7f:0-1c76c09f-5c19-4c70-82b1-c3c147c1adaa-0.png",
+  dateCreated: "2022-10-03T03:15:39.768Z",
   steps: 20,
 };
 
-describe('PlaceholderImageDelta', () => {
-  it('should find a difference', () => {
+describe("PlaceholderImageDelta", () => {
+  it("should find a difference", () => {
     const isSame = isImageSameAsPlaceHolder(image, placeholder);
     expect(isSame).toBe(true);
   });
