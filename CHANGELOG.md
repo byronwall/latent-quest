@@ -1,12 +1,20 @@
 # Changelog
 
-## 2022-10-15 21:04:38
+## 2022-10-17 22:12:54
+
+- Allow images to be saved to `/tmp` -- avoid excess S3 calls
+  - Also track bad files and do not load more than once -- will need to track count or something
+
+## 2022-10-15 23:31:53
 
 - Split into pages
 - Remove bad image groups
 - Move server to /api folder
 - Move all secrets into .env file for environment access
 - Move into new project that is Next.js only
+- Deploy to Vercel
+- Change image path to `/tmp`
+  - Vercel does not allow writing to other folders
 
 ## 2022-10-15 00:23:01
 

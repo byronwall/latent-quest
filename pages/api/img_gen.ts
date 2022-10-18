@@ -9,7 +9,7 @@ import {
   SdImage,
 } from "../../libs/shared-types/src";
 
-const pathToImg = "/tmp";
+export const pathToImg = "/tmp";
 console.log("pathToImg", pathToImg);
 
 export default async function handler(req, res) {
