@@ -1,10 +1,22 @@
-import { Group, MultiSelect, NumberInput, Radio, Stack, Table, Title } from '@mantine/core';
-import produce from 'immer';
-import { uniq } from 'lodash-es';
-import { useState } from 'react';
-import { useQuery } from 'react-query';
+import {
+  Group,
+  MultiSelect,
+  NumberInput,
+  Radio,
+  Stack,
+  Table,
+  Title,
+} from "@mantine/core";
+import produce from "immer";
+import { uniq } from "lodash-es";
+import { useState } from "react";
+import { useQuery } from "react-query";
 
-import { generatePlaceholderForTransforms, isImageSameAsPlaceHolder, summarizeAllDifferences } from '../libs/helpers';
+import {
+  generatePlaceholderForTransforms,
+  isImageSameAsPlaceHolder,
+  summarizeAllDifferences,
+} from "../libs/helpers";
 import {
   PromptBreakdownSortOrder,
   SdImage,
@@ -13,13 +25,12 @@ import {
   SdImageTransformNumberRaw,
   SdImageTransformText,
   TransformNone,
-} from '../libs/shared-types/src';
-import { artists } from '../model/choices';
-import { ImageTransformHolder } from '../model/transformers';
-import { ImageTransformChooser } from './ImageTransformChooser';
-import { SdGroupTable } from './SdGroupTable';
-import { SdImageComp } from './SdImageComp';
-import { SdImagePlaceHolderComp } from './SdImagePlaceHolderComp';
+} from "../libs/shared-types/src";
+import { artists } from "../model/choices";
+import { ImageTransformHolder } from "../model/transformers";
+import { SdGroupTable } from "./SdGroupTable";
+import { SdImageComp } from "./SdImageComp";
+import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
 
 interface ImageGridProps {
   groupId: string;
@@ -54,15 +65,7 @@ const seedChoices = [
 
 const artistChoices = artists.map((c) => ({ value: "by " + c, label: c }));
 
-const variableChoices = [
-  "cfg",
-  "seed",
-  "steps",
-  "artist",
-  "unknown",
-  "loose",
-  "known",
-] as const;
+const variableChoices = ["cfg", "seed", "steps", "unknown", "loose"] as const;
 
 export function ImageGrid(props: ImageGridProps) {
   console.log("ImageGrid - render");
@@ -117,10 +120,8 @@ export function ImageGrid(props: ImageGridProps) {
       seed: seedChoice,
       cfg: cfgChoice,
       steps: stepsChoice,
-      artist: artistChoice,
       unknown: [],
       loose: [],
-      known: [],
     };
 
   const diffSummary = summarizeAllDifferences(mainImage, data);
@@ -183,12 +184,6 @@ export function ImageGrid(props: ImageGridProps) {
               <Radio key={choice} value={choice} label={choice} />
             ))}
           </Radio.Group>
-
-          <ImageTransformChooser
-            holder={transformRow}
-            onChange={setTransformRow}
-            disabled={rowVar !== "known"}
-          />
         </Group>
         <Group>
           <b>col var</b>
@@ -197,12 +192,6 @@ export function ImageGrid(props: ImageGridProps) {
               <Radio key={choice} value={choice} label={choice} />
             ))}
           </Radio.Group>
-
-          <ImageTransformChooser
-            holder={transformCol}
-            onChange={setTransformCol}
-            disabled={colVar !== "known"}
-          />
         </Group>
       </Stack>
       <div> {isLoading ? "loading..." : ""} </div>
@@ -329,8 +318,6 @@ function createTransformHolder(
     seed: string[];
     cfg: string[];
     steps: string[];
-    artist: string[];
-    known: any[];
   },
   looseTransforms: ImageTransformHolder,
   transformRow: ImageTransformHolder

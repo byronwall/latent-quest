@@ -4,6 +4,8 @@
 
 - Allow images to be saved to `/tmp` -- avoid excess S3 calls
   - Also track bad files and do not load more than once -- will need to track count or something
+- Remove prompt pieces -- all are now "unknown"
+- Default transform to be based on the full prompt instead of a delta (update later?)
 
 ## 2022-10-15 23:31:53
 

@@ -31,18 +31,6 @@ export function ImageTransformBuilder() {
         >
           new number delta
         </Button>
-        <Button
-          onClick={() =>
-            append({
-              type: "text",
-              action: "set",
-              field: "artist",
-              value: "bob",
-            })
-          }
-        >
-          new text change
-        </Button>
       </Group>
       <p>list</p>
       <Table>

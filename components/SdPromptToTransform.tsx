@@ -21,7 +21,9 @@ export function SdPromptToTransform(props: PromptEditorProps) {
 
   const handleCreateTransform = () => {
     // get delta between breakdown in props and breakdown in editor
-    const deltaTransform = getBreakdownDelta(promptBreakdown, breakdown, true);
+    const deltaTransform = getBreakdownDelta(promptBreakdown, breakdown, false);
+
+    console.log("deltaTransform", deltaTransform);
 
     const multiTransform: SdImageTransformMulti = {
       type: "multi",

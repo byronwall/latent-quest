@@ -59,6 +59,13 @@ type SdImageSqlite = Omit<SdImage, "promptBreakdown"> & {
 
 function convertSqliteToObj(sqliteObj: SdImageSqlite) {
   sqliteObj.promptBreakdown = JSON.parse(sqliteObj.promptBreakdown);
+
+  const sqliteObjObj = sqliteObj as unknown as SdImage;
+
+  // migrate that prompt to the new format
+  sqliteObjObj.promptBreakdown.parts.forEach((part) => {
+    part.label = "unknown";
+  });
 }
 
 export async function db_insertImage(image: SdImage) {

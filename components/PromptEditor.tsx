@@ -123,7 +123,7 @@ export function PromptEditor(props: PromptEditorProps) {
         {prompt.parts.map((part, idx) => {
           const chunk = part.text;
           const colorIndex = colorLookup[part.label];
-          const colorName = colorKeys[colorIndex];
+          const colorName = "blue";
           const backgroundColor = theme.colors[colorName][9];
           const textColor = pickTextColorBasedOnBgColorAdvanced(
             backgroundColor,
@@ -155,32 +155,6 @@ export function PromptEditor(props: PromptEditorProps) {
                 >
                   x
                 </Button>
-
-                <HoverPopover color={colorName}>
-                  {/* button per type */}
-                  <Group>
-                    {PromptBreakdownSortOrder.map((type) => {
-                      const colorIndex = colorLookup[type];
-                      const colorName = colorKeys[colorIndex];
-                      return (
-                        <Button
-                          key={type}
-                          onClick={() => {
-                            const newParts = [...prompt.parts];
-                            newParts[idx].label = type;
-                            setPrompt({
-                              parts: newParts,
-                            });
-                          }}
-                          color={colorName}
-                          variant={part.label === type ? "filled" : "outline"}
-                        >
-                          {type}
-                        </Button>
-                      );
-                    })}
-                  </Group>
-                </HoverPopover>
               </div>
             </>
           );

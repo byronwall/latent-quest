@@ -1,7 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 export function sharedTypes(): string {
-  return 'shared-types';
+  return "shared-types";
 }
 
 export interface SdImage {
@@ -19,9 +19,9 @@ export interface SdImage {
 }
 
 export type SdImagePlaceHolder = Partial<
-  Omit<SdImage, 'id' | 'dateCreated' | 'url'>
+  Omit<SdImage, "id" | "dateCreated" | "url">
 > &
-  Pick<SdImage, 'promptBreakdown'>;
+  Pick<SdImage, "promptBreakdown">;
 
 export type ImageGenRequest = SdImagePlaceHolder;
 
@@ -45,18 +45,11 @@ export interface PromptBreakdown {
   parts: PromptPart[];
 }
 
-export const PromptBreakdownSortOrder = [
-  'main',
-  'modifiers',
-  'artist',
-  'style',
-  'makeItGood',
-  'unknown',
-] as const;
+export const PromptBreakdownSortOrder = ["unknown"] as const;
 
 export function getTextForBreakdown(breakdown: PromptBreakdown | undefined) {
   if (breakdown === undefined) {
-    return '';
+    return "";
   }
 
   // sort based on type
@@ -66,16 +59,16 @@ export function getTextForBreakdown(breakdown: PromptBreakdown | undefined) {
       PromptBreakdownSortOrder.indexOf(b.label)
     );
   });
-  return sortedParts.map((c) => c.text).join(', ');
+  return sortedParts.map((c) => c.text).join(", ");
 }
 
 export function getBreakdownForText(text: string): PromptBreakdown {
-  const parts = text.split(',').map((c) => c.trim());
+  const parts = text.split(",").map((c) => c.trim());
   const breakdown: PromptBreakdown = {
     parts: parts.map((c) => {
       return {
         text: c,
-        label: 'unknown',
+        label: "unknown",
       };
     }),
   };
@@ -83,35 +76,35 @@ export function getBreakdownForText(text: string): PromptBreakdown {
 }
 
 export interface SdImageTransformNumberRaw {
-  type: 'num-raw';
-  field: 'seed' | 'cfg' | 'steps';
+  type: "num-raw";
+  field: "seed" | "cfg" | "steps";
   value: number;
 }
 
 export interface SdImageTransformNumberDelta {
-  type: 'num-delta';
-  field: 'seed' | 'cfg' | 'steps';
+  type: "num-delta";
+  field: "seed" | "cfg" | "steps";
   delta: number;
 }
 
 export interface SdImageTransformText {
-  type: 'text';
+  type: "text";
   field: BreakdownType;
-  action: 'add' | 'remove' | 'set';
+  action: "add" | "remove" | "set";
   value: string | string[];
 }
 
 export interface SdImageTransformMulti {
-  type: 'multi';
+  type: "multi";
   transforms: SdImageTransform[];
 }
 
 export interface SdImageTransformNone {
-  type: 'none';
+  type: "none";
 }
 
 export const TransformNone: SdImageTransformNone = {
-  type: 'none',
+  type: "none",
 } as const;
 
 export type SdImageTransformNonMulti =
