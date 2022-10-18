@@ -11,13 +11,13 @@ export const transforms: ImageTransformHolder[] = [
       {
         type: "text",
         action: "set",
-        field: "artist",
+        field: "unknown",
         value: "by Vincent Van Gogh",
       },
       {
         type: "text",
         action: "set",
-        field: "artist",
+        field: "unknown",
         value: "by Claude Monet",
       },
     ],
