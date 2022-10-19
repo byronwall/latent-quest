@@ -18,6 +18,25 @@ export interface SdImage {
   promptBreakdown: PromptBreakdown;
 }
 
+export interface SdImageGroup {
+  id: string;
+  created_at: any;
+  view_settings: SdGroupViewSettings;
+}
+
+export interface SdGroupViewSettings {
+  name: string;
+  notes: string;
+  defaultView: SdGroupView;
+}
+
+export interface SdGroupView {
+  rowVar: string;
+  colVar: string;
+
+  // add in those extra choices
+}
+
 export type SdImagePlaceHolder = Partial<
   Omit<SdImage, "id" | "dateCreated" | "url">
 > &
@@ -114,3 +133,14 @@ export type SdImageTransformNonMulti =
   | SdImageTransformNone;
 
 export type SdImageTransform = SdImageTransformNonMulti | SdImageTransformMulti;
+
+export function createDefaultViewSettings(): SdGroupViewSettings {
+  return {
+    name: "",
+    notes: "",
+    defaultView: {
+      rowVar: "seed",
+      colVar: "cfg",
+    },
+  };
+}

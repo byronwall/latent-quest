@@ -1,7 +1,7 @@
 // file will communicate with the sqlite database
-
 import { createClient } from "@supabase/supabase-js";
-import { SdImage } from "./shared-types/src";
+
+import { SdImage, SdImageGroup } from "./shared-types/src";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -79,6 +79,54 @@ export async function db_insertImage(image: SdImage) {
 
   if (error) {
     console.error("Error inserting image into database", error);
+    return undefined;
+  }
+
+  return data;
+}
+
+export async function db_getGroup(id: string) {
+  const { data, error } = await supabase
+    .from("image-groups")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Error loading group from database", error);
+    return undefined;
+  }
+
+  console.log("group data", data);
+
+  return data as SdImageGroup;
+}
+
+// insert group and catch errors
+
+type SdImageGroupInsert = Omit<SdImageGroup, "created_at">;
+
+export async function db_insertGroup(group: SdImageGroupInsert) {
+  const { data, error } = await supabase.from("image-groups").insert(group);
+
+  if (error) {
+    console.error("Error inserting group into database", error);
+    return undefined;
+  }
+
+  return data;
+}
+
+// method to update group
+
+export async function db_updateGroup(group: SdImageGroup) {
+  const { data, error } = await supabase
+    .from("image-groups")
+    .update(group)
+    .eq("id", group.id);
+
+  if (error) {
+    console.error("Error updating group in database", error);
     return undefined;
   }
 

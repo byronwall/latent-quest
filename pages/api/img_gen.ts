@@ -1,8 +1,9 @@
 import { generateAsync } from "stability-client";
 
-import { db_insertImage } from "../../libs/db";
+import { db_insertGroup, db_insertImage } from "../../libs/db";
 import { uploadImageToS3 } from "../../libs/s3_helpers";
 import {
+  createDefaultViewSettings,
   getTextForBreakdown,
   getUuid,
   ImageGenRequest,
@@ -71,6 +72,10 @@ export default async function handler(req, res) {
       // need to load to S3
 
       await db_insertImage(imgResult);
+      await db_insertGroup({
+        id: imgResult.groupId,
+        view_settings: createDefaultViewSettings(),
+      });
 
       res.send(imgResult);
       return;

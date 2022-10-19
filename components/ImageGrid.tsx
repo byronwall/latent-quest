@@ -1,4 +1,5 @@
 import {
+  Button,
   Group,
   MultiSelect,
   NumberInput,
@@ -7,9 +8,10 @@ import {
   Table,
   Title,
 } from "@mantine/core";
+import axios from "axios";
 import produce from "immer";
 import { uniq } from "lodash-es";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 
 import {
@@ -20,6 +22,7 @@ import {
 import {
   PromptBreakdownSortOrder,
   SdImage,
+  SdImageGroup,
   SdImagePlaceHolder,
   SdImageTransform,
   SdImageTransformNumberRaw,
@@ -84,6 +87,35 @@ export function ImageGrid(props: ImageGridProps) {
     const results = (await res.json()) as SdImage[];
     return results;
   });
+
+  const { data: groupData } = useQuery("group:" + groupId, async () => {
+    const res = await fetch(`/api/group/${props.groupId}`);
+    const results = (await res.json()) as SdImageGroup;
+    return results;
+  });
+
+  console.log("group data", groupData);
+
+  // push group data into the default view
+
+  useEffect(() => {
+    if (groupData === undefined) {
+      return;
+    }
+
+    setRowVar(groupData.view_settings.defaultView.rowVar);
+    setColVar(groupData.view_settings.defaultView.colVar);
+  }, [groupData]);
+
+  const saveGroupSettings = async () => {
+    // fire off a post to the right api
+
+    const postData = { ...groupData };
+    postData.view_settings.defaultView.rowVar = rowVar;
+    postData.view_settings.defaultView.colVar = colVar;
+
+    axios.put<any, any, SdImageGroup>(`/api/group/${groupId}`, postData);
+  };
 
   const data = _data ?? [];
 
@@ -175,6 +207,7 @@ export function ImageGrid(props: ImageGridProps) {
     <div>
       <Title order={1}>grid of images</Title>
       <Title order={2}>transform chooser</Title>
+      <Button onClick={() => saveGroupSettings()}>save view to DB</Button>
 
       <Stack>
         <Group>

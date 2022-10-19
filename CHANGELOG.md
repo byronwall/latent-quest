@@ -1,5 +1,11 @@
 # Changelog
 
+## 2022-10-18 21:26:55
+
+- Created a table for group info
+  - Use this to store default and saved view settings
+  - Pushed all active images into this table for now
+
 ## 2022-10-17 22:12:54
 
 - Allow images to be saved to `/tmp` -- avoid excess S3 calls
