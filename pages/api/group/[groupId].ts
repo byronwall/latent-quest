@@ -1,4 +1,8 @@
-import { db_getGroup, db_updateGroup } from "../../../libs/db";
+import {
+  db_deleteImageGroup,
+  db_getGroup,
+  db_updateGroup,
+} from "../../../libs/db";
 
 // next.js api handler
 export default async function handler(req, res) {
@@ -13,6 +17,14 @@ export default async function handler(req, res) {
     const groupData = req.body;
 
     await db_updateGroup(groupData);
+    res.status(200).json({ status: "ok" });
+    return;
+  }
+
+  // handle delete
+  if (req.method === "DELETE") {
+    // delete the group
+    await db_deleteImageGroup(groupId);
     res.status(200).json({ status: "ok" });
     return;
   }

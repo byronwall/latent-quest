@@ -21,6 +21,29 @@ export async function db_getAllImages() {
   return data as SdImage[];
 }
 
+// function to delete a group id from both tables
+
+export async function db_deleteImageGroup(groupId: string) {
+  // delete from images
+  const { data, error } = await supabase
+    .from("images")
+    .delete()
+    .match({ groupId });
+
+  // delete from image_groups
+  const { data: data2, error: error2 } = await supabase
+    .from("image_groups")
+    .delete()
+    .match({ id: groupId });
+
+  if (error || error2) {
+    console.error("Error deleting images from database", error);
+    return false;
+  }
+
+  return true;
+}
+
 export async function db_getSingleImages(id: string) {
   // load single from supabase using id
   const { data, error } = await supabase

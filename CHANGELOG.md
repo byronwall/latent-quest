@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-10-21 21:53:35
+
+- Add support for deleting whole groups of images
+
 ## 2022-10-18 21:26:55
 
 - Created a table for group info
