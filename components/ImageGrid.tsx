@@ -10,12 +10,13 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import produce from "immer";
-import { uniq } from "lodash-es";
+import { orderBy, uniq, uniqBy } from "lodash-es";
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 
 import {
   generatePlaceholderForTransforms,
+  getImageDiffAsTransforms,
   isImageSameAsPlaceHolder,
   summarizeAllDifferences,
 } from "../libs/helpers";
@@ -25,6 +26,7 @@ import {
   SdImageGroup,
   SdImagePlaceHolder,
   SdImageTransform,
+  SdImageTransformNone,
   SdImageTransformNumberRaw,
   SdImageTransformText,
   TransformNone,
@@ -119,7 +121,14 @@ export function ImageGrid(props: ImageGridProps) {
 
   const data = _data ?? [];
 
-  const mainImage: SdImage = data?.[0] ?? ({} as SdImage);
+  // store the main image in state
+  const [mainImage, setMainImage] = useState<SdImage>(
+    data?.[0] ?? ({} as SdImage)
+  );
+
+  useEffect(() => {
+    setMainImage(data?.[0] ?? ({} as SdImage));
+  }, [data]);
 
   console.log("mainImage", mainImage);
 
@@ -158,19 +167,78 @@ export function ImageGrid(props: ImageGridProps) {
 
   const diffSummary = summarizeAllDifferences(mainImage, data);
 
+  const diffXForm = getImageDiffAsTransforms(mainImage, data);
+
+  console.log("diffSummary", diffSummary);
+
+  console.log("diffXForm", diffXForm);
+
   const [looseTransforms, setLooseTransforms] = useState<ImageTransformHolder>({
     name: "loose",
     transforms: [TransformNone],
   });
 
-  const rowTransformHolder: ImageTransformHolder = createTransformHolder(
-    rowVar,
-    diffSummary,
-    mainImage,
-    extraChoiceMap,
-    looseTransforms,
-    transformRow
-  );
+  const rowTransformHolder: ImageTransformHolder = {
+    name: rowVar,
+    transforms: orderBy(
+      uniqBy(
+        diffXForm.filter((x) => x.field === rowVar),
+        getDescForTransform
+      ),
+      (c) => {
+        const newLocal = getDescForTransform(c);
+        return (c.action === "add" ? 1 : -1) * newLocal.length;
+      },
+      "desc"
+    ),
+  };
+
+  // add main image where needed
+
+  let prevXform = undefined;
+
+  let index = -1;
+  let wasFlip = false;
+
+  const dummy: SdImageTransformNone = {
+    type: "none",
+  };
+
+  for (const xform of rowTransformHolder.transforms) {
+    index++;
+    if (prevXform === undefined) {
+      prevXform = xform;
+      continue;
+    }
+
+    if (xform.action !== prevXform.action) {
+      rowTransformHolder.transforms.splice(index, 0, dummy);
+      wasFlip = true;
+      break;
+    }
+  }
+
+  if (!wasFlip) {
+    // if first is remove, place at top
+
+    const insertIndedx =
+      rowTransformHolder.transforms[0]?.action === "remove"
+        ? 0
+        : rowTransformHolder.transforms.length;
+
+    rowTransformHolder.transforms.splice(insertIndedx, 0, dummy);
+  }
+
+  // createTransformHolder(
+  //   rowVar,
+  //   diffSummary,
+  //   mainImage,
+  //   extraChoiceMap,
+  //   looseTransforms,
+  //   transformRow
+  // );
+
+  console.log("rowTransformHolder", rowTransformHolder);
 
   const colTransformHolder: ImageTransformHolder = createTransformHolder(
     colVar,
@@ -296,26 +364,24 @@ export function ImageGrid(props: ImageGridProps) {
                   </td>
 
                   {row.map((cell, colIndex) => {
-                    if (cell === undefined) {
-                      return (
-                        <td key={colIndex}>
-                          <div />
-                        </td>
-                      );
-                    }
-                    if (!("id" in cell)) {
-                      return (
-                        <td key={colIndex}>
-                          <SdImagePlaceHolderComp
-                            size={imageSize}
-                            placeholder={cell}
-                          />
-                        </td>
-                      );
-                    }
-                    return (
-                      <td key={colIndex}>
+                    const content =
+                      cell === undefined ? (
+                        <div></div>
+                      ) : !("id" in cell) ? (
+                        <SdImagePlaceHolderComp
+                          size={imageSize}
+                          placeholder={cell}
+                        />
+                      ) : (
                         <SdImageComp image={cell} size={imageSize} />
+                      );
+
+                    return (
+                      <td
+                        key={colIndex}
+                        onClick={() => "id" in cell && setMainImage(cell)}
+                      >
+                        {content}
                       </td>
                     );
                   })}
@@ -333,6 +399,7 @@ export function ImageGrid(props: ImageGridProps) {
           mainImage={mainImage}
           visibleItems={visibleIds}
           onNewTransform={handleAddLooseTransform}
+          onSetMainImage={setMainImage}
         />
         <div>
           <Title order={4}>all differences</Title>
@@ -471,7 +538,8 @@ function getDescForTransform(transform: SdImageTransform): string {
     case "multi":
       return "multi";
     case "text":
-      return `${transform.field} = ${
+      return `${transform.field} = ${transform.action}     
+      ${
         Array.isArray(transform.value)
           ? transform.value.join(" + ")
           : transform.value
@@ -484,3 +552,7 @@ function getDescForTransform(transform: SdImageTransform): string {
 
   return "";
 }
+
+// TODO: figure out how to sort the transform with the main image between the add and remove
+// TODO: remove dupes when showing transform
+// TODO: add the main image in by doing a null transform

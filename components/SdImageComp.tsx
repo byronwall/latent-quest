@@ -1,7 +1,14 @@
-import { Popover, Stack } from "@mantine/core";
+import { Button, Modal, Stack } from "@mantine/core";
+import Image from "next/image";
+import { useState } from "react";
+
 import { getTextForBreakdown, SdImage } from "../libs/shared-types/src";
 import { getImageUrl } from "./ImageList";
 
+// import zoom in from tabler
+import { IconZoomIn } from "@tabler/icons";
+
+// nextjs image
 type SdImageCompProps = {
   image: SdImage;
   size: number;
@@ -13,45 +20,42 @@ export function SdImageComp(props: SdImageCompProps) {
   // des props
   const { image, size, disablePopover } = props;
 
+  // state for modal state
+  const [modalOpened, setModalOpened] = useState(false);
+
   if (image === undefined) {
     return null;
   }
 
   return (
-    <Popover
-      width={200}
-      position="right"
-      withArrow
-      shadow="lg"
-      withinPortal
-      closeOnClickOutside
-      opened={disablePopover ? false : undefined}
-    >
-      <Popover.Target>
-        <img
-          src={getImageUrl(image.url)}
+    <>
+      <div style={{ position: "relative" }}>
+        <Image src={getImageUrl(image.url)} width={size} height={size} />
+        <div
           style={{
-            aspectRatio: 1,
-            width: size,
-            maxWidth: "100%",
+            // top right corner
+            position: "absolute",
+            top: 0,
+            right: 0,
           }}
-        />
-      </Popover.Target>
-      <Popover.Dropdown>
-        <Stack>
-          <div>
-            <img
-              src={getImageUrl(image.url)}
-              style={{
-                aspectRatio: 1,
-              }}
-            />
-            <div style={{ width: "100%" }}>
-              {getTextForBreakdown(image.promptBreakdown)}
+        >
+          <Button onClick={() => setModalOpened(true)} variant="subtle">
+            <IconZoomIn />
+          </Button>
+        </div>
+      </div>
+      {!disablePopover && (
+        <Modal opened={modalOpened} onClose={() => setModalOpened(false)}>
+          <Stack>
+            <div>
+              <Image src={getImageUrl(image.url)} width={512} height={512} />
+              <div style={{ width: "100%" }}>
+                {getTextForBreakdown(image.promptBreakdown)}
+              </div>
             </div>
-          </div>
-        </Stack>
-      </Popover.Dropdown>
-    </Popover>
+          </Stack>
+        </Modal>
+      )}
+    </>
   );
 }

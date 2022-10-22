@@ -26,7 +26,24 @@ export function isImageSameAsPlaceHolder(
 }
 
 function sortPromptBreakdown(item: SdImage | SdImagePlaceHolder) {
-  return orderBy(item.promptBreakdown.parts, (c) => c.label + c.text);
+  return orderBy(item.promptBreakdown?.parts, (c) => c.label + c.text);
+}
+
+export function getImageDiffAsTransforms(base: SdImage, allImages: SdImage[]) {
+  const results: SdImageTransformNonMulti[] = [];
+
+  if (base === undefined || allImages === undefined || allImages.length === 0) {
+    return results;
+  }
+
+  for (const image of allImages) {
+    const diffs = findImageDifferences(base, image, {
+      shouldReportAddRemove: true,
+    });
+    results.push(...diffs);
+  }
+
+  return results;
 }
 
 export function summarizeAllDifferences(base: SdImage, allImages: SdImage[]) {
@@ -38,7 +55,7 @@ export function summarizeAllDifferences(base: SdImage, allImages: SdImage[]) {
 
   for (const image of allImages) {
     const diffs = findImageDifferences(base, image, {
-      shouldReportAddRemove: false,
+      shouldReportAddRemove: true,
     });
     results.push(...diffs);
   }
@@ -135,6 +152,11 @@ export function getBreakdownDelta(
   shouldReportAddRemove: boolean
 ) {
   const breakdownDeltas: SdImageTransformNonMulti[] = [];
+
+  if (baseBreakdown === undefined || compBreakdown === undefined) {
+    return breakdownDeltas;
+  }
+
   for (const breakdownType of PromptBreakdownSortOrder) {
     const baseParts = baseBreakdown.parts.filter(
       (c) => c.label === breakdownType

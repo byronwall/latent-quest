@@ -14,6 +14,8 @@ type SdGroupTableProps = {
   mainImage: SdImage;
   visibleItems: string[];
 
+  onSetMainImage: (image: SdImage) => void;
+
   onNewTransform: (newTransform: SdImageTransformMulti) => void;
 };
 
@@ -38,7 +40,7 @@ export function SdGroupTable(props: SdGroupTableProps) {
         {data?.map((item: SdImage) => {
           const imgJson = JSON.stringify(item, null, 2);
           const baseDelta = findImageDifferences(mainImage, item, {
-            shouldReportAddRemove: false,
+            shouldReportAddRemove: true,
           });
           const baseDeltaJson = JSON.stringify(baseDelta, null, 2);
           return (
@@ -63,9 +65,20 @@ export function SdGroupTable(props: SdGroupTableProps) {
               <td>{item.seed}</td>
               <td>{item.steps}</td>
               <td>
-                {visibleItems.find((c: any) => c === item.id) !== undefined
-                  ? "true"
-                  : ""}
+                <>
+                  {visibleItems.find((c: any) => c === item.id) !== undefined
+                    ? "true"
+                    : ""}
+                  <Button
+                    onClick={() => {
+                      props.onSetMainImage(item);
+                    }}
+                    variant="subtle"
+                  >
+                    {" "}
+                    main
+                  </Button>
+                </>
               </td>
               <td>
                 <Popover closeOnClickOutside>
