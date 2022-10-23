@@ -1,8 +1,14 @@
 # Changelog
 
+## 2022-10-22 22:24:19
+
+- Add the new grid xform display to the column (and row)
+- Ensure correct display and sorting for non-text xforms
+
 ## 2022-10-21 21:53:35
 
 - Add support for deleting whole groups of images
+- Start reworking the grid display to show delta for prompts and add sorting
 
 ## 2022-10-18 21:26:55
 

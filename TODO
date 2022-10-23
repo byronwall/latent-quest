@@ -1,0 +1,12 @@
+
+Image Grid:
+    ☐ figure out how to sort the transform with the main image between the add and remove
+    ☐ remove dupes when showing transform
+    ☐ add the main image in by doing a null transform
+    ☐ add ability to compare images side by side
+    ☐ add an option for no grid display - just all images in a list - this mode can also show deltas to a main image -- help to get a feel for the complete set of options
+    ☐ add a 1D mode with wrapping
+    ☐ ensure that full prompt is shown for the main image
+    ☐ get the numeric xforms to work with the new xform generator
+    ☐ sort out errant click events which change the main image
+    ☐ tighten the table visuals to reduce white space

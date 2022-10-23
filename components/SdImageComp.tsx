@@ -39,7 +39,14 @@ export function SdImageComp(props: SdImageCompProps) {
             right: 0,
           }}
         >
-          <Button onClick={() => setModalOpened(true)} variant="subtle">
+          <Button
+            onClick={(evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              setModalOpened(true);
+            }}
+            variant="subtle"
+          >
             <IconZoomIn />
           </Button>
         </div>
