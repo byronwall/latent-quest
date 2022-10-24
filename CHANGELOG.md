@@ -9,6 +9,8 @@
 - Add a prompt xform button in the first column of the row -- should probably only show for main image?
 - Move `gen` button to top so it's never hidden on long prompts
 - Allow prompt builder thing to be reset -- probably should happen automatically?
+- Remove `loose` as a variable choice - prompt changes now in `unknown`
+- Improve how the `mainImage` is selected - explicit button instead of clicking in the cell
 
 ## 2022-10-22 22:24:19
 

@@ -71,7 +71,7 @@ const seedChoices = [
   { value: "109873", label: "109873" },
 ];
 
-const variableChoices = ["cfg", "seed", "steps", "unknown", "loose"] as const;
+const variableChoices = ["cfg", "seed", "steps", "unknown"] as const;
 
 export function ImageGrid(props: ImageGridProps) {
   console.log("ImageGrid - render");
@@ -156,7 +156,6 @@ export function ImageGrid(props: ImageGridProps) {
       cfg: cfgChoice.map((x) => +x),
       steps: stepsChoice.map((x) => +x),
       unknown: [],
-      loose: [],
     };
 
   const diffSummary = summarizeAllDifferences(mainImage, data);
@@ -348,15 +347,22 @@ export function ImageGrid(props: ImageGridProps) {
                       );
 
                     return (
-                      <td
-                        key={colIndex}
-                        onClick={() => "id" in cell && setMainImage(cell)}
-                      >
+                      <td key={colIndex}>
                         {content}
-                        <SdPromptToTransform
-                          promptBreakdown={cell.promptBreakdown}
-                          onNewTransform={handleAddLooseTransform}
-                        />
+                        <div style={{ display: "flex" }}>
+                          <SdPromptToTransform
+                            promptBreakdown={cell.promptBreakdown}
+                            onNewTransform={handleAddLooseTransform}
+                          />
+                          {"id" in cell && (
+                            <Button
+                              onClick={() => setMainImage(cell)}
+                              color={mainImage.id === cell.id ? "lime" : "blue"}
+                            >
+                              set main
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     );
                   })}
