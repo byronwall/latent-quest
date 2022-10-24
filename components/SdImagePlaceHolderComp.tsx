@@ -38,17 +38,17 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
         backgroundColor: "lightgray",
       }}
     >
-      <p>seed = {placeholder.seed} </p>
-      <p>cfg = {placeholder.cfg}</p>
-      <p>steps = {placeholder.steps}</p>
-      <p>prompt = {getTextForBreakdown(placeholder.promptBreakdown)}</p>
-
       {isLoading && <Loader />}
       {!isLoading && (
         <div>
           <Button onClick={handleClick}>gen</Button>
         </div>
       )}
+
+      <p>seed = {placeholder.seed} </p>
+      <p>cfg = {placeholder.cfg}</p>
+      <p>steps = {placeholder.steps}</p>
+      <p>prompt = {getTextForBreakdown(placeholder.promptBreakdown)}</p>
     </div>
   );
 }

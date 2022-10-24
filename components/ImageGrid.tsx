@@ -34,11 +34,11 @@ import {
   SdImageTransformNonMulti,
   SdImageTransformNumberRaw,
   SdImageTransformText,
-  TransformNone,
 } from "../libs/shared-types/src";
 import { SdGroupTable } from "./SdGroupTable";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
+import { SdPromptToTransform } from "./SdPromptToTransform";
 
 interface ImageGridProps {
   groupId: string;
@@ -201,7 +201,10 @@ export function ImageGrid(props: ImageGridProps) {
 
   console.log("rowTransformHolder", rowTransformHolder);
 
-  const colExtras = genSimpleXFormList(colVar, extraChoiceMap[colVar]);
+  const colExtras =
+    colVar === "unknown"
+      ? looseTransformsNormalized
+      : genSimpleXFormList(colVar, extraChoiceMap[colVar]);
 
   const colTransformHolder: SdImageTransformHolder =
     generateSortedTransformList(colVar, diffXForm.concat(colExtras), mainImage);
@@ -322,9 +325,14 @@ export function ImageGrid(props: ImageGridProps) {
           <tbody>
             {tableData.map((row, rowIndex) => {
               const rowXForm = rowTransformHolder.transforms[rowIndex];
+
               return (
                 <tr key={rowIndex}>
-                  <td>{getRowColHeaderText(rowXForm, rowVar, mainImage)}</td>
+                  <td>
+                    <div>
+                      {getRowColHeaderText(rowXForm, rowVar, mainImage)}
+                    </div>
+                  </td>
 
                   {row.map((cell, colIndex) => {
                     const content =
@@ -345,6 +353,10 @@ export function ImageGrid(props: ImageGridProps) {
                         onClick={() => "id" in cell && setMainImage(cell)}
                       >
                         {content}
+                        <SdPromptToTransform
+                          promptBreakdown={cell.promptBreakdown}
+                          onNewTransform={handleAddLooseTransform}
+                        />
                       </td>
                     );
                   })}

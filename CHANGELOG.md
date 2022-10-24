@@ -6,6 +6,9 @@
 - Force those loose ones to be normalized so that they produce the add/remove style instead of the `set` style
   - This works except for when editing something at the start of a prompt...
 - Adds support for the `extraChoices` with the new xform builder
+- Add a prompt xform button in the first column of the row -- should probably only show for main image?
+- Move `gen` button to top so it's never hidden on long prompts
+- Allow prompt builder thing to be reset -- probably should happen automatically?
 
 ## 2022-10-22 22:24:19
 

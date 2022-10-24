@@ -11,3 +11,7 @@ Image Grid:
     ☐ sort out errant click events which change the main image
     ☐ tighten the table visuals to reduce white space
     ☐ Add a mechanism to tag part of the prompt for substitution
+    ☐ main image is being lost when the grid reloads -- find some way to not lose this
+    ☐ seeing duplicate entries from the `extraChoices` -- need to dedupe better
+    ☐ add a `gen all missing` button to quickly fill out the grid
+    ☐ saved view should save the `mainImage` id too

@@ -1,15 +1,13 @@
-import { Button, Group, Textarea, Title, useMantineTheme } from "@mantine/core";
-import {
-  PromptBreakdown,
-  BreakdownType,
-  PromptBreakdownSortOrder,
-  getTextForBreakdown,
-  getBreakdownForText,
-} from "../libs/shared-types/src";
+import { Button, Textarea, Title, useMantineTheme } from "@mantine/core";
 import { useEffect, useState } from "react";
 
-import { HoverPopover } from "./HoverPopover";
+import {
+  getBreakdownForText,
+  getTextForBreakdown,
+  PromptBreakdown,
+} from "../libs/shared-types/src";
 import { pickTextColorBasedOnBgColorAdvanced } from "./pickTextColorBasedOnBgColorAdvanced";
+import { useControlledUncontrolled } from "./useControlledUncontrolled";
 
 interface PromptEditorProps {
   //   initialPrompt?: string;
@@ -21,28 +19,7 @@ interface PromptEditorProps {
   style?: React.CSSProperties;
 }
 
-// array of 10 unique colors as hex values
-
-function useControlledUncontrolled<T>(
-  initialValue: T,
-  onChange: (newPrompt: T) => void | undefined,
-  defaultValue: T
-) {
-  const [prompt, setPrompt] = useState<T>(initialValue ?? defaultValue);
-
-  // push a change in the props into state
-  useEffect(() => {
-    setPrompt(initialValue);
-  }, [initialValue]);
-
-  // communicate a change in state back to the props
-  useEffect(() => {
-    onChange?.(prompt);
-  }, [prompt, onChange]);
-
-  return [prompt, setPrompt] as const;
-}
-
+const defaultBreakdown = { parts: [] };
 export function PromptEditor(props: PromptEditorProps) {
   const { initialBreakdown, onBreakdownChange, ...rest } = props;
 
@@ -50,30 +27,12 @@ export function PromptEditor(props: PromptEditorProps) {
   const [prompt, setPrompt] = useControlledUncontrolled(
     initialBreakdown,
     onBreakdownChange,
-    undefined
+    defaultBreakdown
   );
 
+  console.log("prompt", prompt);
+
   const theme = useMantineTheme();
-
-  // color names from open-colors
-  const colorKeys = [
-    "red",
-    "pink",
-    "grape",
-    "violet",
-    "indigo",
-    "blue",
-    "cyan",
-    "teal",
-    "green",
-    "lime",
-  ];
-
-  const colorLookup = PromptBreakdownSortOrder.reduce((acc, type, i) => {
-    const key = colorKeys[i];
-    acc[type] = i; //theme.colors[key][9];
-    return acc;
-  }, {} as Record<string, number>);
 
   const simpleText = getTextForBreakdown(prompt);
 
@@ -90,24 +49,6 @@ export function PromptEditor(props: PromptEditorProps) {
     });
   };
 
-  const handlePromptReorder = () => {
-    const text = getTextForBreakdown(prompt);
-    const newBreakdown = getBreakdownForText(text);
-
-    // prev hash
-    const prevHash = prompt.parts.reduce((acc, c) => {
-      acc[c.text] = c.label;
-      return acc;
-    }, {} as Record<string, string>);
-
-    // apply hash to new breakdown
-    newBreakdown.parts.forEach((c) => {
-      c.label = prevHash[c.text] as BreakdownType;
-    });
-
-    setPrompt(newBreakdown);
-  };
-
   return (
     <div {...rest}>
       <Title order={2}>prompt editor</Title>
@@ -117,12 +58,8 @@ export function PromptEditor(props: PromptEditorProps) {
         onChange={handleRawTextChange}
       />
       <div>
-        <div>
-          <Button onClick={handlePromptReorder}>reorder</Button>
-        </div>
         {prompt.parts.map((part, idx) => {
           const chunk = part.text;
-          const colorIndex = colorLookup[part.label];
           const colorName = "blue";
           const backgroundColor = theme.colors[colorName][9];
           const textColor = pickTextColorBasedOnBgColorAdvanced(

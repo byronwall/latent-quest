@@ -1,5 +1,5 @@
 import { Button, Popover } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { getBreakdownDelta } from "../libs/helpers";
 import {
@@ -20,6 +20,11 @@ export function SdPromptToTransform(props: PromptEditorProps) {
 
   const [breakdown, setBreakdown] = useState<PromptBreakdown>(promptBreakdown);
 
+  // push props into state update
+  useEffect(() => {
+    setBreakdown(promptBreakdown);
+  }, [promptBreakdown]);
+
   const handleCreateTransform = () => {
     // get delta between breakdown in props and breakdown in editor
     const deltaTransform = getBreakdownDelta(promptBreakdown, breakdown, false);
@@ -36,25 +41,28 @@ export function SdPromptToTransform(props: PromptEditorProps) {
   };
 
   return (
-    <Popover closeOnClickOutside>
-      <Popover.Dropdown>
-        <div
-          style={{
-            width: 600,
-          }}
-        >
-          <Button onClick={handleCreateTransform}>
-            create transform for current
-          </Button>
-          <PromptEditor
-            initialBreakdown={breakdown}
-            onBreakdownChange={setBreakdown}
-          />
-        </div>
-      </Popover.Dropdown>
-      <Popover.Target>
-        <Button>xform</Button>
-      </Popover.Target>
-    </Popover>
+    <div>
+      <Popover closeOnClickOutside>
+        <Popover.Dropdown>
+          <div
+            style={{
+              width: 600,
+            }}
+          >
+            <Button onClick={handleCreateTransform}>
+              create transform for current
+            </Button>
+
+            <PromptEditor
+              initialBreakdown={breakdown}
+              onBreakdownChange={setBreakdown}
+            />
+          </div>
+        </Popover.Dropdown>
+        <Popover.Target>
+          <Button>xform</Button>
+        </Popover.Target>
+      </Popover>
+    </div>
   );
 }
