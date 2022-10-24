@@ -29,8 +29,11 @@ function sortPromptBreakdown(item: SdImage | SdImagePlaceHolder) {
   return orderBy(item.promptBreakdown?.parts, (c) => c.label + c.text);
 }
 
-export function getImageDiffAsTransforms(base: SdImage, allImages: SdImage[]) {
-  const results: SdImageTransformNonMulti[] = [];
+export function getImageDiffAsTransforms(
+  base: SdImage,
+  allImages: (SdImage | SdImagePlaceHolder)[]
+) {
+  const results: SdImageTransform[] = [];
 
   if (base === undefined || allImages === undefined || allImages.length === 0) {
     return results;
@@ -114,10 +117,10 @@ export function summarizeAllDifferences(base: SdImage, allImages: SdImage[]) {
 }
 
 export function findImageDifferences(
-  base: SdImage,
-  comp: SdImage,
+  base: SdImage | SdImagePlaceHolder,
+  comp: SdImage | SdImagePlaceHolder,
   { shouldReportAddRemove = true } = {}
-): SdImageTransformNonMulti[] {
+) {
   const results: SdImageTransformNonMulti[] = [];
 
   // find the differences between the base and the comp
@@ -238,10 +241,6 @@ export function generatePlaceholderForTransform(
     case "num-delta":
       // TODO: apply a min/max
       placeholder[transform.field] += transform.delta;
-      break;
-
-    case "multi":
-      console.error("multi transforms not supported");
       break;
 
     case "text": {

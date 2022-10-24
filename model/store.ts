@@ -1,9 +1,10 @@
-import create from 'zustand';
+import create from "zustand";
+import { SdImageTransformHolder } from "../libs/shared-types/src";
 
-import { ImageTransformHolder, transforms } from './transformers';
+import { transforms } from "./transformers";
 
 interface AppStore {
-  transformHolders: ImageTransformHolder[];
+  transformHolders: SdImageTransformHolder[];
   // updateTransformHolders: (newTransformHolders: ImageTransformHolder[]) => void;
 }
 

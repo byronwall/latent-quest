@@ -1,9 +1,17 @@
 # Changelog
 
+## 2022-10-23 22:04:51
+
+- Move the old `loose` transforms into the same bucket as the "unknown" -- these are all meant to be prompt edits
+- Force those loose ones to be normalized so that they produce the add/remove style instead of the `set` style
+  - This works except for when editing something at the start of a prompt...
+- Adds support for the `extraChoices` with the new xform builder
+
 ## 2022-10-22 22:24:19
 
 - Add the new grid xform display to the column (and row)
 - Ensure correct display and sorting for non-text xforms
+- This work was not completed -- had to stop mid process
 
 ## 2022-10-21 21:53:35
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { getBreakdownDelta } from "../libs/helpers";
 import {
   PromptBreakdown,
+  SdImageTransform,
   SdImageTransformMulti,
 } from "../libs/shared-types/src";
 import { PromptEditor } from "./PromptEditor";
@@ -11,7 +12,7 @@ import { PromptEditor } from "./PromptEditor";
 interface PromptEditorProps {
   promptBreakdown: PromptBreakdown;
 
-  onNewTransform: (newTransform: SdImageTransformMulti) => void;
+  onNewTransform: (newTransform: SdImageTransform) => void;
 }
 
 export function SdPromptToTransform(props: PromptEditorProps) {
@@ -28,6 +29,7 @@ export function SdPromptToTransform(props: PromptEditorProps) {
     const multiTransform: SdImageTransformMulti = {
       type: "multi",
       transforms: deltaTransform,
+      field: "unknown",
     };
 
     onNewTransform(multiTransform);

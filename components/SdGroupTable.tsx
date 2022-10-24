@@ -4,7 +4,9 @@ import { findImageDifferences } from "../libs/helpers";
 import {
   getTextForBreakdown,
   SdImage,
-  SdImageTransformMulti,
+  SdImagePlaceHolder,
+  SdImageTransform,
+  SdImageTransformHolder,
 } from "../libs/shared-types/src";
 import { SdImageComp } from "./SdImageComp";
 import { SdPromptToTransform } from "./SdPromptToTransform";
@@ -16,7 +18,7 @@ type SdGroupTableProps = {
 
   onSetMainImage: (image: SdImage) => void;
 
-  onNewTransform: (newTransform: SdImageTransformMulti) => void;
+  onNewTransform: (newTransform: SdImageTransform) => void;
 };
 
 export function SdGroupTable(props: SdGroupTableProps) {

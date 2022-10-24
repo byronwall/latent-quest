@@ -1,10 +1,6 @@
-import { SdImageTransform } from "../libs/shared-types/src";
+import { SdImageTransformHolder } from "../libs/shared-types/src";
 
-export interface ImageTransformHolder {
-  name: string;
-  transforms: SdImageTransform[];
-}
-export const transforms: ImageTransformHolder[] = [
+export const transforms: SdImageTransformHolder[] = [
   {
     name: "Surreal",
     transforms: [

@@ -94,15 +94,22 @@ export function getBreakdownForText(text: string): PromptBreakdown {
   return breakdown;
 }
 
+export interface SdImageTransformHolder {
+  name: string;
+  transforms: SdImageTransform[];
+}
+
+type COMMON_FIELDS = "seed" | "cfg" | "steps";
+
 export interface SdImageTransformNumberRaw {
   type: "num-raw";
-  field: "seed" | "cfg" | "steps";
+  field: COMMON_FIELDS;
   value: number;
 }
 
 export interface SdImageTransformNumberDelta {
   type: "num-delta";
-  field: "seed" | "cfg" | "steps";
+  field: COMMON_FIELDS;
   delta: number;
 }
 
@@ -116,14 +123,16 @@ export interface SdImageTransformText {
 export interface SdImageTransformMulti {
   type: "multi";
   transforms: SdImageTransform[];
+  field: BreakdownType | "various" | COMMON_FIELDS | "none";
 }
-
 export interface SdImageTransformNone {
   type: "none";
+  field: "none";
 }
 
 export const TransformNone: SdImageTransformNone = {
   type: "none",
+  field: "none",
 } as const;
 
 export type SdImageTransformNonMulti =

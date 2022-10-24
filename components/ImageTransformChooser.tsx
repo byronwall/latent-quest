@@ -1,11 +1,11 @@
-import { Select } from '@mantine/core';
+import { Select } from "@mantine/core";
 
-import { useAppStore } from '../model/store';
-import { ImageTransformHolder } from '../model/transformers';
+import { SdImageTransformHolder } from "../libs/shared-types/src";
+import { useAppStore } from "../model/store";
 
 interface ImageTransformChooserProps {
-  holder: ImageTransformHolder | undefined;
-  onChange: (holder: ImageTransformHolder) => void;
+  holder: SdImageTransformHolder | undefined;
+  onChange: (holder: SdImageTransformHolder) => void;
   disabled?: boolean;
 }
 

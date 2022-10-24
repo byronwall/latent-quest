@@ -10,11 +10,12 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import produce from "immer";
-import { orderBy, uniq, uniqBy } from "lodash-es";
-import { useEffect, useState } from "react";
+import { orderBy, uniqBy } from "lodash-es";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 
 import {
+  findImageDifferences,
   generatePlaceholderForTransforms,
   getImageDiffAsTransforms,
   isImageSameAsPlaceHolder,
@@ -27,12 +28,14 @@ import {
   SdImageGroup,
   SdImagePlaceHolder,
   SdImageTransform,
+  SdImageTransformHolder,
+  SdImageTransformMulti,
   SdImageTransformNone,
+  SdImageTransformNonMulti,
   SdImageTransformNumberRaw,
   SdImageTransformText,
   TransformNone,
 } from "../libs/shared-types/src";
-import { ImageTransformHolder } from "../model/transformers";
 import { SdGroupTable } from "./SdGroupTable";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
@@ -117,7 +120,7 @@ export function ImageGrid(props: ImageGridProps) {
     axios.put<any, any, SdImageGroup>(`/api/group/${groupId}`, postData);
   };
 
-  const data = _data ?? [];
+  const data = useMemo(() => _data ?? [], [_data]);
 
   // store the main image in state
   const [mainImage, setMainImage] = useState<SdImage>(
@@ -129,12 +132,6 @@ export function ImageGrid(props: ImageGridProps) {
   }, [data]);
 
   console.log("mainImage", mainImage);
-
-  const [transformRow, setTransformRow] =
-    useState<ImageTransformHolder>(undefined);
-
-  const [transformCol, setTransformCol] =
-    useState<ImageTransformHolder>(undefined);
 
   // take those images and push into a table -- by default 3x3 with single image in center
 
@@ -153,11 +150,11 @@ export function ImageGrid(props: ImageGridProps) {
   const visibleIds: string[] = [];
 
   // add in the must show items from drop down
-  const extraChoiceMap: { [key in typeof variableChoices[number]]: string[] } =
+  const extraChoiceMap: { [key in typeof variableChoices[number]]: number[] } =
     {
-      seed: seedChoice,
-      cfg: cfgChoice,
-      steps: stepsChoice,
+      seed: seedChoice.map((x) => +x),
+      cfg: cfgChoice.map((x) => +x),
+      steps: stepsChoice.map((x) => +x),
       unknown: [],
       loose: [],
     };
@@ -166,28 +163,48 @@ export function ImageGrid(props: ImageGridProps) {
 
   const diffXForm = getImageDiffAsTransforms(mainImage, data);
 
-  console.log("diffSummary", diffSummary);
+  const [looseTransforms, setLooseTransforms] =
+    useState<SdImageTransformHolder>({
+      name: "loose",
+      transforms: [],
+    });
 
-  console.log("diffXForm", diffXForm);
+  // extra choices to transform
 
-  const [looseTransforms, setLooseTransforms] = useState<ImageTransformHolder>({
-    name: "loose",
-    transforms: [TransformNone],
+  // need to normalize loose transforms from the `set` to add/remove based on main image
+  const looseTransformsNormalized = looseTransforms.transforms.map((xform) => {
+    const tempImage = generatePlaceholderForTransforms(mainImage, [xform]);
+
+    const diffsFound = findImageDifferences(mainImage, tempImage);
+
+    const newXForm: SdImageTransformMulti = {
+      field: xform.field,
+      type: "multi",
+      transforms: diffsFound,
+    };
+
+    return newXForm;
   });
+
+  console.log("looseTransformsNormalized", looseTransformsNormalized);
+
+  const rowExtras =
+    rowVar === "unknown"
+      ? looseTransformsNormalized
+      : genSimpleXFormList(rowVar, extraChoiceMap[rowVar]);
 
   const rowTransformHolder = generateSortedTransformList(
     rowVar,
-    diffXForm,
+    diffXForm.concat(rowExtras),
     mainImage
   );
 
   console.log("rowTransformHolder", rowTransformHolder);
 
-  const colTransformHolder: ImageTransformHolder = generateSortedTransformList(
-    colVar,
-    diffXForm,
-    mainImage
-  );
+  const colExtras = genSimpleXFormList(colVar, extraChoiceMap[colVar]);
+
+  const colTransformHolder: SdImageTransformHolder =
+    generateSortedTransformList(colVar, diffXForm.concat(colExtras), mainImage);
 
   console.log("rowTransformHolder", { rowTransformHolder, colTransformHolder });
 
@@ -205,6 +222,14 @@ export function ImageGrid(props: ImageGridProps) {
     setLooseTransforms(
       produce(looseTransforms, (draft) => {
         draft.transforms.push(t);
+      })
+    );
+  };
+
+  const handleRemoveLooseTransform = (idx: number) => {
+    setLooseTransforms(
+      produce(looseTransforms, (draft) => {
+        draft.transforms.splice(idx, 1);
       })
     );
   };
@@ -235,8 +260,18 @@ export function ImageGrid(props: ImageGridProps) {
           </Radio.Group>
         </Group>
       </Stack>
-      <div> {isLoading ? "loading..." : ""} </div>
-      <div> {isError ? "error" : ""} </div>
+      <div>
+        <p>loose transforms</p>
+        {looseTransforms.transforms.map((xform, idx) => (
+          <div key={idx}>
+            {getDescForTransform(xform)}
+            <Button onClick={() => handleRemoveLooseTransform(idx)}>
+              remove
+            </Button>
+          </div>
+        ))}
+      </div>
+
       <Stack>
         <Group>
           <NumberInput label="size" value={imageSize} onChange={setImageSize} />
@@ -338,11 +373,36 @@ export function ImageGrid(props: ImageGridProps) {
   );
 }
 
+function genSimpleXFormList(rowVar: string, uniqValues: any[]) {
+  return uniqValues.map((rowHeader) =>
+    generateTransformFromSimplerHeader(rowVar, rowHeader)
+  );
+}
+
+function generateTransformFromSimplerHeader(rowVar: string, rowHeader: any) {
+  let rowTransformTemp: SdImageTransform;
+  if (PromptBreakdownSortOrder.includes(rowVar as any)) {
+    rowTransformTemp = {
+      type: "text",
+      action: "set",
+      field: rowVar,
+      value: rowHeader,
+    } as SdImageTransformText;
+  } else {
+    rowTransformTemp = {
+      type: "num-raw",
+      field: rowVar as any,
+      value: rowHeader,
+    } as SdImageTransformNumberRaw;
+  }
+  return rowTransformTemp;
+}
+
 type SdImageGrid = Array<Array<SdImage | SdImagePlaceHolder>>;
 
 function generateTableFromXform(
-  transformRow: ImageTransformHolder,
-  transformCol: ImageTransformHolder,
+  transformRow: SdImageTransformHolder,
+  transformCol: SdImageTransformHolder,
   mainImage: SdImage,
   data: SdImage[],
   visibleIds: string[]
@@ -377,59 +437,46 @@ function generateTableFromXform(
 
 function getDescForTransform(transform: SdImageTransform): string {
   switch (transform.type) {
-    case "multi":
-      return "multi";
     case "text":
-      return ` ${transform.action}     
+      return `${transform.action}     
       ${
         Array.isArray(transform.value)
           ? transform.value.join(" + ")
           : transform.value
       }`;
     case "num-raw":
-      return ` ${transform.value}`;
+      return `${transform.value}`;
     case "num-delta":
-      return ` ${transform.delta}`;
+      return `${transform.delta}`;
+
+    case "multi":
+      return `${transform.transforms.map((t) => getDescForTransform(t))}`;
   }
 
   return "";
 }
 
 function generateSortedTransformList(
-  rowVar: string,
-  diffXForm: any,
+  rowColVar: string,
+  diffXForm: SdImageTransform[],
   mainImage: SdImage
 ) {
   /// TODO: this needs to support extra choices and the loose transforms
-  const rowTransformHolder: ImageTransformHolder = {
-    name: rowVar,
+  const rowTransformHolder: SdImageTransformHolder = {
+    name: rowColVar,
     transforms: orderBy(
       uniqBy(
-        diffXForm.filter((x) => x.field === rowVar),
+        diffXForm.filter((x) => x.type !== "none" && x.field === rowColVar),
         getDescForTransform
       ),
       (c) => {
-        switch (c.type) {
-          case "multi":
-            return 0;
-
-          case "text":
-            const newLocal = getDescForTransform(c);
-            return (c.action === "add" ? 1 : -1) * newLocal.length;
-
-          case "num-raw":
-            return c.value;
-
-          case "num-delta":
-            return c.delta;
-
-          case "none":
-            return 0;
-        }
+        return getSortValueForXform(c);
       },
       "desc"
     ),
   };
+
+  console.log("rowTransformHolder", ...rowTransformHolder.transforms);
 
   // add main image where needed
 
@@ -440,59 +487,96 @@ function generateSortedTransformList(
 
   const dummy: SdImageTransformNone = {
     type: "none",
+    field: "none",
   };
 
-  mainLoop: for (const xform of rowTransformHolder.transforms) {
+  for (const xform of rowTransformHolder.transforms) {
     index++;
-    if (prevXform === undefined) {
-      prevXform = xform;
-      continue;
-    }
 
     // determine where to place the main image = dummy xform
 
     switch (xform.type) {
-      case "multi":
       case "none":
         break;
 
       case "text":
+        if (prevXform === undefined) {
+          prevXform = xform;
+          continue;
+        }
         if (xform.action !== prevXform.action) {
           rowTransformHolder.transforms.splice(index, 0, dummy);
           wasFlip = true;
-          break mainLoop;
         }
         break;
 
       case "num-raw":
         if (xform.value <= mainImage[xform.field]) {
           rowTransformHolder.transforms.splice(index, 0, dummy);
-          break mainLoop;
+          wasFlip = true;
         }
         break;
 
       case "num-delta":
         if (xform.delta > 0) {
           rowTransformHolder.transforms.splice(index, 0, dummy);
-          break mainLoop;
+          wasFlip = true;
         }
         break;
     }
+
+    if (wasFlip) {
+      break;
+    }
   }
 
-  const firstXForm = rowTransformHolder.transforms[0];
-  if (!wasFlip && firstXForm?.type === "text") {
+  const firstXForm = rowTransformHolder
+    .transforms[0] as SdImageTransformNonMulti;
+  if (!wasFlip) {
+    const lastIdx = rowTransformHolder.transforms.length;
     // if first is remove, place at top
 
-    const insertIndedx =
-      firstXForm?.action === "remove"
+    const insertIdx =
+      firstXForm === undefined
         ? 0
-        : rowTransformHolder.transforms.length;
+        : firstXForm.type !== "text"
+        ? firstXForm.type === "num-delta" || firstXForm.type === "none"
+          ? 0
+          : firstXForm.value < mainImage[rowColVar]
+          ? 0
+          : lastIdx
+        : firstXForm.action === "remove"
+        ? 0
+        : lastIdx;
 
-    rowTransformHolder.transforms.splice(insertIndedx, 0, dummy);
+    rowTransformHolder.transforms.splice(insertIdx, 0, dummy);
   }
 
   return rowTransformHolder;
+}
+
+function getSortValueForXform(c: SdImageTransform) {
+  switch (c.type) {
+    case "text":
+      const newLocal = getDescForTransform(c);
+      return (c.action === "add" ? 1 : -1) * newLocal.length;
+
+    case "num-raw":
+      return c.value;
+
+    case "num-delta":
+      return c.delta;
+
+    case "none":
+      return 0;
+
+    case "multi":
+      const firstXForm = c.transforms[0];
+      if (firstXForm === undefined) {
+        return 0;
+      }
+      return getSortValueForXform(firstXForm);
+  }
 }
 
 function getRowColHeaderText(
