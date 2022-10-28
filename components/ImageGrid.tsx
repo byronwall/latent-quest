@@ -382,10 +382,6 @@ export function ImageGrid(props: ImageGridProps) {
           onNewTransform={handleAddLooseTransform}
           onSetMainImage={setMainImage}
         />
-        <div>
-          <Title order={4}>all differences</Title>
-          <pre>{JSON.stringify(diffSummary, null, 2)}</pre>
-        </div>
       </Stack>
     </div>
   );

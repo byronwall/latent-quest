@@ -1,4 +1,4 @@
-import { Button, Modal, Stack } from "@mantine/core";
+import { Badge, Button, Modal, Stack, Tooltip } from "@mantine/core";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -6,7 +6,7 @@ import { getTextForBreakdown, SdImage } from "../libs/shared-types/src";
 import { getImageUrl } from "./ImageList";
 
 // import zoom in from tabler
-import { IconZoomIn } from "@tabler/icons";
+import { IconTextRecognition, IconZoomIn } from "@tabler/icons";
 
 // nextjs image
 type SdImageCompProps = {
@@ -14,11 +14,24 @@ type SdImageCompProps = {
   size: number;
 
   disablePopover?: boolean;
+
+  shouldShowDetails?: boolean;
+
+  isMainImage?: boolean;
+
+  onSetMainImage?(): void;
 };
 
 export function SdImageComp(props: SdImageCompProps) {
   // des props
-  const { image, size, disablePopover } = props;
+  const {
+    image,
+    size,
+    disablePopover,
+    onSetMainImage,
+    shouldShowDetails,
+    isMainImage,
+  } = props;
 
   // state for modal state
   const [modalOpened, setModalOpened] = useState(false);
@@ -31,9 +44,41 @@ export function SdImageComp(props: SdImageCompProps) {
     <>
       <div style={{ position: "relative" }}>
         <Image src={getImageUrl(image.url)} width={size} height={size} />
+
+        {shouldShowDetails && (
+          <div>
+            <p style={{ display: "flex" }}>
+              <Tooltip label="cfg">
+                <Badge>{image.cfg}</Badge>
+              </Tooltip>
+              <Tooltip label="seed">
+                <Badge>{image.seed}</Badge>
+              </Tooltip>
+              <Tooltip
+                label={getTextForBreakdown(image.promptBreakdown)}
+                width={400}
+                color="blue"
+                position="bottom"
+                multiline
+              >
+                <Badge>
+                  <IconTextRecognition />
+                </Badge>
+              </Tooltip>
+              {onSetMainImage && (
+                <Badge
+                  color={isMainImage ? "green" : "blue"}
+                  onClick={() => onSetMainImage()}
+                >
+                  main
+                </Badge>
+              )}
+            </p>
+          </div>
+        )}
+
         <div
           style={{
-            // top right corner
             position: "absolute",
             top: 0,
             right: 0,

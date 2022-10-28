@@ -15,3 +15,4 @@ Image Grid:
     ☐ seeing duplicate entries from the `extraChoices` -- need to dedupe better
     ☐ add a `gen all missing` button to quickly fill out the grid
     ☐ saved view should save the `mainImage` id too
+    ☐ text changes really need to respect the original sort order

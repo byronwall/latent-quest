@@ -148,8 +148,8 @@ export function createDefaultViewSettings(): SdGroupViewSettings {
     name: "",
     notes: "",
     defaultView: {
-      rowVar: "seed",
-      colVar: "cfg",
+      rowVar: "cfg",
+      colVar: "seed",
     },
   };
 }

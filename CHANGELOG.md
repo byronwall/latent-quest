@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-10-27 23:32:49
+
+- Improve display of `ImageGrid` by showing a card view that emphasizes all images in group
+
 ## 2022-10-23 22:04:51
 
 - Move the old `loose` transforms into the same bucket as the "unknown" -- these are all meant to be prompt edits
