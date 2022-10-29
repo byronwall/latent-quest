@@ -16,3 +16,8 @@ Image Grid:
     ☐ add a `gen all missing` button to quickly fill out the grid
     ☐ saved view should save the `mainImage` id too
     ☐ text changes really need to respect the original sort order
+    ☐ provide a simple way to get random seeds to test with 
+    ☐ show active prompt for main image (and other details too?)
+
+Prompt editor:
+    ☐ add a quick cleanup mode to change periods to spaces

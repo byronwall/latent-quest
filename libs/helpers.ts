@@ -4,7 +4,9 @@ import {
   SdImage,
   SdImagePlaceHolder,
   SdImageTransform,
+  SdImageTransformMulti,
   SdImageTransformNonMulti,
+  SdImageTransformText,
 } from "./shared-types/src";
 import * as cloneDeep from "clone-deep";
 import { isEqual, orderBy } from "lodash-es";
@@ -43,7 +45,28 @@ export function getImageDiffAsTransforms(
     const diffs = findImageDifferences(base, image, {
       shouldReportAddRemove: true,
     });
-    results.push(...diffs);
+
+    // group by diff type -- allows text changes to be grouped together
+    const groupedDiffs = diffs.reduce((acc, cur) => {
+      const key = cur.field;
+      if (acc[key] === undefined) {
+        acc[key] = [];
+      }
+      acc[key].push(cur);
+      return acc;
+    }, {} as Record<string, SdImageTransform[]>);
+
+    for (const group of Object.values(groupedDiffs)) {
+      if (group.length === 1) {
+        results.push(group[0]);
+      } else {
+        results.push({
+          type: "multi",
+          transforms: group,
+          field: group[0].field,
+        });
+      }
+    }
   }
 
   return results;
@@ -172,26 +195,36 @@ export function getBreakdownDelta(
       const baseText = baseParts.map((c) => c.text);
       const compText = compParts.map((c) => c.text);
 
-      const added = compText.filter((c) => !baseText.includes(c));
-      const removed = baseText.filter((c) => !compText.includes(c));
+      compText.forEach((compTextItem, idx) => {
+        if (baseText.includes(compTextItem)) {
+          return;
+        }
 
-      if (added.length > 0) {
-        breakdownDeltas.push({
+        const newDelta: SdImageTransformText = {
           type: "text",
           field: breakdownType,
           action: "add",
-          value: added,
-        });
-      }
+          value: compTextItem,
+          index: idx,
+        };
 
-      if (removed.length > 0) {
-        breakdownDeltas.push({
+        breakdownDeltas.push(newDelta);
+      });
+
+      baseText.forEach((baseTextItem, idx) => {
+        if (compText.includes(baseTextItem)) {
+          return;
+        }
+
+        const newDelta: SdImageTransformText = {
           type: "text",
           field: breakdownType,
           action: "remove",
-          value: removed,
-        });
-      }
+          value: baseTextItem,
+          index: idx,
+        };
+        breakdownDeltas.push(newDelta);
+      });
     } else {
       if (!isEqual(baseParts, compParts)) {
         breakdownDeltas.push({
@@ -212,6 +245,7 @@ export function generatePlaceholderForTransforms(
 ): SdImagePlaceHolder {
   const finalImage = transform.reduce((acc, cur) => {
     if (cur.type === "multi") {
+      console.log("multi", cur);
       cur.transforms.forEach((c) => {
         acc = generatePlaceholderForTransform(acc, c);
       });
@@ -252,13 +286,21 @@ export function generatePlaceholderForTransform(
           const toAdd = Array.isArray(transform.value)
             ? transform.value
             : [transform.value];
-          placeholder.promptBreakdown.parts.push(
+
+          // insert at index or end
+          const index =
+            transform.index ?? placeholder.promptBreakdown.parts.length;
+
+          placeholder.promptBreakdown.parts.splice(
+            index,
+            0,
             ...toAdd.map((c) => ({ text: c, label: transform.field }))
           );
           break;
         }
 
         case "remove": {
+          // removal currently ignores the index -- probably OK
           const toRemove = Array.isArray(transform.value)
             ? transform.value
             : [transform.value];

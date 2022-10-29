@@ -33,7 +33,7 @@ export function SdGroupTable(props: SdGroupTableProps) {
     props;
 
   // state to track isCardView
-  const [isCardView, setIsCardView] = useState(false);
+  const [isCardView, setIsCardView] = useState(true);
 
   const tableView = (
     <Table>

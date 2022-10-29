@@ -1,6 +1,7 @@
 import {
   Button,
   Group,
+  Loader,
   MultiSelect,
   NumberInput,
   Radio,
@@ -12,7 +13,7 @@ import axios from "axios";
 import produce from "immer";
 import { orderBy, uniqBy } from "lodash-es";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 
 import {
   findImageDifferences,
@@ -35,6 +36,7 @@ import {
   SdImageTransformNumberRaw,
   SdImageTransformText,
 } from "../libs/shared-types/src";
+import { api_generateImage } from "../model/api";
 import { SdGroupTable } from "./SdGroupTable";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
@@ -162,6 +164,8 @@ export function ImageGrid(props: ImageGridProps) {
 
   const diffXForm = getImageDiffAsTransforms(mainImage, data);
 
+  console.log("diffXForm", diffXForm);
+
   const [looseTransforms, setLooseTransforms] =
     useState<SdImageTransformHolder>({
       name: "loose",
@@ -234,6 +238,25 @@ export function ImageGrid(props: ImageGridProps) {
         draft.transforms.splice(idx, 1);
       })
     );
+  };
+
+  // isBulkLoading in state
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
+
+  const qc = useQueryClient();
+
+  const handleGenAll = async () => {
+    const placeholders = tableData.flat().filter(isPlaceholder);
+
+    console.log("placeholders", placeholders);
+
+    setIsBulkLoading(true);
+
+    await api_generateImage(placeholders);
+
+    setIsBulkLoading(false);
+
+    qc.invalidateQueries(groupId);
   };
 
   console.log("looseTransforms", looseTransforms);
@@ -315,7 +338,13 @@ export function ImageGrid(props: ImageGridProps) {
         >
           <thead>
             <tr>
-              <th />
+              <th>
+                {isBulkLoading ? (
+                  <Loader />
+                ) : (
+                  <Button onClick={handleGenAll}>gen all</Button>
+                )}
+              </th>
               {colTransformHolder.transforms.map((col, idx) => (
                 <th key={idx}>{getRowColHeaderText(col, colVar, mainImage)}</th>
               ))}
@@ -608,4 +637,10 @@ function getRowColHeaderText(
   const lhsText = colVar === "unknown" ? "" : colVar + " = ";
 
   return `${lhsText}${value}`;
+}
+
+function isPlaceholder(
+  item: SdImage | SdImagePlaceHolder
+): item is SdImagePlaceHolder {
+  return !("id" in item);
 }

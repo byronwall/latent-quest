@@ -118,6 +118,8 @@ export interface SdImageTransformText {
   field: BreakdownType;
   action: "add" | "remove" | "set";
   value: string | string[];
+
+  index?: number;
 }
 
 export interface SdImageTransformMulti {

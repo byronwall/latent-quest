@@ -44,28 +44,29 @@ export function SdNewImagePrompt() {
     setIsLoading(false);
     queryClient.invalidateQueries();
 
-    router.push(`/group/${img.groupId}`);
+    router.push(`/group/${img[0].groupId}`);
   };
 
   return (
-    <Stack>
-      <Title order={1}>test a prompt</Title>
-      <PromptEditor
-        initialBreakdown={breakdown}
-        onBreakdownChange={setBreakdown}
-        style={{ minWidth: 400 }}
-      />
-
-      <Group align={"flex-start"}>
-        <NumberInput label="cfg" value={cfg} onChange={cfgSet} />
-        <NumberInput label="steps" value={steps} onChange={stepsSet} />
-        <NumberInput label="seed" value={seed} onChange={seedSet} />
-        {isLoading ? (
-          <Loader />
-        ) : (
-          <Button onClick={() => onGen()}>Generate image</Button>
-        )}
-      </Group>
-    </Stack>
+    <div className="container">
+      <Stack>
+        <Title order={1}>test a prompt</Title>
+        <PromptEditor
+          initialBreakdown={breakdown}
+          onBreakdownChange={setBreakdown}
+          style={{ minWidth: 400 }}
+        />
+        <Group align={"flex-start"}>
+          <NumberInput label="cfg" value={cfg} onChange={cfgSet} />
+          <NumberInput label="steps" value={steps} onChange={stepsSet} />
+          <NumberInput label="seed" value={seed} onChange={seedSet} />
+          {isLoading ? (
+            <Loader />
+          ) : (
+            <Button onClick={() => onGen()}>Generate image</Button>
+          )}
+        </Group>
+      </Stack>
+    </div>
   );
 }

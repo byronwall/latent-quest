@@ -14,12 +14,21 @@ export const pathToImg = "/tmp";
 console.log("pathToImg", pathToImg);
 
 export default async function handler(req, res) {
-  const imgGenReq: ImageGenRequest = req.body as ImageGenRequest;
+  const imgGenReqReq = req.body as ImageGenRequest | ImageGenRequest[];
 
-  console.log("image gen req", imgGenReq);
+  const imgGenReqs = Array.isArray(imgGenReqReq)
+    ? imgGenReqReq
+    : [imgGenReqReq];
 
-  // send that prompt to the python CLI -- should really be a server
+  const results = await Promise.all(imgGenReqs.map(processSingleImgGenReq));
+  const goodResults = results.filter((r) => r !== undefined) as SdImage[];
 
+  res.status(200).json(goodResults);
+}
+
+async function processSingleImgGenReq(
+  imgGenReq: ImageGenRequest
+): Promise<SdImage | undefined> {
   const seed = imgGenReq.seed ?? Math.floor(Math.random() * 100000);
   const cfg = imgGenReq.cfg ?? 10;
   const steps = imgGenReq.steps ?? 20;
@@ -77,13 +86,10 @@ export default async function handler(req, res) {
         view_settings: createDefaultViewSettings(),
       });
 
-      res.send(imgResult);
-      return;
+      return imgResult;
     }
-
-    res.send({ result: true });
   } catch (e: any) {
     console.log("error", e);
-    res.send({ result: false });
   }
+  return undefined;
 }

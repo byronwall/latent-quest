@@ -132,6 +132,8 @@ function TextAreaWithButton(props: {
         value={text}
         onChange={(evt) => setText(evt.target.value)}
         style={{ minWidth: 400, flex: 1 }}
+        autosize
+        maxRows={10}
       />
       <Button onClick={handleAccept} disabled={!isDirty}>
         accept
