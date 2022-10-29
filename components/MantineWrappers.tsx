@@ -3,10 +3,12 @@ import {
   Switch as MSwitch,
   Popover,
   Button,
-} from '@mantine/core';
-import { useCallback } from 'react';
+  Tooltip,
+  TooltipProps,
+} from "@mantine/core";
+import { useCallback } from "react";
 
-type SwitchProps = Omit<mSwitchProps, 'onChange'> & {
+type SwitchProps = Omit<mSwitchProps, "onChange"> & {
   onChange: (value: boolean) => void;
 };
 
@@ -34,5 +36,17 @@ export function JsonButton(props: { obj: any }) {
         </div>
       </Popover.Dropdown>
     </Popover>
+  );
+}
+
+export function TooltipCommon(props: TooltipProps) {
+  return (
+    <Tooltip
+      {...props}
+      multiline
+      label={<div style={{ width: 300 }}>{props.label}</div>}
+    >
+      {props.children}
+    </Tooltip>
   );
 }

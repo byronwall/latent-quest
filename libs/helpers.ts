@@ -9,7 +9,7 @@ import {
   SdImageTransformText,
 } from "./shared-types/src";
 import * as cloneDeep from "clone-deep";
-import { isEqual, orderBy } from "lodash-es";
+import { isEqual, orderBy, uniqBy } from "lodash-es";
 
 export function isImageSameAsPlaceHolder(
   item: SdImage,
@@ -69,7 +69,8 @@ export function getImageDiffAsTransforms(
     }
   }
 
-  return results;
+  // crude hack to avoid dealing with various data types
+  return uniqBy(results, JSON.stringify);
 }
 
 export function summarizeAllDifferences(base: SdImage, allImages: SdImage[]) {
@@ -153,8 +154,8 @@ export function findImageDifferences(
   for (const numRawCheck of numRawChecks) {
     if (base[numRawCheck] !== comp[numRawCheck]) {
       results.push({
-        type: "num-raw",
         field: numRawCheck,
+        type: "num-raw",
         value: comp[numRawCheck],
       });
     }
@@ -245,7 +246,6 @@ export function generatePlaceholderForTransforms(
 ): SdImagePlaceHolder {
   const finalImage = transform.reduce((acc, cur) => {
     if (cur.type === "multi") {
-      console.log("multi", cur);
       cur.transforms.forEach((c) => {
         acc = generatePlaceholderForTransform(acc, c);
       });
@@ -331,4 +331,20 @@ export function generatePlaceholderForTransform(
     }
   }
   return placeholder;
+}
+
+export function jsonStringifyStable(obj: any) {
+  // built by CoPilot
+  // similar https://stackoverflow.com/questions/16167581/sort-object-properties-and-json-stringify
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      return Object.keys(value)
+        .sort()
+        .reduce((acc, cur) => {
+          acc[cur] = value[cur];
+          return acc;
+        }, {} as any);
+    }
+    return value;
+  });
 }

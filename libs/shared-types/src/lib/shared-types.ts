@@ -34,6 +34,8 @@ export interface SdGroupView {
   rowVar: string;
   colVar: string;
 
+  mainImageId?: string;
+
   // add in those extra choices
 }
 

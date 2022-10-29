@@ -1,4 +1,5 @@
-import { Button, Loader } from "@mantine/core";
+import { Button, Group, Loader, Tooltip } from "@mantine/core";
+import { IconWand } from "@tabler/icons";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 
@@ -7,6 +8,8 @@ import {
   SdImagePlaceHolder,
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
+import { TooltipCommon } from "./MantineWrappers";
+import { SdImageBadgeBar } from "./SdImageBadgeBar";
 
 type SdImagePlaceHolderCompProps = {
   size: number;
@@ -22,7 +25,6 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
   const queryClient = useQueryClient();
 
   const handleClick = async () => {
-    console.log("handleClick - gen image", placeholder);
     setIsLoading(true);
     await api_generateImage(placeholder);
     setIsLoading(false);
@@ -30,6 +32,7 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
     queryClient.invalidateQueries();
   };
 
+  const promptText = getTextForBreakdown(placeholder.promptBreakdown);
   return (
     <div
       style={{
@@ -38,17 +41,24 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
         backgroundColor: "lightgray",
       }}
     >
-      {isLoading && <Loader />}
-      {!isLoading && (
+      <div style={{ display: "flex", alignItems: "center" }}>
         <div>
-          <Button onClick={handleClick}>gen</Button>
+          {isLoading && <Loader />}
+          {!isLoading && (
+            <div>
+              <Button onClick={handleClick} compact>
+                <IconWand />
+              </Button>
+            </div>
+          )}
         </div>
-      )}
-
-      <p>seed = {placeholder.seed} </p>
-      <p>cfg = {placeholder.cfg}</p>
-      <p>steps = {placeholder.steps}</p>
-      <p>prompt = {getTextForBreakdown(placeholder.promptBreakdown)}</p>
+        <SdImageBadgeBar image={placeholder} shouldHidePrompt />
+      </div>
+      <TooltipCommon label={promptText} openDelay={500}>
+        <p className="prompt-clip">
+          {'"'} {promptText} {'"'}
+        </p>
+      </TooltipCommon>
     </div>
   );
 }

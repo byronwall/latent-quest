@@ -1,4 +1,4 @@
-import { Badge, Button, Modal, Stack, Tooltip } from "@mantine/core";
+import { Button, Modal, Stack } from "@mantine/core";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -6,7 +6,8 @@ import { getTextForBreakdown, SdImage } from "../libs/shared-types/src";
 import { getImageUrl } from "./ImageList";
 
 // import zoom in from tabler
-import { IconTextRecognition, IconZoomIn } from "@tabler/icons";
+import { IconZoomIn } from "@tabler/icons";
+import { SdImageBadgeBar } from "./SdImageBadgeBar";
 
 // nextjs image
 type SdImageCompProps = {
@@ -23,7 +24,6 @@ type SdImageCompProps = {
 };
 
 export function SdImageComp(props: SdImageCompProps) {
-  // des props
   const {
     image,
     size,
@@ -47,33 +47,11 @@ export function SdImageComp(props: SdImageCompProps) {
 
         {shouldShowDetails && (
           <div>
-            <p style={{ display: "flex" }}>
-              <Tooltip label="cfg">
-                <Badge>{image.cfg}</Badge>
-              </Tooltip>
-              <Tooltip label="seed">
-                <Badge>{image.seed}</Badge>
-              </Tooltip>
-              <Tooltip
-                label={getTextForBreakdown(image.promptBreakdown)}
-                width={400}
-                color="blue"
-                position="bottom"
-                multiline
-              >
-                <Badge>
-                  <IconTextRecognition />
-                </Badge>
-              </Tooltip>
-              {onSetMainImage && (
-                <Badge
-                  color={isMainImage ? "green" : "blue"}
-                  onClick={() => onSetMainImage()}
-                >
-                  main
-                </Badge>
-              )}
-            </p>
+            <SdImageBadgeBar
+              image={image}
+              onSetMainImage={onSetMainImage}
+              isMainImage={isMainImage}
+            />
           </div>
         )}
 

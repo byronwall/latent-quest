@@ -30,8 +30,6 @@ export function PromptEditor(props: PromptEditorProps) {
     defaultBreakdown
   );
 
-  console.log("prompt", prompt);
-
   const theme = useMantineTheme();
 
   const simpleText = getTextForBreakdown(prompt);
@@ -68,32 +66,30 @@ export function PromptEditor(props: PromptEditorProps) {
             "#000"
           );
           return (
-            <>
-              <div
-                key={idx}
-                style={{
-                  backgroundColor,
-                  color: textColor,
-                  padding: 4,
-                  borderRadius: 4,
-                  margin: 4,
-                  fontSize: 16,
-                  display: "inline-flex",
-                  gap: 4,
-                }}
-              >
-                <span>{chunk} </span>
+            <div
+              key={idx}
+              style={{
+                backgroundColor,
+                color: textColor,
+                padding: 4,
+                borderRadius: 4,
+                margin: 4,
+                fontSize: 16,
+                display: "inline-flex",
+                gap: 4,
+              }}
+            >
+              <span>{chunk} </span>
 
-                <Button
-                  onClick={() => handleChunkRemove(idx)}
-                  compact
-                  color={colorName}
-                  variant="outline"
-                >
-                  x
-                </Button>
-              </div>
-            </>
+              <Button
+                onClick={() => handleChunkRemove(idx)}
+                compact
+                color={colorName}
+                variant="outline"
+              >
+                x
+              </Button>
+            </div>
           );
         })}
       </div>

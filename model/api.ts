@@ -9,7 +9,5 @@ export async function api_generateImage(
 
   const img = res.data as SdImage[];
 
-  console.log("image generated", img);
-
   return img;
 }

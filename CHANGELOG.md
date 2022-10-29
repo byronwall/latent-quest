@@ -1,5 +1,17 @@
 # Changelog
 
+## 2022-10-29 10:18:26
+
+- Show the number of unique entries next to the variable choosers
+- Persist main image selection to the group view
+  - Not perfect yet - react-query updates do weird things
+- Add a stable JSON stringify to find unique transforms - better de dupe
+- Prevent react-query updates on window focus
+- Improve UX for the main page
+- Add a proper navigation bar - add create link to top
+- Remove the image transform builder from index
+- Remove extra `console.log` calls
+
 ## 2022-10-28 21:35:04
 
 - Add an `index` to the text add/remove process ensure consistent ordering of prompt

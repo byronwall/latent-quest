@@ -7,8 +7,6 @@ export default function GroupPage() {
 
   return (
     <div>
-      <h1>Group {id}</h1>
-
       <ImageGrid groupId={id} />
     </div>
   );

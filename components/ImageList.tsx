@@ -40,7 +40,6 @@ export function ImageList() {
 
   const handleDelete = async (groupId: string) => {
     // use axios for post
-    console.log("delete", groupId);
     const res = await axios.delete(`/api/group/${groupId}`);
 
     // invalidate the query
@@ -74,8 +73,6 @@ export function ImageList() {
             );
           })}
         </div>
-
-        <ImageTransformBuilder />
       </div>
     </div>
   );

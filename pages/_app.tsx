@@ -1,16 +1,24 @@
-import { AppProps } from 'next/app';
-import Head from 'next/head';
-import { MantineProvider } from '@mantine/core';
+import "./styles.css";
 
-import { QueryClient, QueryClientProvider } from 'react-query';
-
-import './styles.css';
-import { useState } from 'react';
+import { MantineProvider } from "@mantine/core";
+import { AppProps } from "next/app";
+import Head from "next/head";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { Navigation } from "../components/Navigation";
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
 
-  const [queryClient] = useState(() => new QueryClient());
+  // disable the refresh when returning to the page
+  // consider adding back in for prod only?
+  // https://tanstack.com/query/v4/docs/guides/window-focus-refetching
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -26,9 +34,12 @@ export default function App(props: AppProps) {
         withNormalizeCSS
         withGlobalStyles
         theme={{
-          colorScheme: 'light',
+          colorScheme: "light",
         }}
       >
+        <div className="container">
+          <Navigation />
+        </div>
         <Component {...pageProps} />
       </MantineProvider>
     </QueryClientProvider>

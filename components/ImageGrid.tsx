@@ -9,6 +9,7 @@ import {
   Table,
   Title,
 } from "@mantine/core";
+import { IconWand } from "@tabler/icons";
 import axios from "axios";
 import produce from "immer";
 import { orderBy, uniqBy } from "lodash-es";
@@ -20,6 +21,7 @@ import {
   generatePlaceholderForTransforms,
   getImageDiffAsTransforms,
   isImageSameAsPlaceHolder,
+  jsonStringifyStable,
   summarizeAllDifferences,
 } from "../libs/helpers";
 import {
@@ -76,9 +78,6 @@ const seedChoices = [
 const variableChoices = ["cfg", "seed", "steps", "unknown"] as const;
 
 export function ImageGrid(props: ImageGridProps) {
-  console.log("ImageGrid - render");
-
-  // des props
   const { groupId } = props;
 
   // create a query for 1 id
@@ -99,8 +98,6 @@ export function ImageGrid(props: ImageGridProps) {
     return results;
   });
 
-  console.log("group data", groupData);
-
   // push group data into the default view
 
   useEffect(() => {
@@ -118,6 +115,9 @@ export function ImageGrid(props: ImageGridProps) {
     const postData = { ...groupData };
     postData.view_settings.defaultView.rowVar = rowVar;
     postData.view_settings.defaultView.colVar = colVar;
+    if (mainImage) {
+      postData.view_settings.defaultView.mainImageId = mainImage.id;
+    }
 
     axios.put<any, any, SdImageGroup>(`/api/group/${groupId}`, postData);
   };
@@ -125,15 +125,28 @@ export function ImageGrid(props: ImageGridProps) {
   const data = useMemo(() => _data ?? [], [_data]);
 
   // store the main image in state
+
+  const mainImageIdFromSettings =
+    groupData?.view_settings.defaultView.mainImageId;
+
+  const mainImageFromSettings = useMemo(() => {
+    return data.find((x) => x.id === mainImageIdFromSettings);
+  }, [data, mainImageIdFromSettings]);
+
   const [mainImage, setMainImage] = useState<SdImage>(
-    data?.[0] ?? ({} as SdImage)
+    mainImageFromSettings ?? data[0] ?? ({} as SdImage)
   );
+
+  // update main image if settings or data changes
+  useEffect(() => {
+    if (mainImageFromSettings) {
+      setMainImage(mainImageFromSettings);
+    }
+  }, [mainImageFromSettings, data]);
 
   useEffect(() => {
     setMainImage(data?.[0] ?? ({} as SdImage));
   }, [data]);
-
-  console.log("mainImage", mainImage);
 
   // take those images and push into a table -- by default 3x3 with single image in center
 
@@ -160,11 +173,7 @@ export function ImageGrid(props: ImageGridProps) {
       unknown: [],
     };
 
-  const diffSummary = summarizeAllDifferences(mainImage, data);
-
   const diffXForm = getImageDiffAsTransforms(mainImage, data);
-
-  console.log("diffXForm", diffXForm);
 
   const [looseTransforms, setLooseTransforms] =
     useState<SdImageTransformHolder>({
@@ -189,7 +198,14 @@ export function ImageGrid(props: ImageGridProps) {
     return newXForm;
   });
 
-  console.log("looseTransformsNormalized", looseTransformsNormalized);
+  // get diff counts by field
+  const diffCounts = diffXForm.reduce(
+    (acc, x) => {
+      acc[x.field] += 1;
+      return acc;
+    },
+    { cfg: 0, seed: 0, steps: 0, unknown: 0 }
+  );
 
   const rowExtras =
     rowVar === "unknown"
@@ -202,17 +218,16 @@ export function ImageGrid(props: ImageGridProps) {
     mainImage
   );
 
-  console.log("rowTransformHolder", rowTransformHolder);
-
   const colExtras =
     colVar === "unknown"
       ? looseTransformsNormalized
       : genSimpleXFormList(colVar, extraChoiceMap[colVar]);
 
-  const colTransformHolder: SdImageTransformHolder =
-    generateSortedTransformList(colVar, diffXForm.concat(colExtras), mainImage);
-
-  console.log("rowTransformHolder", { rowTransformHolder, colTransformHolder });
+  const colTransformHolder = generateSortedTransformList(
+    colVar,
+    diffXForm.concat(colExtras),
+    mainImage
+  );
 
   const tableData = generateTableFromXform(
     rowTransformHolder,
@@ -240,15 +255,12 @@ export function ImageGrid(props: ImageGridProps) {
     );
   };
 
-  // isBulkLoading in state
   const [isBulkLoading, setIsBulkLoading] = useState(false);
 
   const qc = useQueryClient();
 
   const handleGenAll = async () => {
     const placeholders = tableData.flat().filter(isPlaceholder);
-
-    console.log("placeholders", placeholders);
 
     setIsBulkLoading(true);
 
@@ -259,49 +271,52 @@ export function ImageGrid(props: ImageGridProps) {
     qc.invalidateQueries(groupId);
   };
 
-  console.log("looseTransforms", looseTransforms);
-
   return (
     <div>
-      <Title order={1}>grid of images</Title>
-      <Title order={2}>transform chooser</Title>
-      <Button onClick={() => saveGroupSettings()}>save view to DB</Button>
-
-      <Stack>
-        <Group>
-          <b>row var</b>
-          <Radio.Group value={rowVar} onChange={setRowVar}>
-            {variableChoices.map((choice) => (
-              <Radio key={choice} value={choice} label={choice} />
-            ))}
-          </Radio.Group>
-        </Group>
-        <Group>
-          <b>col var</b>
-          <Radio.Group value={colVar} onChange={setColVar}>
-            {variableChoices.map((choice) => (
-              <Radio key={choice} value={choice} label={choice} />
-            ))}
-          </Radio.Group>
-        </Group>
-      </Stack>
-      <div>
-        <p>loose transforms</p>
-        {looseTransforms.transforms.map((xform, idx) => (
-          <div key={idx}>
-            {getDescForTransform(xform)}
-            <Button onClick={() => handleRemoveLooseTransform(idx)}>
-              remove
-            </Button>
-          </div>
-        ))}
-      </div>
-
-      <Stack>
-        <Group>
-          <NumberInput label="size" value={imageSize} onChange={setImageSize} />
-        </Group>
-
+      <div className="container">
+        <h1>Group {groupId}</h1>
+        <Title order={1}>grid of images</Title>
+        <Title order={2}>transform chooser</Title>
+        <Button onClick={() => saveGroupSettings()}>save view to DB</Button>
+        <Stack>
+          <Group>
+            <b>row var</b>
+            <Radio.Group value={rowVar} onChange={setRowVar}>
+              {variableChoices.map((choice) => {
+                return (
+                  <Radio
+                    key={choice}
+                    value={choice}
+                    label={getTextForChoice(choice, diffCounts)}
+                  />
+                );
+              })}
+            </Radio.Group>
+          </Group>
+          <Group>
+            <b>col var</b>
+            <Radio.Group value={colVar} onChange={setColVar}>
+              {variableChoices.map((choice) => (
+                <Radio
+                  key={choice}
+                  value={choice}
+                  label={getTextForChoice(choice, diffCounts)}
+                />
+              ))}
+            </Radio.Group>
+          </Group>
+        </Stack>
+        <div>
+          <p>loose transforms</p>
+          {looseTransforms.transforms.map((xform, idx) => (
+            <div key={idx}>
+              {getDescForTransform(xform)}
+              <Button onClick={() => handleRemoveLooseTransform(idx)}>
+                remove
+              </Button>
+            </div>
+          ))}
+        </div>
         <Group>
           <b>extra choices</b>
           <MultiSelect
@@ -320,7 +335,6 @@ export function ImageGrid(props: ImageGridProps) {
             clearable
             searchable
           />
-
           <MultiSelect
             label="seed"
             data={seedChoices}
@@ -330,77 +344,77 @@ export function ImageGrid(props: ImageGridProps) {
             searchable
           />
         </Group>
+      </div>
 
-        <Table
-          style={{
-            tableLayout: "fixed",
-          }}
-        >
-          <thead>
-            <tr>
-              <th>
-                {isBulkLoading ? (
-                  <Loader />
-                ) : (
-                  <Button onClick={handleGenAll}>gen all</Button>
-                )}
-              </th>
-              {colTransformHolder.transforms.map((col, idx) => (
-                <th key={idx}>{getRowColHeaderText(col, colVar, mainImage)}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tableData.map((row, rowIndex) => {
-              const rowXForm = rowTransformHolder.transforms[rowIndex];
+      <Table
+        style={{
+          tableLayout: "fixed",
+        }}
+      >
+        <thead>
+          <tr>
+            <th>
+              {isBulkLoading ? (
+                <Loader />
+              ) : (
+                <Button onClick={handleGenAll} rightIcon={<IconWand />}>
+                  gen all
+                </Button>
+              )}
+            </th>
+            {colTransformHolder.transforms.map((col, idx) => (
+              <th key={idx}>{getRowColHeaderText(col, colVar, mainImage)}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {tableData.map((row, rowIndex) => {
+            const rowXForm = rowTransformHolder.transforms[rowIndex];
 
-              return (
-                <tr key={rowIndex}>
-                  <td>
-                    <div>
-                      {getRowColHeaderText(rowXForm, rowVar, mainImage)}
-                    </div>
-                  </td>
+            return (
+              <tr key={rowIndex}>
+                <td>
+                  <div>{getRowColHeaderText(rowXForm, rowVar, mainImage)}</div>
+                </td>
 
-                  {row.map((cell, colIndex) => {
-                    const content =
-                      cell === undefined ? (
-                        <div></div>
-                      ) : !("id" in cell) ? (
-                        <SdImagePlaceHolderComp
-                          size={imageSize}
-                          placeholder={cell}
-                        />
-                      ) : (
-                        <SdImageComp image={cell} size={imageSize} />
-                      );
-
-                    return (
-                      <td key={colIndex}>
-                        {content}
-                        <div style={{ display: "flex" }}>
-                          <SdPromptToTransform
-                            promptBreakdown={cell.promptBreakdown}
-                            onNewTransform={handleAddLooseTransform}
-                          />
-                          {"id" in cell && (
-                            <Button
-                              onClick={() => setMainImage(cell)}
-                              color={mainImage.id === cell.id ? "lime" : "blue"}
-                            >
-                              set main
-                            </Button>
-                          )}
-                        </div>
-                      </td>
+                {row.map((cell, colIndex) => {
+                  const content =
+                    cell === undefined ? (
+                      <div />
+                    ) : !("id" in cell) ? (
+                      <SdImagePlaceHolderComp
+                        size={imageSize}
+                        placeholder={cell}
+                      />
+                    ) : (
+                      <SdImageComp image={cell} size={imageSize} />
                     );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-      </Stack>
+
+                  return (
+                    <td key={colIndex}>
+                      {content}
+                      <div style={{ display: "flex" }}>
+                        <SdPromptToTransform
+                          promptBreakdown={cell.promptBreakdown}
+                          onNewTransform={handleAddLooseTransform}
+                        />
+                        {"id" in cell && (
+                          <Button
+                            onClick={() => setMainImage(cell)}
+                            color={mainImage.id === cell.id ? "lime" : "blue"}
+                          >
+                            set main
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </Table>
 
       <Stack>
         <Title order={1}>all images in group</Title>
@@ -414,6 +428,15 @@ export function ImageGrid(props: ImageGridProps) {
       </Stack>
     </div>
   );
+}
+
+function getTextForChoice(
+  choice: any,
+  diffCounts: { cfg: number; seed: number; steps: number; unknown: number }
+) {
+  const _labelText = choice === "unknown" ? "prompt" : choice;
+  const labelText = `${_labelText} (${diffCounts[choice]})`;
+  return labelText;
 }
 
 function genSimpleXFormList(rowVar: string, uniqValues: any[]) {
@@ -504,13 +527,12 @@ function generateSortedTransformList(
   diffXForm: SdImageTransform[],
   mainImage: SdImage
 ) {
-  /// TODO: this needs to support extra choices and the loose transforms
   const rowTransformHolder: SdImageTransformHolder = {
     name: rowColVar,
     transforms: orderBy(
       uniqBy(
         diffXForm.filter((x) => x.type !== "none" && x.field === rowColVar),
-        getDescForTransform
+        jsonStringifyStable
       ),
       (c) => {
         return getSortValueForXform(c);
@@ -518,8 +540,6 @@ function generateSortedTransformList(
       "desc"
     ),
   };
-
-  console.log("rowTransformHolder", ...rowTransformHolder.transforms);
 
   // add main image where needed
 
