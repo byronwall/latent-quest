@@ -3,6 +3,9 @@
 ## 2022-10-29 22:07:35
 
 - Add support for substitutions as part of the image matrix
+  - Currently supports the `artist` label -- more to come
+- Provide for a 1D view based on the row variable - allow for clean studies of large spaces
+  - Persist this to the group data save
 
 ## 2022-10-29 10:18:26
 

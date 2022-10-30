@@ -36,10 +36,12 @@ import {
   SdImageTransformText,
   SdImageTransformTextBasic,
   SdImageTransformTextSub,
+  TransformNone,
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 import { commonChoiceMap } from "./common_choices";
 import { getSelectionFromPromptPart } from "./getSelectionFromPromptPart";
+import { Switch } from "./MantineWrappers";
 import { SdGroupTable } from "./SdGroupTable";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
@@ -106,6 +108,8 @@ export function ImageGrid(props: ImageGridProps) {
 
     setRowVar(groupData.view_settings.defaultView.rowVar);
     setColVar(groupData.view_settings.defaultView.colVar);
+    setIsSingleVar(groupData.view_settings.defaultView.isSingleVar ?? false);
+    // TODO: add main image here
   }, [groupData]);
 
   const saveGroupSettings = async () => {
@@ -117,6 +121,8 @@ export function ImageGrid(props: ImageGridProps) {
     if (mainImage) {
       postData.view_settings.defaultView.mainImageId = mainImage.id;
     }
+
+    postData.view_settings.defaultView.isSingleVar = isSingleVar;
 
     axios.put<any, any, SdImageGroup>(`/api/group/${groupId}`, postData);
   };
@@ -172,6 +178,8 @@ export function ImageGrid(props: ImageGridProps) {
   // store row and colVar in state
   const [rowVar, setRowVar] = useState("cfg");
   const [colVar, setColVar] = useState("seed");
+
+  const [isSingleVar, setIsSingleVar] = useState(false);
 
   // store some cfg and step choices in state also
   const [cfgChoice, setCfgChoice] = useState<string[]>([]);
@@ -249,13 +257,17 @@ export function ImageGrid(props: ImageGridProps) {
     mainImage
   );
 
+  const colVarToUse = isSingleVar ? "none" : colVar;
+
   const colExtras =
-    colVar === "unknown"
+    colVarToUse === "none"
+      ? []
+      : colVarToUse === "unknown"
       ? looseTransformsNormalized
-      : genSimpleXFormList(colVar, getExtraChoice(colVar));
+      : genSimpleXFormList(colVarToUse, getExtraChoice(colVarToUse));
 
   const colTransformHolder = generateSortedTransformList(
-    colVar,
+    colVarToUse,
     diffXForm.concat(colExtras),
     mainImage
   );
@@ -302,6 +314,11 @@ export function ImageGrid(props: ImageGridProps) {
     qc.invalidateQueries(groupId);
   };
 
+  const btnGenAll = (
+    <Button onClick={handleGenAll} rightIcon={<IconWand />}>
+      gen all
+    </Button>
+  );
   return (
     <div>
       <div className="container">
@@ -323,19 +340,26 @@ export function ImageGrid(props: ImageGridProps) {
                 );
               })}
             </Radio.Group>
+            <Switch
+              label="single var only"
+              checked={isSingleVar}
+              onChange={setIsSingleVar}
+            />
           </Group>
-          <Group>
-            <b>col var</b>
-            <Radio.Group value={colVar} onChange={setColVar}>
-              {variableChoices.map((choice) => (
-                <Radio
-                  key={choice}
-                  value={choice}
-                  label={getTextForChoice(choice, diffCounts)}
-                />
-              ))}
-            </Radio.Group>
-          </Group>
+          {!isSingleVar && (
+            <Group>
+              <b>col var</b>
+              <Radio.Group value={colVar} onChange={setColVar}>
+                {variableChoices.map((choice) => (
+                  <Radio
+                    key={choice}
+                    value={choice}
+                    label={getTextForChoice(choice, diffCounts)}
+                  />
+                ))}
+              </Radio.Group>
+            </Group>
+          )}
         </Stack>
         <div>
           <p>loose transforms</p>
@@ -377,75 +401,81 @@ export function ImageGrid(props: ImageGridProps) {
         </Group>
       </div>
 
-      <Table
-        style={{
-          tableLayout: "fixed",
-        }}
-      >
-        <thead>
-          <tr>
-            <th>
-              {isBulkLoading ? (
-                <Loader />
-              ) : (
-                <Button onClick={handleGenAll} rightIcon={<IconWand />}>
-                  gen all
-                </Button>
-              )}
-            </th>
-            {colTransformHolder.transforms.map((col, idx) => (
-              <th key={idx}>{getRowColHeaderText(col, colVar, mainImage)}</th>
+      {isSingleVar ? (
+        <div>
+          <div>{btnGenAll}</div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              maxWidth: "90vw",
+              margin: "auto",
+            }}
+          >
+            {tableData.map((row, rowIdx) => (
+              <div key={rowIdx} style={{ width: 200 }}>
+                <p style={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                  {getRowColHeaderText(
+                    rowTransformHolder.transforms[rowIdx],
+                    rowVar,
+                    mainImage
+                  )}
+                </p>
+                <SdCardOrTableCell
+                  cell={row[0]}
+                  imageSize={imageSize}
+                  handleAddLooseTransform={handleAddLooseTransform}
+                  mainImage={mainImage}
+                  setMainImage={setMainImage}
+                />
+              </div>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {tableData.map((row, rowIndex) => {
-            const rowXForm = rowTransformHolder.transforms[rowIndex];
-
-            return (
-              <tr key={rowIndex}>
-                <td>
-                  <div>{getRowColHeaderText(rowXForm, rowVar, mainImage)}</div>
-                </td>
-
-                {row.map((cell, colIndex) => {
-                  const content =
-                    cell === undefined ? (
-                      <div />
-                    ) : !("id" in cell) ? (
-                      <SdImagePlaceHolderComp
-                        size={imageSize}
-                        placeholder={cell}
-                      />
-                    ) : (
-                      <SdImageComp image={cell} size={imageSize} />
-                    );
-
-                  return (
-                    <td key={colIndex}>
-                      {content}
-                      <div style={{ display: "flex" }}>
-                        <SdPromptToTransform
-                          promptBreakdown={cell.promptBreakdown}
-                          onNewTransform={handleAddLooseTransform}
-                        />
-                        {"id" in cell && (
-                          <Button
-                            onClick={() => setMainImage(cell)}
-                            color={mainImage.id === cell.id ? "lime" : "blue"}
-                          >
-                            set main
-                          </Button>
-                        )}
+          </div>
+        </div>
+      ) : (
+        <Table
+          style={{
+            tableLayout: "fixed",
+          }}
+        >
+          <thead>
+            <tr>
+              <th>{isBulkLoading ? <Loader /> : btnGenAll}</th>
+              {colTransformHolder.transforms.map((col, idx) => (
+                <th key={idx}>{getRowColHeaderText(col, colVar, mainImage)}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {tableData.map((row, rowIndex) => {
+              const rowXForm = rowTransformHolder.transforms[rowIndex];
+              return (
+                <tr key={rowIndex}>
+                  <>
+                    <td>
+                      <div>
+                        {getRowColHeaderText(rowXForm, rowVar, mainImage)}
                       </div>
                     </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
+
+                    {row.map((cell, colIndex) => (
+                      <td key={colIndex}>
+                        <SdCardOrTableCell
+                          cell={cell}
+                          mainImage={mainImage}
+                          imageSize={imageSize}
+                          handleAddLooseTransform={handleAddLooseTransform}
+                          setMainImage={setMainImage}
+                        />
+                      </td>
+                    ))}
+                  </>
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
+      )}
 
       <Stack>
         <Title order={1}>all images in group</Title>
@@ -569,8 +599,15 @@ function generateSortedTransformList(
   rowColVar: string,
   diffXForm: SdImageTransform[],
   mainImage: SdImage
-) {
+): SdImageTransformHolder {
   // original process before substitutes
+
+  if (rowColVar === "none") {
+    return {
+      name: "none",
+      transforms: [TransformNone],
+    };
+  }
 
   // create a dummy xform to recover the main image
   const dummy =
@@ -663,4 +700,44 @@ function isPlaceholder(
   item: SdImage | SdImagePlaceHolder
 ): item is SdImagePlaceHolder {
   return !("id" in item);
+}
+
+function SdCardOrTableCell(props: {
+  cell: any;
+  imageSize: any;
+  handleAddLooseTransform: any;
+  mainImage: any;
+  setMainImage: any;
+}) {
+  const { cell, imageSize, handleAddLooseTransform, mainImage, setMainImage } =
+    props;
+
+  const content =
+    cell === undefined ? (
+      <div />
+    ) : isPlaceholder(cell) ? (
+      <SdImagePlaceHolderComp size={imageSize} placeholder={cell} />
+    ) : (
+      <SdImageComp image={cell} size={imageSize} />
+    );
+
+  return (
+    <div>
+      {content}
+      <div style={{ display: "flex" }}>
+        <SdPromptToTransform
+          promptBreakdown={cell.promptBreakdown}
+          onNewTransform={handleAddLooseTransform}
+        />
+        {"id" in cell && (
+          <Button
+            onClick={() => setMainImage(cell)}
+            color={mainImage.id === cell.id ? "lime" : "blue"}
+          >
+            set main
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 }
