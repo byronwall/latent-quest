@@ -1,30 +1,35 @@
-import { Button, Textarea, Title, useMantineTheme } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { Badge, Button, Title, useMantineTheme } from "@mantine/core";
+import { useTextSelection } from "@mantine/hooks";
+import { resourceUsage } from "process";
 
 import {
   getBreakdownForText,
   getTextForBreakdown,
   PromptBreakdown,
+  PromptPart,
+  PromptSelection,
 } from "../libs/shared-types/src";
+import { getTextOnlyFromPromptPartWithLabel } from "./getTextOnlyFromPromptPartWithLabel";
 import { pickTextColorBasedOnBgColorAdvanced } from "./pickTextColorBasedOnBgColorAdvanced";
+import { TextAreaWithButton } from "./TextAreaWithButton";
 import { useControlledUncontrolled } from "./useControlledUncontrolled";
 
 interface PromptEditorProps {
-  //   initialPrompt?: string;
-  //   onPromptChange: (newPrompt: string) => void;
-
   onBreakdownChange?: (newBreakdown: PromptBreakdown) => void;
   initialBreakdown?: PromptBreakdown;
+
+  shouldAllowSelection?: boolean;
 
   style?: React.CSSProperties;
 }
 
 const defaultBreakdown = { parts: [] };
 export function PromptEditor(props: PromptEditorProps) {
-  const { initialBreakdown, onBreakdownChange, ...rest } = props;
+  const { initialBreakdown, onBreakdownChange, shouldAllowSelection, ...rest } =
+    props;
 
   // controlled and uncontrolled updates
-  const [prompt, setPrompt] = useControlledUncontrolled(
+  const [prompt, setPrompt] = useControlledUncontrolled<PromptBreakdown>(
     initialBreakdown,
     onBreakdownChange,
     defaultBreakdown
@@ -47,17 +52,70 @@ export function PromptEditor(props: PromptEditorProps) {
     });
   };
 
+  prompt.parts.forEach((part, index) => {
+    getSelectionFromPromptPart(part);
+  });
+
+  const selection = useTextSelection();
+
+  const selectedText = selection?.toString();
+
+  console.log("selection", selectedText);
+
+  const handleCreateSubFromSelection = () => {
+    if (!selectedText) {
+      return;
+    }
+
+    console.log("selectedText", selectedText, selection);
+
+    const inBreakdown = prompt.parts.findIndex((part) => {
+      return part.text.includes(selectedText);
+    });
+
+    if (inBreakdown === -1) {
+      console.log("no match");
+      return;
+    }
+
+    const name = window.prompt("enter label name");
+
+    if (!name) {
+      return;
+    }
+
+    const newParts = prompt.parts.map((part, index) => {
+      if (index === inBreakdown) {
+        const newPart: PromptPart = {
+          ...part,
+          text: part.text.replace(selectedText, `{${name}:${selectedText}}`),
+        };
+
+        return newPart;
+      }
+
+      return part;
+    });
+
+    // this needs to update the prompt part with:
+    // {name: original}
+
+    onBreakdownChange({
+      parts: newParts,
+    });
+  };
+
   return (
     <div {...rest}>
       <Title order={2}>prompt editor</Title>
-      {/* switch for isFancy */}
+
       <TextAreaWithButton
         defaultText={simpleText}
         onChange={handleRawTextChange}
       />
+
       <div>
         {prompt.parts.map((part, idx) => {
-          const chunk = part.text;
           const colorName = "blue";
           const backgroundColor = theme.colors[colorName][9];
           const textColor = pickTextColorBasedOnBgColorAdvanced(
@@ -79,7 +137,13 @@ export function PromptEditor(props: PromptEditorProps) {
                 gap: 4,
               }}
             >
-              <span>{chunk} </span>
+              <span>{getTextOnlyFromPromptPartWithLabel(part.text)} </span>
+
+              {getSelectionFromPromptPart(part).map((selection, idx) => (
+                <Badge key={idx} color={"red"}>
+                  {selection.name}
+                </Badge>
+              ))}
 
               <Button
                 onClick={() => handleChunkRemove(idx)}
@@ -93,47 +157,26 @@ export function PromptEditor(props: PromptEditorProps) {
           );
         })}
       </div>
+      {shouldAllowSelection && selectedText && (
+        <Button onClick={handleCreateSubFromSelection}>label selection</Button>
+      )}
     </div>
   );
 }
 
-function TextAreaWithButton(props: {
-  onChange: (newText: string) => void;
-  defaultText: string;
-}) {
-  const { onChange, defaultText } = props;
+export const selRegex = /{([^}]*?)\s?:\s?([^}]*?)}/g;
 
-  const [text, setText] = useState("");
+function getSelectionFromPromptPart(part: PromptPart) {
+  // regex to match string with {artist: XXXX} in it
+  // if it matches, return the XXXX
+  // if it doesn't match, return null
 
-  const handleAccept = () => {
-    onChange(text);
-  };
+  const matches2 = Array.from(part.text.matchAll(selRegex));
 
-  useEffect(() => {
-    setText(defaultText);
-  }, [defaultText]);
+  const results = matches2.map<PromptSelection>((match) => ({
+    name: match[1],
+    originalText: match[2],
+  }));
 
-  const isDirty = text !== defaultText;
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Textarea
-        label="prompt"
-        value={text}
-        onChange={(evt) => setText(evt.target.value)}
-        style={{ minWidth: 400, flex: 1 }}
-        autosize
-        maxRows={10}
-      />
-      <Button onClick={handleAccept} disabled={!isDirty}>
-        accept
-      </Button>
-    </div>
-  );
+  return results;
 }

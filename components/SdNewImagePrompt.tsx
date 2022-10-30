@@ -55,6 +55,7 @@ export function SdNewImagePrompt() {
           initialBreakdown={breakdown}
           onBreakdownChange={setBreakdown}
           style={{ minWidth: 400 }}
+          shouldAllowSelection
         />
         <Group align={"flex-start"}>
           <NumberInput label="cfg" value={cfg} onChange={cfgSet} />

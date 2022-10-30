@@ -18,6 +18,7 @@ import { useQuery, useQueryClient } from "react-query";
 
 import {
   findImageDifferences,
+  generatePlaceholderForTransform,
   generatePlaceholderForTransforms,
   getImageDiffAsTransforms,
   isImageSameAsPlaceHolder,
@@ -37,6 +38,7 @@ import {
   SdImageTransformNonMulti,
   SdImageTransformNumberRaw,
   SdImageTransformText,
+  SdImageTransformTextBasic,
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 import { SdGroupTable } from "./SdGroupTable";
@@ -527,6 +529,37 @@ function generateSortedTransformList(
   diffXForm: SdImageTransform[],
   mainImage: SdImage
 ) {
+  console.log("diff xform", diffXForm);
+
+  // create a dummy xform to recover the main image
+  const dummy =
+    rowColVar === "unknown"
+      ? ({
+          type: "text",
+          field: rowColVar as any,
+          action: "set",
+          value: getTextForBreakdown(mainImage.promptBreakdown),
+        } as SdImageTransformTextBasic)
+      : ({
+          type: "num-raw",
+          field: rowColVar as any,
+          value: mainImage[rowColVar as any],
+        } as SdImageTransformNumberRaw);
+
+  const isDummyPresent = diffXForm.some((xform) => {
+    // run the transform into main image and see if it's the same
+    const placeholder = generatePlaceholderForTransform(mainImage, xform);
+    const newDiffs = findImageDifferences(mainImage, placeholder);
+
+    console.log("new diffs", newDiffs);
+
+    return newDiffs.length === 0;
+  });
+
+  if (!isDummyPresent) {
+    diffXForm.splice(0, 0, dummy);
+  }
+
   const rowTransformHolder: SdImageTransformHolder = {
     name: rowColVar,
     transforms: orderBy(
@@ -540,80 +573,7 @@ function generateSortedTransformList(
       "desc"
     ),
   };
-
-  // add main image where needed
-
-  let prevXform = undefined;
-
-  let index = -1;
-  let wasFlip = false;
-
-  const dummy: SdImageTransformNone = {
-    type: "none",
-    field: "none",
-  };
-
-  for (const xform of rowTransformHolder.transforms) {
-    index++;
-
-    // determine where to place the main image = dummy xform
-
-    switch (xform.type) {
-      case "none":
-        break;
-
-      case "text":
-        if (prevXform === undefined) {
-          prevXform = xform;
-          continue;
-        }
-        if (xform.action !== prevXform.action) {
-          rowTransformHolder.transforms.splice(index, 0, dummy);
-          wasFlip = true;
-        }
-        break;
-
-      case "num-raw":
-        if (xform.value <= mainImage[xform.field]) {
-          rowTransformHolder.transforms.splice(index, 0, dummy);
-          wasFlip = true;
-        }
-        break;
-
-      case "num-delta":
-        if (xform.delta > 0) {
-          rowTransformHolder.transforms.splice(index, 0, dummy);
-          wasFlip = true;
-        }
-        break;
-    }
-
-    if (wasFlip) {
-      break;
-    }
-  }
-
-  const firstXForm = rowTransformHolder
-    .transforms[0] as SdImageTransformNonMulti;
-  if (!wasFlip) {
-    const lastIdx = rowTransformHolder.transforms.length;
-    // if first is remove, place at top
-
-    const insertIdx =
-      firstXForm === undefined
-        ? 0
-        : firstXForm.type !== "text"
-        ? firstXForm.type === "num-delta" || firstXForm.type === "none"
-          ? 0
-          : firstXForm.value < mainImage[rowColVar]
-          ? 0
-          : lastIdx
-        : firstXForm.action === "remove"
-        ? 0
-        : lastIdx;
-
-    rowTransformHolder.transforms.splice(insertIdx, 0, dummy);
-  }
+  console.log("final xforms", rowTransformHolder.transforms);
 
   return rowTransformHolder;
 }

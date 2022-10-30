@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-10-29 22:07:35
+
+- Add support for substitutions as part of the image matrix
+
 ## 2022-10-29 10:18:26
 
 - Show the number of unique entries next to the variable choosers

@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { getBreakdownDelta } from "../libs/helpers";
 import {
   PromptBreakdown,
+  PromptSelection,
   SdImageTransform,
   SdImageTransformMulti,
+  SdImageTransformTextSub,
 } from "../libs/shared-types/src";
 import { PromptEditor } from "./PromptEditor";
 
@@ -38,6 +40,31 @@ export function SdPromptToTransform(props: PromptEditorProps) {
     onNewTransform(multiTransform);
   };
 
+  const handleCreateSubTransform = (selection: PromptSelection) => {
+    console.log("handleCreateSubTransform");
+
+    const subTransform: SdImageTransformTextSub = {
+      type: "text",
+      field: "unknown",
+      action: "substitute",
+      original: selection.originalText,
+      value: "",
+    };
+
+    console.log("subTransform", subTransform);
+  };
+
+  // const selections = uniq(
+  //   breakdown.parts.reduce((acc, part) => {
+  //     if (part.selections) {
+  //       acc.push(...part.selections);
+  //     }
+  //     return acc;
+  //   }, [] as PromptSelection[])
+  // );
+
+  // console.log("selectionNames", selections);
+
   return (
     <div>
       <Popover closeOnClickOutside>
@@ -48,12 +75,22 @@ export function SdPromptToTransform(props: PromptEditorProps) {
             }}
           >
             <Button onClick={handleCreateTransform}>
-              create transform for current
+              create xform for text
             </Button>
+            {/* {selections.map((selection) => (
+              <Button
+                key={selection.name}
+                onClick={() => handleCreateSubTransform(selection)}
+                color="green"
+              >
+                xform for {selection.name}
+              </Button>
+            ))} */}
 
             <PromptEditor
               initialBreakdown={breakdown}
               onBreakdownChange={setBreakdown}
+              shouldAllowSelection
             />
           </div>
         </Popover.Dropdown>

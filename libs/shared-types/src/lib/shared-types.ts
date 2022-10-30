@@ -60,6 +60,11 @@ export interface PromptPart {
   label: BreakdownType;
 }
 
+export interface PromptSelection {
+  name: string;
+  originalText: string;
+}
+
 export type BreakdownType = typeof PromptBreakdownSortOrder[number];
 
 export interface PromptBreakdown {
@@ -115,11 +120,27 @@ export interface SdImageTransformNumberDelta {
   delta: number;
 }
 
-export interface SdImageTransformText {
+export type SdImageTransformText =
+  | SdImageTransformTextBasic
+  | SdImageTransformTextSub;
+
+export interface SdImageTransformTextBasic {
   type: "text";
   field: BreakdownType;
   action: "add" | "remove" | "set";
   value: string | string[];
+
+  index?: number;
+}
+
+export interface SdImageTransformTextSub {
+  type: "text";
+  field: BreakdownType;
+
+  action: "substitute";
+  original: string;
+
+  value: string;
 
   index?: number;
 }

@@ -19,5 +19,8 @@ Image Grid:
     ☐ provide a simple way to get random seeds to test with 
     ☐ show active prompt for main image (and other details too?)
 
+Random:
+    ☐ allow deleting single images
+
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces

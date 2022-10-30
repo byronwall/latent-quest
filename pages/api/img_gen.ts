@@ -1,4 +1,5 @@
 import { generateAsync } from "stability-client";
+import { getTextOnlyFromPromptPartWithLabel } from "../../components/getTextOnlyFromPromptPartWithLabel";
 
 import { db_insertGroup, db_insertImage } from "../../libs/db";
 import { uploadImageToS3 } from "../../libs/s3_helpers";
@@ -33,6 +34,9 @@ async function processSingleImgGenReq(
   const cfg = imgGenReq.cfg ?? 10;
   const steps = imgGenReq.steps ?? 20;
   const prompt = getTextForBreakdown(imgGenReq.promptBreakdown);
+
+  // wait until the last minute to remove any meta data labels
+  const promptForSd = getTextOnlyFromPromptPartWithLabel(prompt);
   const groupId = imgGenReq.groupId;
   const promptBreakdown = imgGenReq.promptBreakdown;
 
@@ -42,7 +46,7 @@ async function processSingleImgGenReq(
       seed,
       cfgScale: cfg,
       steps,
-      prompt,
+      prompt: promptForSd,
       height: 512,
       width: 512,
       samples: 1,

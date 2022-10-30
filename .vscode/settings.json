@@ -18,5 +18,6 @@
     "titleBar.inactiveBackground": "#94ffe799",
     "titleBar.inactiveForeground": "#15202b99"
   },
-  "peacock.color": "#94ffe7"
+  "peacock.color": "#94ffe7",
+  "cSpell.words": ["Mantine"]
 }
