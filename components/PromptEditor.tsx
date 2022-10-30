@@ -7,8 +7,8 @@ import {
   getTextForBreakdown,
   PromptBreakdown,
   PromptPart,
-  PromptSelection,
 } from "../libs/shared-types/src";
+import { getSelectionFromPromptPart } from "./getSelectionFromPromptPart";
 import { getTextOnlyFromPromptPartWithLabel } from "./getTextOnlyFromPromptPartWithLabel";
 import { pickTextColorBasedOnBgColorAdvanced } from "./pickTextColorBasedOnBgColorAdvanced";
 import { TextAreaWithButton } from "./TextAreaWithButton";
@@ -60,21 +60,16 @@ export function PromptEditor(props: PromptEditorProps) {
 
   const selectedText = selection?.toString();
 
-  console.log("selection", selectedText);
-
   const handleCreateSubFromSelection = () => {
     if (!selectedText) {
       return;
     }
-
-    console.log("selectedText", selectedText, selection);
 
     const inBreakdown = prompt.parts.findIndex((part) => {
       return part.text.includes(selectedText);
     });
 
     if (inBreakdown === -1) {
-      console.log("no match");
       return;
     }
 
@@ -162,21 +157,4 @@ export function PromptEditor(props: PromptEditorProps) {
       )}
     </div>
   );
-}
-
-export const selRegex = /{([^}]*?)\s?:\s?([^}]*?)}/g;
-
-function getSelectionFromPromptPart(part: PromptPart) {
-  // regex to match string with {artist: XXXX} in it
-  // if it matches, return the XXXX
-  // if it doesn't match, return null
-
-  const matches2 = Array.from(part.text.matchAll(selRegex));
-
-  const results = matches2.map<PromptSelection>((match) => ({
-    name: match[1],
-    originalText: match[2],
-  }));
-
-  return results;
 }

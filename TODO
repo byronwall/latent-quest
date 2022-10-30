@@ -18,6 +18,7 @@ Image Grid:
     ☐ text changes really need to respect the original sort order
     ☐ provide a simple way to get random seeds to test with 
     ☐ show active prompt for main image (and other details too?)
+    ☐ update the diff count to show total size of artist list
 
 Random:
     ☐ allow deleting single images

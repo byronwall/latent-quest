@@ -85,7 +85,8 @@ export function getTextForBreakdown(breakdown: PromptBreakdown | undefined) {
       PromptBreakdownSortOrder.indexOf(b.label)
     );
   });
-  return sortedParts.map((c) => c.text).join(", ");
+  const result = sortedParts.map((c) => c.text).join(", ");
+  return result;
 }
 
 export function getBreakdownForText(text: string): PromptBreakdown {
@@ -138,7 +139,6 @@ export interface SdImageTransformTextSub {
   field: BreakdownType;
 
   action: "substitute";
-  original: string;
 
   value: string;
 

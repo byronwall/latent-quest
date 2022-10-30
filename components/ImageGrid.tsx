@@ -3,7 +3,6 @@ import {
   Group,
   Loader,
   MultiSelect,
-  NumberInput,
   Radio,
   Stack,
   Table,
@@ -12,7 +11,7 @@ import {
 import { IconWand } from "@tabler/icons";
 import axios from "axios";
 import produce from "immer";
-import { orderBy, uniqBy } from "lodash-es";
+import { orderBy, uniq, uniqBy } from "lodash-es";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 
@@ -23,7 +22,6 @@ import {
   getImageDiffAsTransforms,
   isImageSameAsPlaceHolder,
   jsonStringifyStable,
-  summarizeAllDifferences,
 } from "../libs/helpers";
 import {
   getTextForBreakdown,
@@ -34,13 +32,14 @@ import {
   SdImageTransform,
   SdImageTransformHolder,
   SdImageTransformMulti,
-  SdImageTransformNone,
-  SdImageTransformNonMulti,
   SdImageTransformNumberRaw,
   SdImageTransformText,
   SdImageTransformTextBasic,
+  SdImageTransformTextSub,
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
+import { commonChoiceMap } from "./common_choices";
+import { getSelectionFromPromptPart } from "./getSelectionFromPromptPart";
 import { SdGroupTable } from "./SdGroupTable";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
@@ -76,8 +75,6 @@ const seedChoices = [
   { value: "6879", label: "6879" },
   { value: "109873", label: "109873" },
 ];
-
-const variableChoices = ["cfg", "seed", "steps", "unknown"] as const;
 
 export function ImageGrid(props: ImageGridProps) {
   const { groupId } = props;
@@ -126,6 +123,23 @@ export function ImageGrid(props: ImageGridProps) {
 
   const data = useMemo(() => _data ?? [], [_data]);
 
+  const availableSubNames = uniq(
+    data.reduce((acc, item) => {
+      item.promptBreakdown.parts.forEach((part) => {
+        const selections = getSelectionFromPromptPart(part);
+
+        acc.push(...selections.map((sel) => sel.name));
+      });
+      return acc;
+    }, [] as string[])
+  );
+
+  const fixedVariableChoices = ["cfg", "seed", "steps", "unknown"] as const;
+  const variableChoices = [
+    ...fixedVariableChoices,
+    ...availableSubNames,
+  ] as const;
+
   // store the main image in state
 
   const mainImageIdFromSettings =
@@ -166,14 +180,29 @@ export function ImageGrid(props: ImageGridProps) {
 
   const visibleIds: string[] = [];
 
-  // add in the must show items from drop down
-  const extraChoiceMap: { [key in typeof variableChoices[number]]: number[] } =
-    {
-      seed: seedChoice.map((x) => +x),
-      cfg: cfgChoice.map((x) => +x),
-      steps: stepsChoice.map((x) => +x),
-      unknown: [],
-    };
+  function getExtraChoice(key: string) {
+    switch (key) {
+      case "cfg":
+        return cfgChoice.map((x) => +x);
+
+      case "seed":
+        return seedChoice.map((x) => +x);
+
+      case "steps":
+        return stepsChoice.map((x) => +x);
+
+      case "unknown":
+        return [];
+
+      default:
+        const extraMatch = commonChoiceMap[key];
+        if (extraMatch) {
+          return extraMatch;
+        }
+
+        return [];
+    }
+  }
 
   const diffXForm = getImageDiffAsTransforms(mainImage, data);
 
@@ -206,13 +235,13 @@ export function ImageGrid(props: ImageGridProps) {
       acc[x.field] += 1;
       return acc;
     },
-    { cfg: 0, seed: 0, steps: 0, unknown: 0 }
+    { cfg: 1, seed: 1, steps: 1, unknown: 1 }
   );
 
   const rowExtras =
     rowVar === "unknown"
       ? looseTransformsNormalized
-      : genSimpleXFormList(rowVar, extraChoiceMap[rowVar]);
+      : genSimpleXFormList(rowVar, getExtraChoice(rowVar));
 
   const rowTransformHolder = generateSortedTransformList(
     rowVar,
@@ -223,7 +252,7 @@ export function ImageGrid(props: ImageGridProps) {
   const colExtras =
     colVar === "unknown"
       ? looseTransformsNormalized
-      : genSimpleXFormList(colVar, extraChoiceMap[colVar]);
+      : genSimpleXFormList(colVar, getExtraChoice(colVar));
 
   const colTransformHolder = generateSortedTransformList(
     colVar,
@@ -239,7 +268,7 @@ export function ImageGrid(props: ImageGridProps) {
     visibleIds
   );
 
-  const [imageSize, setImageSize] = useState(200);
+  const imageSize = 200;
 
   const handleAddLooseTransform = (t: SdImageTransform) => {
     setLooseTransforms(
@@ -448,21 +477,33 @@ function genSimpleXFormList(rowVar: string, uniqValues: any[]) {
 }
 
 function generateTransformFromSimplerHeader(rowVar: string, rowHeader: any) {
-  let rowTransformTemp: SdImageTransform;
   if (PromptBreakdownSortOrder.includes(rowVar as any)) {
-    rowTransformTemp = {
+    const rowTransformTemp: SdImageTransformText = {
       type: "text",
       action: "set",
-      field: rowVar,
+      field: rowVar as any,
       value: rowHeader,
-    } as SdImageTransformText;
-  } else {
-    rowTransformTemp = {
+    };
+    return rowTransformTemp;
+  }
+
+  if (rowVar === "cfg" || rowVar === "steps" || rowVar === "seed") {
+    const rowTransformTemp: SdImageTransformNumberRaw = {
       type: "num-raw",
       field: rowVar as any,
       value: rowHeader,
-    } as SdImageTransformNumberRaw;
+    };
+    return rowTransformTemp;
   }
+
+  // this is a substitution
+  const rowTransformTemp: SdImageTransformTextSub = {
+    type: "text",
+    action: "substitute",
+    field: rowVar as any,
+    value: rowHeader,
+  };
+
   return rowTransformTemp;
 }
 
@@ -529,32 +570,32 @@ function generateSortedTransformList(
   diffXForm: SdImageTransform[],
   mainImage: SdImage
 ) {
-  console.log("diff xform", diffXForm);
+  // original process before substitutes
 
   // create a dummy xform to recover the main image
   const dummy =
-    rowColVar === "unknown"
+    rowColVar === "cfg" || rowColVar === "steps" || rowColVar === "seed"
       ? ({
+          type: "num-raw",
+          field: rowColVar as any,
+          value: mainImage[rowColVar as any],
+        } as SdImageTransformNumberRaw)
+      : ({
           type: "text",
           field: rowColVar as any,
           action: "set",
           value: getTextForBreakdown(mainImage.promptBreakdown),
-        } as SdImageTransformTextBasic)
-      : ({
-          type: "num-raw",
-          field: rowColVar as any,
-          value: mainImage[rowColVar as any],
-        } as SdImageTransformNumberRaw);
+        } as SdImageTransformTextBasic);
 
-  const isDummyPresent = diffXForm.some((xform) => {
-    // run the transform into main image and see if it's the same
-    const placeholder = generatePlaceholderForTransform(mainImage, xform);
-    const newDiffs = findImageDifferences(mainImage, placeholder);
+  const isDummyPresent = diffXForm
+    .filter((c) => c.type === rowColVar)
+    .some((xform) => {
+      // run the transform into main image and see if it's the same
+      const placeholder = generatePlaceholderForTransform(mainImage, xform);
+      const newDiffs = findImageDifferences(mainImage, placeholder);
 
-    console.log("new diffs", newDiffs);
-
-    return newDiffs.length === 0;
-  });
+      return newDiffs.length === 0;
+    });
 
   if (!isDummyPresent) {
     diffXForm.splice(0, 0, dummy);
@@ -573,7 +614,6 @@ function generateSortedTransformList(
       "desc"
     ),
   };
-  console.log("final xforms", rowTransformHolder.transforms);
 
   return rowTransformHolder;
 }

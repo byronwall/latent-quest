@@ -40,31 +40,6 @@ export function SdPromptToTransform(props: PromptEditorProps) {
     onNewTransform(multiTransform);
   };
 
-  const handleCreateSubTransform = (selection: PromptSelection) => {
-    console.log("handleCreateSubTransform");
-
-    const subTransform: SdImageTransformTextSub = {
-      type: "text",
-      field: "unknown",
-      action: "substitute",
-      original: selection.originalText,
-      value: "",
-    };
-
-    console.log("subTransform", subTransform);
-  };
-
-  // const selections = uniq(
-  //   breakdown.parts.reduce((acc, part) => {
-  //     if (part.selections) {
-  //       acc.push(...part.selections);
-  //     }
-  //     return acc;
-  //   }, [] as PromptSelection[])
-  // );
-
-  // console.log("selectionNames", selections);
-
   return (
     <div>
       <Popover closeOnClickOutside>

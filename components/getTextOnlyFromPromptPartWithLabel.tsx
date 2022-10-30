@@ -1,5 +1,5 @@
 import { PromptPart } from "../libs/shared-types/src";
-import { selRegex } from "./PromptEditor";
+import { selRegex } from "./getSelectionFromPromptPart";
 
 export function getTextOnlyFromPromptPartWithLabel(text: string) {
   const result = text.replaceAll(selRegex, (match, p1, p2) => {

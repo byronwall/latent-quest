@@ -1,4 +1,5 @@
 import {
+  getTextForBreakdown,
   PromptBreakdown,
   PromptBreakdownSortOrder,
   SdImage,
@@ -10,14 +11,15 @@ import {
 } from "./shared-types/src";
 import * as cloneDeep from "clone-deep";
 import { isEqual, orderBy, uniqBy } from "lodash-es";
+import { selRegex } from "../components/getSelectionFromPromptPart";
 
 export function isImageSameAsPlaceHolder(
   item: SdImage,
   placeholder: SdImagePlaceHolder
 ): unknown {
-  const sortedItem = sortPromptBreakdown(item);
-  const sortedPlaceholder = sortPromptBreakdown(placeholder);
-  const promptSame = isEqual(sortedItem, sortedPlaceholder);
+  const sortedItem = getTextForBreakdown(item.promptBreakdown);
+  const sortedPlaceholder = getTextForBreakdown(placeholder.promptBreakdown);
+  const promptSame = sortedItem === sortedPlaceholder;
 
   return (
     promptSame &&
@@ -325,6 +327,28 @@ export function generatePlaceholderForTransform(
           );
 
           break;
+        }
+
+        case "substitute": {
+          const toSubstitute = transform.value;
+
+          // if a given breakdown contains the {xxx: yyy} pattern, replace with transform
+          placeholder.promptBreakdown.parts =
+            placeholder.promptBreakdown.parts.map((c) => {
+              const match = selRegex.exec(c.text);
+              if (match && match[1] === transform.field) {
+                if (toSubstitute) {
+                  return {
+                    ...c,
+                    text: c.text.replace(
+                      selRegex,
+                      `{${transform.field}: ${toSubstitute}}`
+                    ),
+                  };
+                }
+              }
+              return c;
+            });
         }
       }
       break;
