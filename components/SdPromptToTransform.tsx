@@ -4,10 +4,8 @@ import { useEffect, useState } from "react";
 import { getBreakdownDelta } from "../libs/helpers";
 import {
   PromptBreakdown,
-  PromptSelection,
   SdImageTransform,
   SdImageTransformMulti,
-  SdImageTransformTextSub,
 } from "../libs/shared-types/src";
 import { PromptEditor } from "./PromptEditor";
 
@@ -52,15 +50,6 @@ export function SdPromptToTransform(props: PromptEditorProps) {
             <Button onClick={handleCreateTransform}>
               create xform for text
             </Button>
-            {/* {selections.map((selection) => (
-              <Button
-                key={selection.name}
-                onClick={() => handleCreateSubTransform(selection)}
-                color="green"
-              >
-                xform for {selection.name}
-              </Button>
-            ))} */}
 
             <PromptEditor
               initialBreakdown={breakdown}
@@ -70,7 +59,7 @@ export function SdPromptToTransform(props: PromptEditorProps) {
           </div>
         </Popover.Dropdown>
         <Popover.Target>
-          <Button>xform</Button>
+          <Button compact>xform</Button>
         </Popover.Target>
       </Popover>
     </div>

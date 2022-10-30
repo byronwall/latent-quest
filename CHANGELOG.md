@@ -1,5 +1,11 @@
 # Changelog
 
+## 2022-10-30 12:20:24
+
+- Improve display of wrapped 1D grid
+  - Better header text for substitution
+  - Better tracking of main image to prevent dupes -- not quite right yet
+
 ## 2022-10-29 22:07:35
 
 - Add support for substitutions as part of the image matrix

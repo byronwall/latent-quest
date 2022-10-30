@@ -8,44 +8,39 @@ import {
   Table,
   Title,
 } from "@mantine/core";
-import { IconWand } from "@tabler/icons";
+import { IconDeviceFloppy, IconWand } from "@tabler/icons";
 import axios from "axios";
 import produce from "immer";
-import { orderBy, uniq, uniqBy } from "lodash-es";
+import { uniq } from "lodash-es";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 
 import {
   findImageDifferences,
-  generatePlaceholderForTransform,
   generatePlaceholderForTransforms,
   getImageDiffAsTransforms,
-  isImageSameAsPlaceHolder,
-  jsonStringifyStable,
 } from "../libs/helpers";
 import {
-  getTextForBreakdown,
-  PromptBreakdownSortOrder,
   SdImage,
   SdImageGroup,
   SdImagePlaceHolder,
   SdImageTransform,
   SdImageTransformHolder,
   SdImageTransformMulti,
-  SdImageTransformNumberRaw,
-  SdImageTransformText,
-  SdImageTransformTextBasic,
-  SdImageTransformTextSub,
-  TransformNone,
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 import { commonChoiceMap } from "./common_choices";
 import { getSelectionFromPromptPart } from "./getSelectionFromPromptPart";
 import { Switch } from "./MantineWrappers";
+import { SdCardOrTableCell } from "./SdCardOrTableCell";
 import { SdGroupTable } from "./SdGroupTable";
-import { SdImageComp } from "./SdImageComp";
-import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
-import { SdPromptToTransform } from "./SdPromptToTransform";
+import {
+  generateSortedTransformList,
+  generateTableFromXform,
+  genSimpleXFormList,
+  getDescForTransform,
+  getRowColHeaderText,
+} from "./transform_helpers";
 
 interface ImageGridProps {
   groupId: string;
@@ -323,9 +318,7 @@ export function ImageGrid(props: ImageGridProps) {
     <div>
       <div className="container">
         <h1>Group {groupId}</h1>
-        <Title order={1}>grid of images</Title>
-        <Title order={2}>transform chooser</Title>
-        <Button onClick={() => saveGroupSettings()}>save view to DB</Button>
+
         <Stack>
           <Group>
             <b>row var</b>
@@ -399,6 +392,13 @@ export function ImageGrid(props: ImageGridProps) {
             searchable
           />
         </Group>
+        <Button
+          onClick={() => saveGroupSettings()}
+          rightIcon={<IconDeviceFloppy />}
+          compact
+        >
+          save
+        </Button>
       </div>
 
       {isSingleVar ? (
@@ -414,13 +414,15 @@ export function ImageGrid(props: ImageGridProps) {
           >
             {tableData.map((row, rowIdx) => (
               <div key={rowIdx} style={{ width: 200 }}>
-                <p style={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-                  {getRowColHeaderText(
-                    rowTransformHolder.transforms[rowIdx],
-                    rowVar,
-                    mainImage
-                  )}
-                </p>
+                <div style={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                  <Title order={3}>
+                    {getRowColHeaderText(
+                      rowTransformHolder.transforms[rowIdx],
+                      rowVar,
+                      mainImage
+                    )}
+                  </Title>
+                </div>
                 <SdCardOrTableCell
                   cell={row[0]}
                   imageSize={imageSize}
@@ -500,244 +502,8 @@ function getTextForChoice(
   return labelText;
 }
 
-function genSimpleXFormList(rowVar: string, uniqValues: any[]) {
-  return uniqValues.map((rowHeader) =>
-    generateTransformFromSimplerHeader(rowVar, rowHeader)
-  );
-}
-
-function generateTransformFromSimplerHeader(rowVar: string, rowHeader: any) {
-  if (PromptBreakdownSortOrder.includes(rowVar as any)) {
-    const rowTransformTemp: SdImageTransformText = {
-      type: "text",
-      action: "set",
-      field: rowVar as any,
-      value: rowHeader,
-    };
-    return rowTransformTemp;
-  }
-
-  if (rowVar === "cfg" || rowVar === "steps" || rowVar === "seed") {
-    const rowTransformTemp: SdImageTransformNumberRaw = {
-      type: "num-raw",
-      field: rowVar as any,
-      value: rowHeader,
-    };
-    return rowTransformTemp;
-  }
-
-  // this is a substitution
-  const rowTransformTemp: SdImageTransformTextSub = {
-    type: "text",
-    action: "substitute",
-    field: rowVar as any,
-    value: rowHeader,
-  };
-
-  return rowTransformTemp;
-}
-
-type SdImageGrid = Array<Array<SdImage | SdImagePlaceHolder>>;
-
-function generateTableFromXform(
-  transformRow: SdImageTransformHolder,
-  transformCol: SdImageTransformHolder,
-  mainImage: SdImage,
-  data: SdImage[],
-  visibleIds: string[]
-): SdImageGrid {
-  const tableData: Array<Array<SdImage | SdImagePlaceHolder>> = [];
-  if (transformRow && transformCol) {
-    for (let row = 0; row < transformRow.transforms.length; row++) {
-      const rowTransform = transformRow.transforms[row];
-      const rowImages = [];
-      tableData.push(rowImages);
-      for (let col = 0; col < transformCol.transforms.length; col++) {
-        const colTransform = transformCol.transforms[col];
-        const placeholder = generatePlaceholderForTransforms(mainImage, [
-          rowTransform,
-          colTransform,
-        ]);
-
-        const found = data?.find((item) =>
-          isImageSameAsPlaceHolder(item, placeholder)
-        );
-
-        if (found) {
-          visibleIds.push(found.id);
-        }
-
-        tableData[row][col] = found ?? placeholder;
-      }
-    }
-  }
-  return tableData;
-}
-
-function getDescForTransform(transform: SdImageTransform): string {
-  switch (transform.type) {
-    case "text":
-      return `${transform.action}     
-      ${
-        Array.isArray(transform.value)
-          ? transform.value.join(" + ")
-          : transform.value
-      }`;
-    case "num-raw":
-      return `${transform.value}`;
-    case "num-delta":
-      return `${transform.delta}`;
-
-    case "multi":
-      return `${transform.transforms.map((t) => getDescForTransform(t))}`;
-  }
-
-  return "";
-}
-
-function generateSortedTransformList(
-  rowColVar: string,
-  diffXForm: SdImageTransform[],
-  mainImage: SdImage
-): SdImageTransformHolder {
-  // original process before substitutes
-
-  if (rowColVar === "none") {
-    return {
-      name: "none",
-      transforms: [TransformNone],
-    };
-  }
-
-  // create a dummy xform to recover the main image
-  const dummy =
-    rowColVar === "cfg" || rowColVar === "steps" || rowColVar === "seed"
-      ? ({
-          type: "num-raw",
-          field: rowColVar as any,
-          value: mainImage[rowColVar as any],
-        } as SdImageTransformNumberRaw)
-      : ({
-          type: "text",
-          field: rowColVar as any,
-          action: "set",
-          value: getTextForBreakdown(mainImage.promptBreakdown),
-        } as SdImageTransformTextBasic);
-
-  const isDummyPresent = diffXForm
-    .filter((c) => c.type === rowColVar)
-    .some((xform) => {
-      // run the transform into main image and see if it's the same
-      const placeholder = generatePlaceholderForTransform(mainImage, xform);
-      const newDiffs = findImageDifferences(mainImage, placeholder);
-
-      return newDiffs.length === 0;
-    });
-
-  if (!isDummyPresent) {
-    diffXForm.splice(0, 0, dummy);
-  }
-
-  const rowTransformHolder: SdImageTransformHolder = {
-    name: rowColVar,
-    transforms: orderBy(
-      uniqBy(
-        diffXForm.filter((x) => x.type !== "none" && x.field === rowColVar),
-        jsonStringifyStable
-      ),
-      (c) => {
-        return getSortValueForXform(c);
-      },
-      "desc"
-    ),
-  };
-
-  return rowTransformHolder;
-}
-
-function getSortValueForXform(c: SdImageTransform) {
-  switch (c.type) {
-    case "text":
-      const newLocal = getDescForTransform(c);
-      return (c.action === "add" ? 1 : -1) * newLocal.length;
-
-    case "num-raw":
-      return c.value;
-
-    case "num-delta":
-      return c.delta;
-
-    case "none":
-      return 0;
-
-    case "multi":
-      const firstXForm = c.transforms[0];
-      if (firstXForm === undefined) {
-        return 0;
-      }
-      return getSortValueForXform(firstXForm);
-  }
-}
-
-function getRowColHeaderText(
-  col: SdImageTransform,
-  colVar: string,
-  mainImage: SdImage
-) {
-  const value =
-    col.type === "none"
-      ? colVar === "unknown"
-        ? getTextForBreakdown(mainImage.promptBreakdown)
-        : mainImage[colVar]
-      : getDescForTransform(col);
-
-  const lhsText = colVar === "unknown" ? "" : colVar + " = ";
-
-  return `${lhsText}${value}`;
-}
-
-function isPlaceholder(
+export function isPlaceholder(
   item: SdImage | SdImagePlaceHolder
 ): item is SdImagePlaceHolder {
   return !("id" in item);
-}
-
-function SdCardOrTableCell(props: {
-  cell: any;
-  imageSize: any;
-  handleAddLooseTransform: any;
-  mainImage: any;
-  setMainImage: any;
-}) {
-  const { cell, imageSize, handleAddLooseTransform, mainImage, setMainImage } =
-    props;
-
-  const content =
-    cell === undefined ? (
-      <div />
-    ) : isPlaceholder(cell) ? (
-      <SdImagePlaceHolderComp size={imageSize} placeholder={cell} />
-    ) : (
-      <SdImageComp image={cell} size={imageSize} />
-    );
-
-  return (
-    <div>
-      {content}
-      <div style={{ display: "flex" }}>
-        <SdPromptToTransform
-          promptBreakdown={cell.promptBreakdown}
-          onNewTransform={handleAddLooseTransform}
-        />
-        {"id" in cell && (
-          <Button
-            onClick={() => setMainImage(cell)}
-            color={mainImage.id === cell.id ? "lime" : "blue"}
-          >
-            set main
-          </Button>
-        )}
-      </div>
-    </div>
-  );
 }

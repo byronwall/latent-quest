@@ -1,4 +1,9 @@
-import { PromptPart, PromptSelection } from "../libs/shared-types/src";
+import {
+  PromptPart,
+  PromptSelection,
+  SdImage,
+  SdImagePlaceHolder,
+} from "../libs/shared-types/src";
 
 export const selRegex = /{([^}]*?)\s?:\s?([^}]*?)}/g;
 
@@ -14,4 +19,17 @@ export function getSelectionFromPromptPart(part: PromptPart) {
   }));
 
   return results;
+}
+
+export function getSelectionAsLookup(image: SdImage | SdImagePlaceHolder) {
+  const lookup: Record<string, string> = {};
+
+  image.promptBreakdown?.parts.forEach((part) => {
+    const selections = getSelectionFromPromptPart(part);
+    selections.forEach((sel) => {
+      lookup[sel.name] = sel.originalText;
+    });
+  });
+
+  return lookup;
 }
