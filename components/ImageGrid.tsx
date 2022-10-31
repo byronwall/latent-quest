@@ -14,6 +14,7 @@ import produce from "immer";
 import { uniq } from "lodash-es";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { useMap } from "react-use";
 
 import {
   findImageDifferences,
@@ -29,11 +30,11 @@ import {
   SdImageTransformMulti,
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
-import { commonChoiceMap } from "./common_choices";
 import { getSelectionFromPromptPart } from "./getSelectionFromPromptPart";
 import { Switch } from "./MantineWrappers";
 import { SdCardOrTableCell } from "./SdCardOrTableCell";
 import { SdGroupTable } from "./SdGroupTable";
+import { SdSubChooser } from "./SdSubChooser";
 import {
   generateSortedTransformList,
   generateTableFromXform,
@@ -183,6 +184,10 @@ export function ImageGrid(props: ImageGridProps) {
 
   const visibleIds: string[] = [];
 
+  const [specialChoices, { set: setSpecialChoices }] = useMap<{
+    [key: string]: string[];
+  }>({});
+
   function getExtraChoice(key: string) {
     switch (key) {
       case "cfg":
@@ -198,7 +203,7 @@ export function ImageGrid(props: ImageGridProps) {
         return [];
 
       default:
-        const extraMatch = commonChoiceMap[key];
+        const extraMatch = specialChoices[key];
         if (extraMatch) {
           return extraMatch;
         }
@@ -309,11 +314,14 @@ export function ImageGrid(props: ImageGridProps) {
     qc.invalidateQueries(groupId);
   };
 
-  const btnGenAll = (
+  const btnGenAll = isBulkLoading ? (
+    <Loader />
+  ) : (
     <Button onClick={handleGenAll} rightIcon={<IconWand />}>
       gen all
     </Button>
   );
+
   return (
     <div>
       <div className="container">
@@ -324,11 +332,25 @@ export function ImageGrid(props: ImageGridProps) {
             <b>row var</b>
             <Radio.Group value={rowVar} onChange={setRowVar}>
               {variableChoices.map((choice) => {
+                const isSpecial =
+                  fixedVariableChoices.indexOf(choice as any) === -1;
                 return (
                   <Radio
                     key={choice}
                     value={choice}
-                    label={getTextForChoice(choice, diffCounts)}
+                    label={
+                      <span>
+                        {getTextForChoice(choice, diffCounts)}
+                        {isSpecial && (
+                          <SdSubChooser
+                            activeCategory={choice}
+                            onNewChoices={(newChoices) =>
+                              setSpecialChoices(choice, newChoices)
+                            }
+                          />
+                        )}
+                      </span>
+                    }
                   />
                 );
               })}
@@ -442,7 +464,7 @@ export function ImageGrid(props: ImageGridProps) {
         >
           <thead>
             <tr>
-              <th>{isBulkLoading ? <Loader /> : btnGenAll}</th>
+              <th>{btnGenAll}</th>
               {colTransformHolder.transforms.map((col, idx) => (
                 <th key={idx}>{getRowColHeaderText(col, colVar, mainImage)}</th>
               ))}

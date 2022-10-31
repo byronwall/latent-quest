@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-10-30 22:19:08
+
+- Import a large list of artists and build a selection interface for them
+
 ## 2022-10-30 12:20:24
 
 - Improve display of wrapped 1D grid

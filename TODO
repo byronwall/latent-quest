@@ -11,10 +11,16 @@ Image Grid:
 
     ☐ load the images and group data server side to improve first render speed (avoid bump when group data comes through)
 
+    ☐ ability to change sort order of grid -- default appears to be descending
+
+Sub Chooser related:
+    ☐ Allow a choice to use either the modal selections or all active items in group
+
 Random:
     ☐ allow deleting single images
     ☐ allow creating new groups from an existing study or survey -- keep the image url -- add a `prevGroupId` -- new groupId -- new image id?
     ☐ add a 1D / walk mode which tracks the `previousId` and shows as a directed acyclic graph
+    ☐ try the `AppShell` for the NavBar and other stuff
 
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces
