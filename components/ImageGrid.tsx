@@ -30,7 +30,10 @@ import {
   SdImageTransformMulti,
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
-import { getSelectionFromPromptPart } from "./getSelectionFromPromptPart";
+import {
+  getSelectionAsLookup,
+  getSelectionFromPromptPart,
+} from "./getSelectionFromPromptPart";
 import { Switch } from "./MantineWrappers";
 import { SdCardOrTableCell } from "./SdCardOrTableCell";
 import { SdGroupTable } from "./SdGroupTable";
@@ -105,6 +108,15 @@ export function ImageGrid(props: ImageGridProps) {
     setRowVar(groupData.view_settings.defaultView.rowVar);
     setColVar(groupData.view_settings.defaultView.colVar);
     setIsSingleVar(groupData.view_settings.defaultView.isSingleVar ?? false);
+
+    initSpecialChoicesCheckAll(
+      groupData.view_settings.defaultView.specialChoicesCheckAll ?? {}
+    );
+
+    initSpecialChoicesCheckPopup(
+      groupData.view_settings.defaultView.specialChoicesCheckPopup ?? {}
+    );
+
     // TODO: add main image here
   }, [groupData]);
 
@@ -117,6 +129,11 @@ export function ImageGrid(props: ImageGridProps) {
     if (mainImage) {
       postData.view_settings.defaultView.mainImageId = mainImage.id;
     }
+
+    postData.view_settings.defaultView.specialChoicesCheckAll =
+      specialChoicesCheckAll;
+    postData.view_settings.defaultView.specialChoicesCheckPopup =
+      specialChoicesCheckPopup;
 
     postData.view_settings.defaultView.isSingleVar = isSingleVar;
 
@@ -188,6 +205,20 @@ export function ImageGrid(props: ImageGridProps) {
     [key: string]: string[];
   }>({});
 
+  const [
+    specialChoicesCheckAll,
+    { set: setSpecialChoicesCheckAll, setAll: initSpecialChoicesCheckAll },
+  ] = useMap<{
+    [key: string]: boolean;
+  }>({});
+
+  const [
+    specialChoicesCheckPopup,
+    { set: setSpecialChoicesCheckPopup, setAll: initSpecialChoicesCheckPopup },
+  ] = useMap<{
+    [key: string]: boolean;
+  }>({});
+
   function getExtraChoice(key: string) {
     switch (key) {
       case "cfg":
@@ -202,13 +233,23 @@ export function ImageGrid(props: ImageGridProps) {
       case "unknown":
         return [];
 
-      default:
-        const extraMatch = specialChoices[key];
-        if (extraMatch) {
-          return extraMatch;
+      default: {
+        const results = [];
+
+        if (specialChoicesCheckPopup[key]) {
+          const extraMatch = specialChoices[key] ?? [];
+          results.push(...extraMatch);
         }
 
-        return [];
+        if (specialChoicesCheckAll[key]) {
+          // get unique values for all
+          const allValues = uniq(data.map((x) => getSelectionAsLookup(x)[key]));
+
+          results.push(...allValues);
+        }
+
+        return results;
+      }
     }
   }
 
@@ -342,12 +383,36 @@ export function ImageGrid(props: ImageGridProps) {
                       <span>
                         {getTextForChoice(choice, diffCounts)}
                         {isSpecial && (
-                          <SdSubChooser
-                            activeCategory={choice}
-                            onNewChoices={(newChoices) =>
-                              setSpecialChoices(choice, newChoices)
-                            }
-                          />
+                          <div>
+                            <div>
+                              <Switch
+                                label="all in group (XXX)"
+                                onChange={(newVal) =>
+                                  setSpecialChoicesCheckAll(choice, newVal)
+                                }
+                                checked={
+                                  specialChoicesCheckAll[choice] ?? false
+                                }
+                              />
+                            </div>
+                            <div style={{ display: "flex" }}>
+                              <Switch
+                                label="all in popup (XXX)"
+                                onChange={(newVal) =>
+                                  setSpecialChoicesCheckPopup(choice, newVal)
+                                }
+                                checked={
+                                  specialChoicesCheckPopup[choice] ?? false
+                                }
+                              />
+                              <SdSubChooser
+                                activeCategory={choice}
+                                onNewChoices={(newChoices) =>
+                                  setSpecialChoices(choice, newChoices)
+                                }
+                              />
+                            </div>
+                          </div>
                         )}
                       </span>
                     }

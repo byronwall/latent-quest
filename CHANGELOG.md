@@ -3,6 +3,8 @@
 ## 2022-10-30 22:19:08
 
 - Import a large list of artists and build a selection interface for them
+- Store the new view settings on the server
+- Allow the sub list to be all available (for review) or from the list of choices
 
 ## 2022-10-30 12:20:24
 

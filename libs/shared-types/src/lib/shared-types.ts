@@ -38,6 +38,10 @@ export interface SdGroupView {
 
   mainImageId?: string;
 
+  // store check mark choices for subs
+  specialChoicesCheckAll?: { [key: string]: boolean };
+  specialChoicesCheckPopup?: { [key: string]: boolean };
+
   // add in those extra choices
 }
 
