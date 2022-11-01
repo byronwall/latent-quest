@@ -184,3 +184,16 @@ export function createDefaultViewSettings(): SdGroupViewSettings {
     },
   };
 }
+
+export type SdSubChoice =
+  | {
+      id: number;
+      category: string;
+      value: string;
+      tags: string[];
+    }
+  | {
+      category: string;
+      value: string;
+      tags: string[];
+    };

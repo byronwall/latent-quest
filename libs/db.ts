@@ -1,11 +1,11 @@
 // file will communicate with the sqlite database
 import { createClient } from "@supabase/supabase-js";
 
-import { SdImage, SdImageGroup } from "./shared-types/src";
+import { SdImage, SdImageGroup, SdSubChoice } from "./shared-types/src";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function db_getAllImages() {
   // load all from supabase
@@ -154,4 +154,40 @@ export async function db_updateGroup(group: SdImageGroup) {
   }
 
   return data;
+}
+
+export async function db_insertSubChoice(choice: SdSubChoice | SdSubChoice[]) {
+  const { data, error } = await supabase.from("sub-choices").insert(choice);
+
+  if (error) {
+    console.error("Error inserting group into database", error);
+    return undefined;
+  }
+
+  return data;
+}
+
+export async function db_getAllSubChoices() {
+  const { data, error } = await supabase.from("sub-choices").select("*");
+
+  if (error) {
+    console.error("Error inserting group into database", error);
+    return undefined;
+  }
+
+  return data as SdSubChoice[];
+}
+
+export async function db_getAllSubChoicesCategory(category: string) {
+  const { data, error } = await supabase
+    .from("sub-choices")
+    .select("*")
+    .eq("category", category);
+
+  if (error) {
+    console.error("Error inserting group into database", error);
+    return undefined;
+  }
+
+  return data as SdSubChoice[];
 }

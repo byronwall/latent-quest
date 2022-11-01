@@ -19,6 +19,13 @@ export function Navigation(props: {}) {
       <Link href="/create" passHref>
         <NavLink component="a" label="create" active={pathname === "/create"} />
       </Link>
+      <Link href="/choices" passHref>
+        <NavLink
+          component="a"
+          label="choice mgr"
+          active={pathname === "/choices"}
+        />
+      </Link>
     </div>
   );
 }

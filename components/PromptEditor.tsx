@@ -1,6 +1,5 @@
-import { Badge, Button, Title, useMantineTheme } from "@mantine/core";
+import { Badge, Button, Menu, Title, useMantineTheme } from "@mantine/core";
 import { useTextSelection } from "@mantine/hooks";
-import { resourceUsage } from "process";
 
 import {
   getBreakdownForText,
@@ -8,6 +7,7 @@ import {
   PromptBreakdown,
   PromptPart,
 } from "../libs/shared-types/src";
+import { useChoiceCategories } from "../model/api_hooks";
 import { getSelectionFromPromptPart } from "./getSelectionFromPromptPart";
 import { getTextOnlyFromPromptPartWithLabel } from "./getTextOnlyFromPromptPartWithLabel";
 import { pickTextColorBasedOnBgColorAdvanced } from "./pickTextColorBasedOnBgColorAdvanced";
@@ -60,7 +60,7 @@ export function PromptEditor(props: PromptEditorProps) {
 
   const selectedText = selection?.toString();
 
-  const handleCreateSubFromSelection = () => {
+  const handleCreateSubFromSelection = (name: string) => {
     if (!selectedText) {
       return;
     }
@@ -72,8 +72,6 @@ export function PromptEditor(props: PromptEditorProps) {
     if (inBreakdown === -1) {
       return;
     }
-
-    const name = window.prompt("enter label name");
 
     if (!name) {
       return;
@@ -100,9 +98,18 @@ export function PromptEditor(props: PromptEditorProps) {
     });
   };
 
+  const { categories } = useChoiceCategories();
+
   return (
     <div {...rest}>
       <Title order={2}>prompt editor</Title>
+
+      <p>
+        <i>
+          To activate substitution, select some text and hit the button that
+          appears below.
+        </i>
+      </p>
 
       <TextAreaWithButton
         defaultText={simpleText}
@@ -153,7 +160,25 @@ export function PromptEditor(props: PromptEditorProps) {
         })}
       </div>
       {shouldAllowSelection && selectedText && (
-        <Button onClick={handleCreateSubFromSelection}>label selection</Button>
+        <Menu shadow="md" width={200}>
+          <Menu.Target>
+            <Button>Apply label to selection</Button>
+          </Menu.Target>
+
+          <Menu.Dropdown>
+            <Menu.Label>Available Subs</Menu.Label>
+            {categories.map((category) => (
+              <Menu.Item
+                key={category}
+                onClick={() => {
+                  handleCreateSubFromSelection(category);
+                }}
+              >
+                {category}
+              </Menu.Item>
+            ))}
+          </Menu.Dropdown>
+        </Menu>
       )}
     </div>
   );

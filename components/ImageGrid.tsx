@@ -142,15 +142,19 @@ export function ImageGrid(props: ImageGridProps) {
 
   const data = useMemo(() => _data ?? [], [_data]);
 
-  const availableSubNames = uniq(
-    data.reduce((acc, item) => {
-      item.promptBreakdown.parts.forEach((part) => {
-        const selections = getSelectionFromPromptPart(part);
+  const availableSubNames = useMemo(
+    () =>
+      uniq(
+        data.reduce((acc, item) => {
+          item.promptBreakdown.parts.forEach((part) => {
+            const selections = getSelectionFromPromptPart(part);
 
-        acc.push(...selections.map((sel) => sel.name));
-      });
-      return acc;
-    }, [] as string[])
+            acc.push(...selections.map((sel) => sel.name));
+          });
+          return acc;
+        }, [] as string[])
+      ),
+    [data]
   );
 
   const fixedVariableChoices = ["cfg", "seed", "steps", "unknown"] as const;
@@ -219,6 +223,13 @@ export function ImageGrid(props: ImageGridProps) {
     [key: string]: boolean;
   }>({});
 
+  const allSpecialValues = useMemo(() => {
+    return availableSubNames.reduce((acc, name) => {
+      acc[name] = uniq(data.map((x) => getSelectionAsLookup(x)[name]));
+      return acc;
+    }, {} as { [key: string]: string[] });
+  }, [data, availableSubNames]);
+
   function getExtraChoice(key: string) {
     switch (key) {
       case "cfg":
@@ -243,7 +254,7 @@ export function ImageGrid(props: ImageGridProps) {
 
         if (specialChoicesCheckAll[key]) {
           // get unique values for all
-          const allValues = uniq(data.map((x) => getSelectionAsLookup(x)[key]));
+          const allValues = allSpecialValues[key];
 
           results.push(...allValues);
         }
@@ -386,7 +397,9 @@ export function ImageGrid(props: ImageGridProps) {
                           <div>
                             <div>
                               <Switch
-                                label="all in group (XXX)"
+                                label={`all in group (${
+                                  allSpecialValues[choice]?.length ?? 0
+                                })`}
                                 onChange={(newVal) =>
                                   setSpecialChoicesCheckAll(choice, newVal)
                                 }
@@ -397,7 +410,9 @@ export function ImageGrid(props: ImageGridProps) {
                             </div>
                             <div style={{ display: "flex" }}>
                               <Switch
-                                label="all in popup (XXX)"
+                                label={`all in popup (${
+                                  specialChoices[choice]?.length ?? 0
+                                })`}
                                 onChange={(newVal) =>
                                   setSpecialChoicesCheckPopup(choice, newVal)
                                 }
@@ -585,8 +600,18 @@ function getTextForChoice(
   diffCounts: { cfg: number; seed: number; steps: number; unknown: number }
 ) {
   const _labelText = choice === "unknown" ? "prompt" : choice;
-  const labelText = `${_labelText} (${diffCounts[choice]})`;
-  return labelText;
+
+  switch (choice) {
+    case "cfg":
+    case "seed":
+    case "steps":
+    case "unknown":
+      const labelText = `${_labelText} (${diffCounts[choice]})`;
+      return labelText;
+
+    default:
+      return _labelText;
+  }
 }
 
 export function isPlaceholder(

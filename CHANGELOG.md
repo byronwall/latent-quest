@@ -1,5 +1,11 @@
 # Changelog
 
+## 2022-10-31 20:52:58
+
+- Add counts to the substitution choices (replace XXX text)
+- Add substitutions to the database
+- Improve the `SubChooser` form to support subs that do not have tags yet
+
 ## 2022-10-30 22:19:08
 
 - Import a large list of artists and build a selection interface for them

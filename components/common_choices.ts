@@ -1,12 +1,6 @@
 // provide a list of 50 surreal artist in a javascript array
 
-export interface SdSubChoice {
-  category: string;
-  value: string;
-  tags: string[];
-}
-
-export const commonChoices: SdSubChoice[] = [
+export const commonChoices = [
   {
     category: "artist",
     value: "Alvar Aalto",
