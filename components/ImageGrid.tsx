@@ -254,7 +254,7 @@ export function ImageGrid(props: ImageGridProps) {
 
         if (specialChoicesCheckAll[key]) {
           // get unique values for all
-          const allValues = allSpecialValues[key];
+          const allValues = allSpecialValues[key] ?? [];
 
           results.push(...allValues);
         }
