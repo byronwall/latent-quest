@@ -93,7 +93,7 @@ export function PromptEditor(props: PromptEditorProps) {
     // this needs to update the prompt part with:
     // {name: original}
 
-    onBreakdownChange({
+    onBreakdownChange?.({
       parts: newParts,
     });
   };

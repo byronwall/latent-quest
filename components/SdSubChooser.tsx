@@ -1,4 +1,4 @@
-import { Button, Chip, Modal, TextInput } from "@mantine/core";
+import { Button, Chip, Modal, TextInput, Title } from "@mantine/core";
 import { IconWindowMaximize } from "@tabler/icons";
 import { orderBy, uniq, uniqBy } from "lodash-es";
 import { useState } from "react";
@@ -64,13 +64,16 @@ export function SdSubChooser(props: SdSubChooserProps) {
 
   const handleSave = () => {
     const choices = Array.from(activeChoices);
-    onNewChoices(choices);
+    onNewChoices?.(choices);
 
     setIsOpen(false);
   };
 
   const contents = (
     <div>
+      <Title order={3}>Select {activeCategory}</Title>
+      <p>Total items selected: {activeChoices.size}</p>
+      <div />
       <div>
         <Button onClick={handleSave}>save choices</Button>
       </div>
@@ -123,6 +126,10 @@ export function SdSubChooser(props: SdSubChooserProps) {
               alignItems: "flex-start",
             }}
           >
+            <p>
+              showing available choices for tag:{" "}
+              <b>{activeTag === "" ? "all" : activeTag}</b>
+            </p>
             {items.map((item) => (
               <Chip
                 key={item.value}

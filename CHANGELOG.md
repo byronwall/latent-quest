@@ -1,5 +1,12 @@
 # Changelog
 
+## 2022-11-01 23:01:03
+
+- Continue to add more modifiers
+- Add slightly better labels to the modifiers
+- Allow the row and column variables to both be modifiers
+- Improve main image selection coming from a reload
+
 ## 2022-10-31 20:52:58
 
 - Add counts to the substitution choices (replace XXX text)

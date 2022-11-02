@@ -124,6 +124,11 @@ export function ImageGrid(props: ImageGridProps) {
     // fire off a post to the right api
 
     const postData = { ...groupData };
+
+    if (postData.view_settings === undefined) {
+      return;
+    }
+
     postData.view_settings.defaultView.rowVar = rowVar;
     postData.view_settings.defaultView.colVar = colVar;
     if (mainImage) {
@@ -168,9 +173,9 @@ export function ImageGrid(props: ImageGridProps) {
   const mainImageIdFromSettings =
     groupData?.view_settings.defaultView.mainImageId;
 
-  const mainImageFromSettings = useMemo(() => {
-    return data.find((x) => x.id === mainImageIdFromSettings);
-  }, [data, mainImageIdFromSettings]);
+  const mainImageFromSettings = data.find(
+    (x) => x.id === mainImageIdFromSettings
+  );
 
   const [mainImage, setMainImage] = useState<SdImage>(
     mainImageFromSettings ?? data[0] ?? ({} as SdImage)
@@ -180,12 +185,10 @@ export function ImageGrid(props: ImageGridProps) {
   useEffect(() => {
     if (mainImageFromSettings) {
       setMainImage(mainImageFromSettings);
+    } else {
+      setMainImage(data[0] ?? ({} as SdImage));
     }
   }, [mainImageFromSettings, data]);
-
-  useEffect(() => {
-    setMainImage(data?.[0] ?? ({} as SdImage));
-  }, [data]);
 
   // take those images and push into a table -- by default 3x3 with single image in center
 
@@ -445,13 +448,57 @@ export function ImageGrid(props: ImageGridProps) {
             <Group>
               <b>col var</b>
               <Radio.Group value={colVar} onChange={setColVar}>
-                {variableChoices.map((choice) => (
-                  <Radio
-                    key={choice}
-                    value={choice}
-                    label={getTextForChoice(choice, diffCounts)}
-                  />
-                ))}
+                {variableChoices.map((choice) => {
+                  const isSpecial =
+                    fixedVariableChoices.indexOf(choice as any) === -1;
+                  return (
+                    <Radio
+                      key={choice}
+                      value={choice}
+                      label={
+                        <span>
+                          {getTextForChoice(choice, diffCounts)}
+                          {isSpecial && (
+                            <div>
+                              <div>
+                                <Switch
+                                  label={`all in group (${
+                                    allSpecialValues[choice]?.length ?? 0
+                                  })`}
+                                  onChange={(newVal) =>
+                                    setSpecialChoicesCheckAll(choice, newVal)
+                                  }
+                                  checked={
+                                    specialChoicesCheckAll[choice] ?? false
+                                  }
+                                />
+                              </div>
+                              <div style={{ display: "flex" }}>
+                                <Switch
+                                  label={`all in popup (${
+                                    specialChoices[choice]?.length ?? 0
+                                  })`}
+                                  onChange={(newVal) =>
+                                    setSpecialChoicesCheckPopup(choice, newVal)
+                                  }
+                                  checked={
+                                    specialChoicesCheckPopup[choice] ?? false
+                                  }
+                                />
+                                <SdSubChooser
+                                  activeCategory={choice}
+                                  onNewChoices={(newChoices) =>
+                                    setSpecialChoices(choice, newChoices)
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </span>
+                      }
+                    />
+                  );
+                })}
               </Radio.Group>
             </Group>
           )}

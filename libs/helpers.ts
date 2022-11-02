@@ -21,12 +21,11 @@ export function isImageSameAsPlaceHolder(
   const sortedPlaceholder = getTextForBreakdown(placeholder.promptBreakdown);
   const promptSame = sortedItem === sortedPlaceholder;
 
-  return (
-    promptSame &&
-    item.cfg === placeholder.cfg &&
-    item.seed === placeholder.seed &&
-    item.steps === placeholder.steps
-  );
+  const sameCfg = item.cfg === placeholder.cfg;
+  const sameSeed = item.seed === placeholder.seed;
+  const sameSteps = item.steps === placeholder.steps;
+
+  return promptSame && sameCfg && sameSeed && sameSteps;
 }
 
 function sortPromptBreakdown(item: SdImage | SdImagePlaceHolder) {
