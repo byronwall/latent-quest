@@ -3,8 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 
 import { SdImage, SdImageGroup, SdSubChoice } from "./shared-types/src";
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
+const supabaseUrl = process.env.SUPABASE_URL ?? "";
+const supabaseKey = process.env.SUPABASE_KEY ?? "";
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function db_getAllImages() {

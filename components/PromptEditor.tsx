@@ -15,8 +15,8 @@ import { TextAreaWithButton } from "./TextAreaWithButton";
 import { useControlledUncontrolled } from "./useControlledUncontrolled";
 
 interface PromptEditorProps {
-  onBreakdownChange?: (newBreakdown: PromptBreakdown) => void;
-  initialBreakdown?: PromptBreakdown;
+  onBreakdownChange: (newBreakdown: PromptBreakdown) => void;
+  initialBreakdown: PromptBreakdown;
 
   shouldAllowSelection?: boolean;
 

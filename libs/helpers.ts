@@ -107,8 +107,8 @@ export function summarizeAllDifferences(base: SdImage, allImages: SdImage[]) {
 
   // force those values to be unique
   for (const key of Object.keys(summary)) {
-    const keep = [];
-    const keepObj = [];
+    const keep: string[] = [];
+    const keepObj: any[] = [];
     for (const value of summary[key]) {
       const checkVal = JSON.stringify(value);
       if (!keep.includes(checkVal)) {
@@ -157,7 +157,7 @@ export function findImageDifferences(
       results.push({
         field: numRawCheck,
         type: "num-raw",
-        value: comp[numRawCheck],
+        value: comp[numRawCheck] ?? 0,
       });
     }
   }

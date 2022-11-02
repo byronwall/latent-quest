@@ -70,7 +70,7 @@ export default function Choices() {
         placeholder="Select multiple values"
         data={categories}
         value={activeCategory}
-        onChange={(e) => setActiveCategory(e)}
+        onChange={(e) => setActiveCategory(e ?? "")}
       />
       <SdSubChooser shouldExcludeModal activeCategory={activeCategory} />
     </div>

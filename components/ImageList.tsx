@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useQuery, useQueryClient } from "react-query";
 
 import { SdImage } from "../libs/shared-types/src";
-import { ImageTransformBuilder } from "./ImageTransform";
 import { SdImageComp } from "./SdImageComp";
 
 export function getImageUrl(imageUrl: string): string {

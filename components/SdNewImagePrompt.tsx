@@ -58,9 +58,21 @@ export function SdNewImagePrompt() {
           shouldAllowSelection
         />
         <Group align={"flex-start"}>
-          <NumberInput label="cfg" value={cfg} onChange={cfgSet} />
-          <NumberInput label="steps" value={steps} onChange={stepsSet} />
-          <NumberInput label="seed" value={seed} onChange={seedSet} />
+          <NumberInput
+            label="cfg"
+            value={cfg}
+            onChange={(val) => cfgSet(val ?? 0)}
+          />
+          <NumberInput
+            label="steps"
+            value={steps}
+            onChange={(val) => stepsSet(val ?? 0)}
+          />
+          <NumberInput
+            label="seed"
+            value={seed}
+            onChange={(val) => seedSet(val ?? 0)}
+          />
           {isLoading ? (
             <Loader />
           ) : (

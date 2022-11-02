@@ -42,7 +42,7 @@ async function processSingleImgGenReq(
 
   try {
     const { images } = (await generateAsync({
-      apiKey: process.env.STABILITY_KEY,
+      apiKey: process.env.STABILITY_KEY ?? "",
       seed,
       cfgScale: cfg,
       steps,

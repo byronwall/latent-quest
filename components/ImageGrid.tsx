@@ -142,7 +142,8 @@ export function ImageGrid(props: ImageGridProps) {
 
     postData.view_settings.defaultView.isSingleVar = isSingleVar;
 
-    axios.put<any, any, SdImageGroup>(`/api/group/${groupId}`, postData);
+    // TODO :better types
+    axios.put<any, any, SdImageGroup>(`/api/group/${groupId}`, postData as any);
   };
 
   const data = useMemo(() => _data ?? [], [_data]);
@@ -248,7 +249,7 @@ export function ImageGrid(props: ImageGridProps) {
         return [];
 
       default: {
-        const results = [];
+        const results: string[] = [];
 
         if (specialChoicesCheckPopup[key]) {
           const extraMatch = specialChoices[key] ?? [];

@@ -47,7 +47,7 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
       {props.onSetMainImage && (
         <Badge
           color={props.isMainImage ? "green" : "blue"}
-          onClick={() => props.onSetMainImage()}
+          onClick={() => props.onSetMainImage?.()}
         >
           main
         </Badge>
