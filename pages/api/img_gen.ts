@@ -84,11 +84,11 @@ async function processSingleImgGenReq(
       };
       // need to load to S3
 
-      await db_insertImage(imgResult);
       await db_insertGroup({
         id: imgResult.groupId,
         view_settings: createDefaultViewSettings(),
       });
+      await db_insertImage(imgResult);
 
       return imgResult;
     }
