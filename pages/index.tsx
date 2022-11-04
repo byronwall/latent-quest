@@ -1,19 +1,23 @@
-import { InferGetStaticPropsType } from "next";
+import { GetServerSideProps } from "next";
 
-import { ImageList } from "../components/ImageList";
+import { AllGroupResponse, ImageList } from "../components/ImageList";
 import { queryFnGetAllGroups } from "../components/useGetAllGroups";
 
-export async function getStaticProps() {
+export const getServerSideProps: GetServerSideProps = async () => {
   const groupList = await queryFnGetAllGroups();
 
-  return {
-    props: {
-      groupList,
-    },
+  const props: ImageListProps = {
+    groupList,
   };
-}
 
-export type ImageListProps = InferGetStaticPropsType<typeof getStaticProps>;
+  return {
+    props,
+  };
+};
+
+export interface ImageListProps {
+  groupList: AllGroupResponse[];
+}
 
 export default function Index(props: ImageListProps) {
   return (
