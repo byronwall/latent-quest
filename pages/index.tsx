@@ -1,16 +1,26 @@
-import { Container } from "@mantine/core";
-import Link from "next/link";
+import { InferGetStaticPropsType } from "next";
 
 import { ImageList } from "../components/ImageList";
+import { queryFnGetAllGroups } from "../components/useGetAllGroups";
 
-export function Index() {
+export async function getStaticProps() {
+  const groupList = await queryFnGetAllGroups();
+
+  return {
+    props: {
+      groupList,
+    },
+  };
+}
+
+export type ImageListProps = InferGetStaticPropsType<typeof getStaticProps>;
+
+export default function Index(props: ImageListProps) {
   return (
     <>
       <div style={{ width: "90vw", margin: "auto" }}>
-        <ImageList />
+        <ImageList {...props} />
       </div>
     </>
   );
 }
-
-export default Index;

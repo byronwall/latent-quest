@@ -8,6 +8,7 @@
 - Rename database columns to remove punctuation
 - Ensure that multi substitutions are done - previously only the first match was processed
 - Unbreak image deletion - add a prompt ("are you sure")
+- Get server side generation working for image list and ImageGrid views
 
 ## 2022-11-01 23:01:03
 

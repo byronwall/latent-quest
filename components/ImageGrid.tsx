@@ -9,7 +9,6 @@ import {
   Title,
 } from "@mantine/core";
 import { IconDeviceFloppy, IconWand } from "@tabler/icons";
-import axios from "axios";
 import produce from "immer";
 import { uniq } from "lodash-es";
 import { useEffect, useMemo, useState } from "react";
@@ -46,9 +45,11 @@ import {
   getDescForTransform,
   getRowColHeaderText,
 } from "./transform_helpers";
+import { useGetImageGroup } from "./useGetImageGroup";
 
-interface ImageGridProps {
+export interface ImageGridProps {
   groupId: string;
+  initialData?: SdImage[];
 }
 
 // as value label pairs - 4 6 8 10 12 14
@@ -79,19 +80,11 @@ const seedChoices = [
 ];
 
 export function ImageGrid(props: ImageGridProps) {
-  const { groupId } = props;
+  const { groupId, initialData } = props;
 
   // create a query for 1 id
-  const {
-    data: _data,
-    isLoading,
-    isError,
-    error,
-  } = useQuery(groupId, async () => {
-    const res = await fetch(`/api/images/group/${props.groupId}`);
-    const results = (await res.json()) as SdImage[];
-    return results;
-  });
+
+  const { imageGroup: imageGroupData } = useGetImageGroup(groupId, initialData);
 
   const { data: groupData } = useQuery("group:" + groupId, async () => {
     const res = await fetch(`/api/group/${props.groupId}`);
@@ -150,12 +143,10 @@ export function ImageGrid(props: ImageGridProps) {
     api_updateGroupData(postData);
   };
 
-  const data = useMemo(() => _data ?? [], [_data]);
-
   const availableSubNames = useMemo(
     () =>
       uniq(
-        data.reduce((acc, item) => {
+        imageGroupData.reduce((acc, item) => {
           item.promptBreakdown.parts.forEach((part) => {
             const selections = getSelectionFromPromptPart(part);
 
@@ -164,7 +155,7 @@ export function ImageGrid(props: ImageGridProps) {
           return acc;
         }, [] as string[])
       ),
-    [data]
+    [imageGroupData]
   );
 
   const fixedVariableChoices = ["cfg", "seed", "steps", "unknown"] as const;
@@ -178,12 +169,12 @@ export function ImageGrid(props: ImageGridProps) {
   const mainImageIdFromSettings =
     groupData?.view_settings.defaultView.mainImageId;
 
-  const mainImageFromSettings = data.find(
+  const mainImageFromSettings = imageGroupData.find(
     (x) => x.id === mainImageIdFromSettings
   );
 
   const [mainImage, setMainImage] = useState<SdImage>(
-    mainImageFromSettings ?? data[0] ?? ({} as SdImage)
+    mainImageFromSettings ?? imageGroupData[0] ?? ({} as SdImage)
   );
 
   // update main image if settings or data changes
@@ -191,9 +182,9 @@ export function ImageGrid(props: ImageGridProps) {
     if (mainImageFromSettings) {
       setMainImage(mainImageFromSettings);
     } else {
-      setMainImage(data[0] ?? ({} as SdImage));
+      setMainImage(imageGroupData[0] ?? ({} as SdImage));
     }
-  }, [mainImageFromSettings, data]);
+  }, [mainImageFromSettings, imageGroupData]);
 
   // take those images and push into a table -- by default 3x3 with single image in center
 
@@ -233,10 +224,12 @@ export function ImageGrid(props: ImageGridProps) {
 
   const allSpecialValues = useMemo(() => {
     return availableSubNames.reduce((acc, name) => {
-      acc[name] = uniq(data.map((x) => getSelectionAsLookup(x)[name]));
+      acc[name] = uniq(
+        imageGroupData.map((x) => getSelectionAsLookup(x)[name])
+      );
       return acc;
     }, {} as { [key: string]: string[] });
-  }, [data, availableSubNames]);
+  }, [imageGroupData, availableSubNames]);
 
   function getExtraChoice(key: string) {
     switch (key) {
@@ -272,7 +265,7 @@ export function ImageGrid(props: ImageGridProps) {
     }
   }
 
-  const diffXForm = getImageDiffAsTransforms(mainImage, data);
+  const diffXForm = getImageDiffAsTransforms(mainImage, imageGroupData);
 
   const [looseTransforms, setLooseTransforms] =
     useState<SdImageTransformHolder>({
@@ -336,7 +329,7 @@ export function ImageGrid(props: ImageGridProps) {
     rowTransformHolder,
     colTransformHolder,
     mainImage,
-    data,
+    imageGroupData,
     visibleIds
   );
 
@@ -636,7 +629,7 @@ export function ImageGrid(props: ImageGridProps) {
       <Stack>
         <Title order={1}>all images in group</Title>
         <SdGroupTable
-          data={data}
+          data={imageGroupData}
           mainImage={mainImage}
           visibleItems={visibleIds}
           onNewTransform={handleAddLooseTransform}

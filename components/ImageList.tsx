@@ -2,23 +2,27 @@ import { Button, Card } from "@mantine/core";
 import axios from "axios";
 import { result } from "lodash-es";
 import Link from "next/link";
-import { useQuery, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 
 import { SdImage, SdImageGroup } from "../libs/shared-types/src";
+import { ImageListProps } from "../pages";
 import { SdImageComp } from "./SdImageComp";
+import { useGetAllGroups } from "./useGetAllGroups";
 
 export function getImageUrl(imageUrl: string): string {
   return `/api/images/s3/${imageUrl}`;
 }
 
-interface AllGroupResponse extends SdImageGroup {
+export interface AllGroupResponse extends SdImageGroup {
   images: (undefined | SdImage)[];
 }
 
-export function ImageList() {
+export function ImageList(props: ImageListProps) {
   const qc = useQueryClient();
 
-  const { groupList } = useGetAllGroups();
+  const initialData = props.groupList;
+
+  const { groupList } = useGetAllGroups(initialData);
 
   // function post a delete based on group id
 
@@ -67,15 +71,4 @@ export function ImageList() {
       </div>
     </div>
   );
-}
-function useGetAllGroups() {
-  const { data } = useQuery("groups", async () => {
-    const res = await fetch("/api/group/all");
-
-    const rsults = (await res.json()) as AllGroupResponse[];
-
-    return rsults;
-  });
-
-  return { groupList: data ?? [] };
 }
