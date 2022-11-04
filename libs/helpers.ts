@@ -334,18 +334,21 @@ export function generatePlaceholderForTransform(
           // if a given breakdown contains the {xxx: yyy} pattern, replace with transform
           placeholder.promptBreakdown.parts =
             placeholder.promptBreakdown.parts.map((c) => {
-              const match = selRegex.exec(c.text);
-              if (match && match[1] === transform.field) {
-                if (toSubstitute) {
-                  return {
-                    ...c,
-                    text: c.text.replace(
-                      selRegex,
-                      `{${transform.field}: ${toSubstitute}}`
-                    ),
-                  };
+              let match;
+              while ((match = selRegex.exec(c.text))) {
+                if (match && match[1] === transform.field) {
+                  if (toSubstitute) {
+                    return {
+                      ...c,
+                      text: c.text.replace(
+                        selRegex,
+                        `{${transform.field}: ${toSubstitute}}`
+                      ),
+                    };
+                  }
                 }
               }
+
               return c;
             });
         }

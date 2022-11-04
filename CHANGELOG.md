@@ -6,6 +6,8 @@
 - Switch image list to query groups (this give us the name and view settings)
   - Need to create a view or something to get the count (instead of returning all images)
 - Rename database columns to remove punctuation
+- Ensure that multi substitutions are done - previously only the first match was processed
+- Unbreak image deletion - add a prompt ("are you sure")
 
 ## 2022-11-01 23:01:03
 

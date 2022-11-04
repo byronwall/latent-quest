@@ -32,7 +32,7 @@ export async function db_deleteImageGroup(groupId: string) {
 
   // delete from image_groups
   const { data: data2, error: error2 } = await supabase
-    .from("image_groups")
+    .from("groups")
     .delete()
     .match({ id: groupId });
 
@@ -40,6 +40,8 @@ export async function db_deleteImageGroup(groupId: string) {
     console.error("Error deleting images from database", error);
     return false;
   }
+
+  console.log("deleted", groupId, data, data2);
 
   return true;
 }

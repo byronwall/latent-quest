@@ -23,11 +23,17 @@ export function ImageList() {
   // function post a delete based on group id
 
   const handleDelete = async (groupId: string) => {
+    // are you sure?
+    const result = window.confirm(
+      "Are you sure you want to delete this group?"
+    );
+    if (!result) return;
+
     // use axios for post
     const res = await axios.delete(`/api/group/${groupId}`);
 
     // invalidate the query
-    qc.invalidateQueries("images");
+    qc.invalidateQueries();
   };
 
   return (
@@ -50,7 +56,7 @@ export function ImageList() {
                   </div>
                 </Link>
                 <div>
-                  <Button onClick={() => handleDelete(img.groupId)}>
+                  <Button onClick={() => handleDelete(group.id)}>
                     delete...
                   </Button>
                 </div>
