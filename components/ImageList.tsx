@@ -1,39 +1,24 @@
 import { Button, Card } from "@mantine/core";
 import axios from "axios";
+import { result } from "lodash-es";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "react-query";
 
-import { SdImage } from "../libs/shared-types/src";
+import { SdImage, SdImageGroup } from "../libs/shared-types/src";
 import { SdImageComp } from "./SdImageComp";
 
 export function getImageUrl(imageUrl: string): string {
   return `/api/images/s3/${imageUrl}`;
 }
 
+interface AllGroupResponse extends SdImageGroup {
+  images: (undefined | SdImage)[];
+}
+
 export function ImageList() {
   const qc = useQueryClient();
 
-  const { data, isLoading, isError, error } = useQuery("images", async () => {
-    const res = await fetch("/api/images");
-    const results = (await res.json()) as SdImage[];
-    results.sort((a, b) => b.dateCreated.localeCompare(a.dateCreated));
-    return results;
-  });
-
-  const imageGroups = (data ?? []).reduce<{ [id: string]: SdImage[] }>(
-    (acc, cur) => {
-      const key = cur.groupId;
-
-      if (!acc[key]) {
-        acc[key] = [];
-      }
-
-      acc[key].push(cur);
-
-      return acc;
-    },
-    {}
-  );
+  const { groupList } = useGetAllGroups();
 
   // function post a delete based on group id
 
@@ -49,18 +34,19 @@ export function ImageList() {
     <div>
       <h1>image groups</h1>
       <div>
-        {isLoading ? "loading..." : ""}
-        {isError ? "error" : ""}
         <div style={{ display: "flex", flexWrap: "wrap" }}>
-          {(Object.keys(imageGroups) ?? []).map((id) => {
-            const group = imageGroups[id];
-            const img = group[0];
+          {groupList.map((group) => {
+            const img = group.images[0];
+            if (img === undefined) {
+              return null;
+            }
             return (
-              <Card key={img.id} style={{ border: "1px solid black" }}>
-                <Link href={`/group/${img.groupId}`}>
+              <Card key={group.id} style={{ border: "1px solid black" }}>
+                <p>{group.view_settings.name} </p>
+                <Link href={`/group/${group.id}`}>
                   <div>
                     <SdImageComp image={img} size={200} disablePopover />
-                    <p>total items = {group.length}</p>
+                    <p>total items: {group.images.length}</p>
                   </div>
                 </Link>
                 <div>
@@ -75,4 +61,15 @@ export function ImageList() {
       </div>
     </div>
   );
+}
+function useGetAllGroups() {
+  const { data } = useQuery("groups", async () => {
+    const res = await fetch("/api/group/all");
+
+    const rsults = (await res.json()) as AllGroupResponse[];
+
+    return rsults;
+  });
+
+  return { groupList: data ?? [] };
 }

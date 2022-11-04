@@ -1,5 +1,10 @@
-import { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 import axios from "axios";
+
+import {
+  SdImage,
+  SdImageGroup,
+  SdImagePlaceHolder,
+} from "../libs/shared-types/src";
 
 export async function api_generateImage(
   image: SdImagePlaceHolder | SdImagePlaceHolder[]
@@ -10,4 +15,11 @@ export async function api_generateImage(
   const img = res.data as SdImage[];
 
   return img;
+}
+
+export function api_updateGroupData(postData: SdImageGroup) {
+  axios.put<any, any, SdImageGroup>(
+    `/api/group/${postData.id}`,
+    postData as any
+  );
 }

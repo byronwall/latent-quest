@@ -29,11 +29,12 @@ import {
   SdImageTransformHolder,
   SdImageTransformMulti,
 } from "../libs/shared-types/src";
-import { api_generateImage } from "../model/api";
+import { api_generateImage, api_updateGroupData } from "../model/api";
 import {
   getSelectionAsLookup,
   getSelectionFromPromptPart,
 } from "./getSelectionFromPromptPart";
+import { GroupNameViewEdit } from "./GroupNameViewEdit";
 import { Switch } from "./MantineWrappers";
 import { SdCardOrTableCell } from "./SdCardOrTableCell";
 import { SdGroupTable } from "./SdGroupTable";
@@ -123,7 +124,11 @@ export function ImageGrid(props: ImageGridProps) {
   const saveGroupSettings = async () => {
     // fire off a post to the right api
 
-    const postData = { ...groupData };
+    if (groupData === undefined) {
+      return;
+    }
+
+    const postData: SdImageGroup = { ...groupData };
 
     if (postData.view_settings === undefined) {
       return;
@@ -142,8 +147,7 @@ export function ImageGrid(props: ImageGridProps) {
 
     postData.view_settings.defaultView.isSingleVar = isSingleVar;
 
-    // TODO :better types
-    axios.put<any, any, SdImageGroup>(`/api/group/${groupId}`, postData as any);
+    api_updateGroupData(postData);
   };
 
   const data = useMemo(() => _data ?? [], [_data]);
@@ -381,7 +385,7 @@ export function ImageGrid(props: ImageGridProps) {
   return (
     <div>
       <div className="container">
-        <h1>Group {groupId}</h1>
+        <GroupNameViewEdit groupData={groupData} />
 
         <Stack>
           <Group>

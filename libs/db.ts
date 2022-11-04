@@ -110,7 +110,7 @@ export async function db_insertImage(image: SdImage) {
 
 export async function db_getGroup(id: string) {
   const { data, error } = await supabase
-    .from("image-groups")
+    .from("groups")
     .select("*")
     .eq("id", id)
     .single();
@@ -130,7 +130,7 @@ export async function db_getGroup(id: string) {
 type SdImageGroupInsert = Omit<SdImageGroup, "created_at">;
 
 export async function db_insertGroup(group: SdImageGroupInsert) {
-  const { data, error } = await supabase.from("image-groups").insert(group);
+  const { data, error } = await supabase.from("groups").insert(group);
 
   if (error) {
     console.error("Error inserting group into database", error);
@@ -144,7 +144,7 @@ export async function db_insertGroup(group: SdImageGroupInsert) {
 
 export async function db_updateGroup(group: SdImageGroup) {
   const { data, error } = await supabase
-    .from("image-groups")
+    .from("groups")
     .update(group)
     .eq("id", group.id);
 
@@ -157,7 +157,7 @@ export async function db_updateGroup(group: SdImageGroup) {
 }
 
 export async function db_insertSubChoice(choice: SdSubChoice | SdSubChoice[]) {
-  const { data, error } = await supabase.from("sub-choices").insert(choice);
+  const { data, error } = await supabase.from("choices").insert(choice);
 
   if (error) {
     console.error("Error inserting group into database", error);
@@ -168,7 +168,7 @@ export async function db_insertSubChoice(choice: SdSubChoice | SdSubChoice[]) {
 }
 
 export async function db_getAllSubChoices() {
-  const { data, error } = await supabase.from("sub-choices").select("*");
+  const { data, error } = await supabase.from("choices").select("*");
 
   if (error) {
     console.error("Error inserting group into database", error);
@@ -180,7 +180,7 @@ export async function db_getAllSubChoices() {
 
 export async function db_getAllSubChoicesCategory(category: string) {
   const { data, error } = await supabase
-    .from("sub-choices")
+    .from("choices")
     .select("*")
     .eq("category", category);
 

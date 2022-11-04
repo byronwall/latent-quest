@@ -1,5 +1,12 @@
 # Changelog
 
+## 2022-11-03 20:49:13
+
+- Ability to add a name to the group and some notes.
+- Switch image list to query groups (this give us the name and view settings)
+  - Need to create a view or something to get the count (instead of returning all images)
+- Rename database columns to remove punctuation
+
 ## 2022-11-01 23:01:03
 
 - Continue to add more modifiers
