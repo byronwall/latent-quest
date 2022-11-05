@@ -3,6 +3,7 @@
 ## 2022-11-04 21:39:55
 
 - Add support for DALL-E and add `openai` packages
+  - Disable controls on new prompt form
 
 ## 2022-11-03 20:49:13
 

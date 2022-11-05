@@ -35,16 +35,16 @@ export async function generateDalleImage(imageReq: SdImgGenParams) {
 
     const filename = await downloadUrlToTmp(image.url);
 
-    const finalImage = await saveImageToS3AndDb(
+    const finalImage = await saveImageToS3AndDb({
       filename,
-      getUuid(),
-      imageReq.promptBreakdown,
-      -1,
-      -1,
-      -1,
-      imageReq.groupId ?? getUuid(),
-      "DALL-E"
-    );
+      fileKey: getUuid(),
+      promptBreakdown: imageReq.promptBreakdown,
+      seed: imageReq.seed, // this is a dummy value - seed does not apply to DALL-E
+      cfg: 10, // rigged to compare to SD
+      steps: 20, // rigged to compare to SD
+      groupId: imageReq.groupId ?? getUuid(),
+      engine: "DALL-E",
+    });
 
     return finalImage;
   }

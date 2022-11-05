@@ -24,12 +24,9 @@ export function isImageSameAsPlaceHolder(
   const sameCfg = item.cfg === placeholder.cfg;
   const sameSeed = item.seed === placeholder.seed;
   const sameSteps = item.steps === placeholder.steps;
+  const sameEngine = item.engine === placeholder.engine;
 
-  return promptSame && sameCfg && sameSeed && sameSteps;
-}
-
-function sortPromptBreakdown(item: SdImage | SdImagePlaceHolder) {
-  return orderBy(item.promptBreakdown?.parts, (c) => c.label + c.text);
+  return promptSame && sameCfg && sameSeed && sameSteps && sameEngine;
 }
 
 export function getImageDiffAsTransforms(
@@ -162,6 +159,18 @@ export function findImageDifferences(
     }
   }
 
+  const propCheckRaw = ["engine"] as const;
+
+  for (const propRawCheck of propCheckRaw) {
+    if (base[propRawCheck] !== comp[propRawCheck]) {
+      results.push({
+        field: propRawCheck,
+        type: "set-text-prop",
+        value: comp[propRawCheck],
+      });
+    }
+  }
+
   // find the differences in the prompt breakdown
   const breakdownDeltas = getBreakdownDelta(
     base.promptBreakdown,
@@ -276,6 +285,10 @@ export function generatePlaceholderForTransform(
     case "num-delta":
       // TODO: apply a min/max
       placeholder[transform.field] += transform.delta;
+      break;
+
+    case "set-text-prop":
+      placeholder[transform.field] = transform.value;
       break;
 
     case "text": {

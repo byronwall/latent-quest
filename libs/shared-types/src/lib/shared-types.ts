@@ -123,10 +123,18 @@ export interface SdImageTransformHolder {
 
 type COMMON_FIELDS = "seed" | "cfg" | "steps";
 
+type TEXT_PROP_FIELDS = "engine";
+
 export interface SdImageTransformNumberRaw {
   type: "num-raw";
   field: COMMON_FIELDS;
   value: number;
+}
+
+export interface SdImageTransformSetTextProp {
+  type: "set-text-prop";
+  field: TEXT_PROP_FIELDS;
+  value: string;
 }
 
 export interface SdImageTransformNumberDelta {
@@ -162,7 +170,7 @@ export interface SdImageTransformTextSub {
 export interface SdImageTransformMulti {
   type: "multi";
   transforms: SdImageTransform[];
-  field: BreakdownType | "various" | COMMON_FIELDS | "none";
+  field: BreakdownType | "various" | COMMON_FIELDS | "none" | TEXT_PROP_FIELDS;
 }
 export interface SdImageTransformNone {
   type: "none";
@@ -178,7 +186,8 @@ export type SdImageTransformNonMulti =
   | SdImageTransformNumberRaw
   | SdImageTransformNumberDelta
   | SdImageTransformText
-  | SdImageTransformNone;
+  | SdImageTransformNone
+  | SdImageTransformSetTextProp;
 
 export type SdImageTransform = SdImageTransformNonMulti | SdImageTransformMulti;
 

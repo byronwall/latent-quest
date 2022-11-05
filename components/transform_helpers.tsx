@@ -15,6 +15,7 @@ import {
   SdImageTransform,
   SdImageTransformHolder,
   SdImageTransformNumberRaw,
+  SdImageTransformSetTextProp,
   SdImageTransformText,
   SdImageTransformTextBasic,
   SdImageTransformTextSub,
@@ -83,6 +84,16 @@ function generateTransformFromSimplerHeader(rowVar: string, rowHeader: any) {
     return rowTransformTemp;
   }
 
+  if (rowVar === "engine") {
+    const rowTransformTemp: SdImageTransformSetTextProp = {
+      type: "set-text-prop",
+      field: rowVar as any,
+      value: rowHeader,
+    };
+
+    return rowTransformTemp;
+  }
+
   // this is a substitution
   const rowTransformTemp: SdImageTransformTextSub = {
     type: "text",
@@ -121,6 +132,12 @@ export function generateSortedTransformList(
           field: rowColVar as any,
           value: mainImage[rowColVar as any],
         } as SdImageTransformNumberRaw)
+      : rowColVar === "engine"
+      ? ({
+          type: "set-text-prop",
+          field: rowColVar as any,
+          value: mainImage[rowColVar as any],
+        } as SdImageTransformSetTextProp)
       : rowColVar === "unknown"
       ? ({
           type: "text",
@@ -232,10 +249,15 @@ export function getDescForTransform(transform: SdImageTransform): string {
         : transform.value;
 
       return `${lhs} ${rhs}`;
+
     case "num-raw":
       return `${transform.value}`;
+
     case "num-delta":
       return `${transform.delta}`;
+
+    case "set-text-prop":
+      return `${transform.value}`;
 
     case "multi":
       return `${transform.transforms.map((t) => getDescForTransform(t))}`;

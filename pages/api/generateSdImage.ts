@@ -40,15 +40,15 @@ export async function generateSdImage({
 
     const fileKey = result.filePath.replace(pathToImg + "/", "");
 
-    return await saveImageToS3AndDb(
-      result.filePath,
+    return await saveImageToS3AndDb({
+      filename: result.filePath,
       fileKey,
       promptBreakdown,
       seed,
       cfg,
       steps,
       groupId,
-      "SD 1.5"
-    );
+      engine: "SD 1.5",
+    });
   }
 }

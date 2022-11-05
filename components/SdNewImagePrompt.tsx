@@ -22,7 +22,7 @@ import { PromptEditor } from "./PromptEditor";
 const starterPrompt =
   "dump truck, poster art by Tomokazu Matsuyama, featured on pixiv, space art, 2d game art, cosmic horror, official art";
 
-const engine_choices = ["DALL-E", "SD 1.5"];
+export const engine_choices = ["DALL-E", "SD 1.5"];
 
 export function SdNewImagePrompt() {
   const [cfg, cfgSet] = useState(10);
@@ -72,16 +72,19 @@ export function SdNewImagePrompt() {
             label="cfg"
             value={cfg}
             onChange={(val) => cfgSet(val ?? 0)}
+            disabled={engine === "DALL-E"}
           />
           <NumberInput
             label="steps"
             value={steps}
             onChange={(val) => stepsSet(val ?? 0)}
+            disabled={engine === "DALL-E"}
           />
           <NumberInput
             label="seed"
             value={seed}
             onChange={(val) => seedSet(val ?? 0)}
+            disabled={engine === "DALL-E"}
           />
           <Select
             label="engine"

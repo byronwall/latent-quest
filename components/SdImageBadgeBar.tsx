@@ -31,6 +31,9 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
       <Tooltip label="steps">
         <Badge>{props.image.steps}</Badge>
       </Tooltip>
+      <Tooltip label="engine">
+        <Badge>{props.image.engine}</Badge>
+      </Tooltip>
       {!props.shouldHidePrompt && (
         <Tooltip
           label={getTextForBreakdown(props.image.promptBreakdown)}

@@ -37,6 +37,7 @@ import { GroupNameViewEdit } from "./GroupNameViewEdit";
 import { Switch } from "./MantineWrappers";
 import { SdCardOrTableCell } from "./SdCardOrTableCell";
 import { SdGroupTable } from "./SdGroupTable";
+import { engine_choices } from "./SdNewImagePrompt";
 import { SdSubChooser } from "./SdSubChooser";
 import {
   generateSortedTransformList,
@@ -52,31 +53,18 @@ export interface ImageGridProps {
   initialData?: SdImage[];
 }
 
-// as value label pairs - 4 6 8 10 12 14
-const cfgChoices = [
-  { value: "4", label: "4" },
-  { value: "6", label: "6" },
-  { value: "8", label: "8" },
-  { value: "10", label: "10" },
-  { value: "12", label: "12" },
-  { value: "14", label: "14" },
-];
+const cfgChoices = ["4", "6", "8", "10", "12", "14"];
 
-// store step choices -- 20 50
-const stepsChoices = [
-  { value: "20", label: "20" },
-  { value: "50", label: "50" },
-];
+const stepsChoices = ["20", "30", "40", "50"];
 
-// store seed choices -- 123123 1321312 3123 32313 555 6879 109873
 const seedChoices = [
-  { value: "123123", label: "123123" },
-  { value: "1321312", label: "1321312" },
-  { value: "3123", label: "3123" },
-  { value: "32313", label: "32313" },
-  { value: "555", label: "555" },
-  { value: "6879", label: "6879" },
-  { value: "109873", label: "109873" },
+  "123123",
+  "1321312",
+  "3123",
+  "32313",
+  "555",
+  "6879",
+  "109873",
 ];
 
 export function ImageGrid(props: ImageGridProps) {
@@ -158,7 +146,14 @@ export function ImageGrid(props: ImageGridProps) {
     [imageGroupData]
   );
 
-  const fixedVariableChoices = ["cfg", "seed", "steps", "unknown"] as const;
+  const fixedVariableChoices = [
+    "cfg",
+    "seed",
+    "steps",
+    "unknown",
+    "engine",
+  ] as const;
+
   const variableChoices = [
     ...fixedVariableChoices,
     ...availableSubNames,
@@ -201,6 +196,7 @@ export function ImageGrid(props: ImageGridProps) {
   const [cfgChoice, setCfgChoice] = useState<string[]>([]);
   const [stepsChoice, setStepsChoice] = useState<string[]>([]);
   const [seedChoice, setSeedChoice] = useState<string[]>([]);
+  const [engineChoice, setEngineChoice] = useState<string[]>([]);
 
   const visibleIds: string[] = [];
 
@@ -241,6 +237,9 @@ export function ImageGrid(props: ImageGridProps) {
 
       case "steps":
         return stepsChoice.map((x) => +x);
+
+      case "engine":
+        return engineChoice;
 
       case "unknown":
         return [];
@@ -296,7 +295,7 @@ export function ImageGrid(props: ImageGridProps) {
       acc[x.field] += 1;
       return acc;
     },
-    { cfg: 1, seed: 1, steps: 1, unknown: 1 }
+    { cfg: 1, seed: 1, steps: 1, unknown: 1, engine: 1 }
   );
 
   const rowExtras =
@@ -538,6 +537,14 @@ export function ImageGrid(props: ImageGridProps) {
             clearable
             searchable
           />
+          <MultiSelect
+            label="engine"
+            data={engine_choices}
+            value={engineChoice}
+            onChange={setEngineChoice}
+            clearable
+            searchable
+          />
         </Group>
         <Button
           onClick={() => saveGroupSettings()}
@@ -642,7 +649,13 @@ export function ImageGrid(props: ImageGridProps) {
 
 function getTextForChoice(
   choice: any,
-  diffCounts: { cfg: number; seed: number; steps: number; unknown: number }
+  diffCounts: {
+    cfg: number;
+    seed: number;
+    steps: number;
+    unknown: number;
+    engine: number;
+  }
 ) {
   const _labelText = choice === "unknown" ? "prompt" : choice;
 
@@ -650,6 +663,7 @@ function getTextForChoice(
     case "cfg":
     case "seed":
     case "steps":
+    case "engine":
     case "unknown":
       const labelText = `${_labelText} (${diffCounts[choice]})`;
       return labelText;

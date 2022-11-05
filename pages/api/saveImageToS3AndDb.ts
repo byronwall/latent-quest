@@ -8,16 +8,27 @@ import {
   SdImageEngines,
 } from "../../libs/shared-types/src";
 
-export async function saveImageToS3AndDb(
-  filename: string,
-  fileKey: any,
-  promptBreakdown: PromptBreakdown,
-  seed: number,
-  cfg: number,
-  steps: number,
-  groupId: string,
-  engine: SdImageEngines
-) {
+type SdSaveToS3Params = {
+  filename: string;
+  fileKey: any;
+  promptBreakdown: PromptBreakdown;
+  seed: number;
+  cfg: number;
+  steps: number;
+  groupId: string;
+  engine: SdImageEngines;
+};
+
+export async function saveImageToS3AndDb({
+  filename,
+  fileKey,
+  promptBreakdown,
+  seed,
+  cfg,
+  steps,
+  groupId,
+  engine,
+}: SdSaveToS3Params) {
   const s3MetaData = {
     filename,
     key: fileKey,
