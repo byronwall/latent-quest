@@ -37,7 +37,9 @@ async function processSingleImgGenReq(
   const groupId = imgGenReq.groupId ?? getUuid();
   const promptBreakdown = imgGenReq.promptBreakdown;
 
+  // send in placeholder and overrides
   const finalImgReq: SdImgGenParams = {
+    ...imgGenReq,
     promptForSd,
     cfg,
     groupId,

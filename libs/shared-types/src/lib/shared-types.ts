@@ -19,6 +19,13 @@ export interface SdImage {
 
   engine: SdImageEngines;
 
+  // fields for generate variations
+  // source id will be used to load image behind the scenes
+  variantSourceId?: string;
+  variantStrength?: number;
+
+  // add a source URL later for random internet images
+
   promptBreakdown: PromptBreakdown;
 }
 

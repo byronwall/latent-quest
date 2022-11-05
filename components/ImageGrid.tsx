@@ -415,12 +415,22 @@ export function ImageGrid(props: ImageGridProps) {
       value={selectVar}
       onChange={(val) => handleChange(val ?? "cfg")}
       searchable
-      autoFocus
     />
   );
 
   const rowVarSelect = getSelectForVar(rowVar, setRowVar, "row var");
   const colVarSelect = getSelectForVar(colVar, setColVar, "col var");
+
+  const handleCreateVariant = async (item: SdImage) => {
+    await api_generateImage({
+      ...item,
+      variantSourceId: item.url,
+      engine: "SD 1.5",
+      variantStrength: 0.7,
+    });
+
+    qc.invalidateQueries();
+  };
 
   return (
     <div>
@@ -526,6 +536,7 @@ export function ImageGrid(props: ImageGridProps) {
                   handleAddLooseTransform={handleAddLooseTransform}
                   mainImage={mainImage}
                   setMainImage={setMainImage}
+                  onCreateVariant={handleCreateVariant}
                 />
               </div>
             ))}
@@ -565,6 +576,7 @@ export function ImageGrid(props: ImageGridProps) {
                           imageSize={imageSize}
                           handleAddLooseTransform={handleAddLooseTransform}
                           setMainImage={setMainImage}
+                          onCreateVariant={handleCreateVariant}
                         />
                       </td>
                     ))}

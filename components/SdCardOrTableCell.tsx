@@ -3,6 +3,7 @@ import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
 import { SdPromptToTransform } from "./SdPromptToTransform";
 import { isPlaceholder } from "./ImageGrid";
+import { SdImage } from "../libs/shared-types/src";
 
 export function SdCardOrTableCell(props: {
   cell: any;
@@ -10,6 +11,7 @@ export function SdCardOrTableCell(props: {
   handleAddLooseTransform: any;
   mainImage: any;
   setMainImage: any;
+  onCreateVariant: (image: SdImage) => void;
 }) {
   const { cell, imageSize, handleAddLooseTransform, mainImage, setMainImage } =
     props;
@@ -32,13 +34,19 @@ export function SdCardOrTableCell(props: {
           onNewTransform={handleAddLooseTransform}
         />
         {"id" in cell && (
-          <Button
-            onClick={() => setMainImage(cell)}
-            color={mainImage.id === cell.id ? "lime" : "blue"}
-            compact
-          >
-            set main
-          </Button>
+          <>
+            <Button
+              onClick={() => setMainImage(cell)}
+              color={mainImage.id === cell.id ? "lime" : "blue"}
+              compact
+            >
+              set main
+            </Button>
+
+            <Button onClick={() => props.onCreateVariant(cell)}>
+              sd variant
+            </Button>
+          </>
         )}
       </div>
     </div>

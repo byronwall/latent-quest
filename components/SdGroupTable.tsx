@@ -12,8 +12,10 @@ import { findImageDifferences } from "../libs/helpers";
 import {
   getTextForBreakdown,
   SdImage,
+  SdImagePlaceHolder,
   SdImageTransform,
 } from "../libs/shared-types/src";
+import { api_generateImage } from "../model/api";
 import { Switch } from "./MantineWrappers";
 import { SdImageComp } from "./SdImageComp";
 import { SdPromptToTransform } from "./SdPromptToTransform";

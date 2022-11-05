@@ -1,27 +1,20 @@
 import { generateAsync } from "stability-client";
 
-import { PromptBreakdown } from "../../libs/shared-types/src";
+import { SdImagePlaceHolder } from "../../libs/shared-types/src";
+import { getBufferFromImageUrl } from "./images/s3/[key]";
 import { pathToImg } from "./img_gen";
 import { saveImageToS3AndDb } from "./saveImageToS3AndDb";
 
 export type SdImgGenParams = {
-  seed: number;
-  cfg: number;
-  steps: number;
   promptForSd: string;
-  promptBreakdown: PromptBreakdown;
-  groupId: string;
-};
+} & SdImagePlaceHolder &
+  Required<Pick<SdImagePlaceHolder, "seed" | "cfg" | "steps" | "groupId">>;
 
-export async function generateSdImage({
-  seed,
-  cfg,
-  steps,
-  promptForSd,
-  promptBreakdown,
-  groupId,
-}: SdImgGenParams) {
-  const { images } = (await generateAsync({
+type SdParams = Parameters<typeof generateAsync>[0];
+
+export async function generateSdImage(input: SdImgGenParams) {
+  const { seed, cfg, steps, promptForSd, promptBreakdown, groupId } = input;
+  const sdParams: SdParams = {
     apiKey: process.env.STABILITY_KEY ?? "",
     seed,
     cfgScale: cfg,
@@ -33,7 +26,43 @@ export async function generateSdImage({
     outDir: pathToImg,
     debug: false,
     noStore: false,
-  })) as any;
+  };
+
+  // if placeholder has a variant, download that image and add to json
+
+  if (input.variantSourceId) {
+    // download image
+    type VariantParams = Pick<SdParams, "imagePrompt" | "stepSchedule">;
+    console.log("generating variant");
+
+    const buffer = await getBufferFromImageUrl(input.variantSourceId);
+
+    const variantParams: VariantParams = {
+      imagePrompt: {
+        content: buffer,
+        mime: "image/png",
+      },
+      stepSchedule: {
+        start: input.variantStrength ?? 0.5,
+      },
+    };
+
+    // force values if origin was DALL-E
+    if (input.engine === "DALL-E") {
+      sdParams.steps = 20;
+      sdParams.cfgScale = 10;
+      sdParams.seed = Math.floor(Math.random() * 65000);
+      sdParams.engine = undefined;
+    }
+
+    console.log("variantParams", variantParams);
+
+    Object.assign(sdParams, variantParams);
+
+    console.log("sd params", sdParams);
+  }
+
+  const { images } = (await generateAsync(sdParams)) as any;
 
   if (images.length > 0) {
     const result = images[0];
