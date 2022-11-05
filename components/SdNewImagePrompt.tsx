@@ -3,6 +3,7 @@ import {
   Group,
   Loader,
   NumberInput,
+  Select,
   Stack,
   Title,
 } from "@mantine/core";
@@ -10,18 +11,26 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 
-import { getBreakdownForText, PromptBreakdown } from "../libs/shared-types/src";
+import {
+  getBreakdownForText,
+  getValidEngine,
+  PromptBreakdown,
+} from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 import { PromptEditor } from "./PromptEditor";
 
 const starterPrompt =
   "dump truck, poster art by Tomokazu Matsuyama, featured on pixiv, space art, 2d game art, cosmic horror, official art";
 
+const engine_choices = ["DALL-E", "SD 1.5"];
+
 export function SdNewImagePrompt() {
   const [cfg, cfgSet] = useState(10);
   const [steps, stepsSet] = useState(20);
 
   const [seed, seedSet] = useState(Math.floor(Math.random() * 67823));
+
+  const [engine, setEngine] = useState("SD 1.5");
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,6 +49,7 @@ export function SdNewImagePrompt() {
       cfg: cfg,
       steps: steps,
       seed: seed,
+      engine: getValidEngine(engine),
     });
     setIsLoading(false);
     queryClient.invalidateQueries();
@@ -72,6 +82,13 @@ export function SdNewImagePrompt() {
             label="seed"
             value={seed}
             onChange={(val) => seedSet(val ?? 0)}
+          />
+          <Select
+            label="engine"
+            placeholder="engine"
+            data={engine_choices}
+            value={engine}
+            onChange={(val) => setEngine(val ?? "SD 1.5")}
           />
           {isLoading ? (
             <Loader />

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-11-04 21:39:55
+
+- Add support for DALL-E and add `openai` packages
+
 ## 2022-11-03 20:49:13
 
 - Ability to add a name to the group and some notes.

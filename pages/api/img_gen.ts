@@ -1,15 +1,12 @@
-import { generateAsync } from "stability-client";
 import { getTextOnlyFromPromptPartWithLabel } from "../../components/getTextOnlyFromPromptPartWithLabel";
-
-import { db_insertGroup, db_insertImage } from "../../libs/db";
-import { uploadImageToS3 } from "../../libs/s3_helpers";
+import { generateDalleImage } from "../../libs/openai";
 import {
-  createDefaultViewSettings,
   getTextForBreakdown,
   getUuid,
   ImageGenRequest,
   SdImage,
 } from "../../libs/shared-types/src";
+import { generateSdImage, SdImgGenParams } from "./generateSdImage";
 
 export const pathToImg = "/tmp";
 console.log("pathToImg", pathToImg);
@@ -37,60 +34,26 @@ async function processSingleImgGenReq(
 
   // wait until the last minute to remove any meta data labels
   const promptForSd = getTextOnlyFromPromptPartWithLabel(prompt);
-  const groupId = imgGenReq.groupId;
+  const groupId = imgGenReq.groupId ?? getUuid();
   const promptBreakdown = imgGenReq.promptBreakdown;
 
+  const finalImgReq: SdImgGenParams = {
+    promptForSd,
+    cfg,
+    groupId,
+    promptBreakdown,
+    seed,
+    steps,
+  };
+
   try {
-    const { images } = (await generateAsync({
-      apiKey: process.env.STABILITY_KEY ?? "",
-      seed,
-      cfgScale: cfg,
-      steps,
-      prompt: promptForSd,
-      height: 512,
-      width: 512,
-      samples: 1,
-      outDir: pathToImg,
-      debug: false,
-      noStore: false,
-    })) as any;
-
-    if (images.length > 0) {
-      const result = images[0];
-
-      const fileKey = result.filePath.replace(pathToImg + "/", "");
-
-      const s3MetaData = {
-        filename: result.filePath,
-        key: fileKey,
-        mimetype: "image/png",
-      };
-
-      console.log("s3MetaData", s3MetaData);
-
-      const s3res = await uploadImageToS3(s3MetaData);
-
-      // delete the file after done ?
-
-      const imgResult: SdImage = {
-        id: getUuid(),
-        promptBreakdown,
-        seed,
-        cfg,
-        steps,
-        url: fileKey,
-        dateCreated: new Date().toISOString(),
-        groupId: groupId ?? getUuid(),
-      };
-      // need to load to S3
-
-      await db_insertGroup({
-        id: imgResult.groupId,
-        view_settings: createDefaultViewSettings(),
-      });
-      await db_insertImage(imgResult);
-
-      return imgResult;
+    switch (imgGenReq.engine) {
+      case "DALL-E":
+        const result = await generateDalleImage(finalImgReq);
+        return result;
+      case "SD 1.5":
+        const imgResult = await generateSdImage(finalImgReq);
+        return imgResult;
     }
   } catch (e: any) {
     console.log("error", e);

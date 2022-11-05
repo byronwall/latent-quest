@@ -29,6 +29,7 @@
     "immer": "^9.0.15",
     "lodash-es": "^4.17.21",
     "next": "12.3.1",
+    "openai": "^3.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-query": "^3.39.2",

@@ -4,6 +4,8 @@ export function sharedTypes(): string {
   return "shared-types";
 }
 
+type SdImageEngines = "DALL-E" | "SD 1.5";
+
 export interface SdImage {
   id: string;
 
@@ -15,7 +17,13 @@ export interface SdImage {
 
   groupId: string;
 
+  engine: SdImageEngines;
+
   promptBreakdown: PromptBreakdown;
+}
+
+export function getValidEngine(engine: string): SdImageEngines {
+  return engine === "DALL-E" ? "DALL-E" : "SD 1.5";
 }
 
 export interface SdImageGroup {
@@ -48,7 +56,7 @@ export interface SdGroupView {
 export type SdImagePlaceHolder = Partial<
   Omit<SdImage, "id" | "dateCreated" | "url">
 > &
-  Pick<SdImage, "promptBreakdown">;
+  Pick<SdImage, "promptBreakdown" | "engine">;
 
 export type ImageGenRequest = SdImagePlaceHolder;
 
