@@ -47,7 +47,8 @@ export async function generateSdImage({
       seed,
       cfg,
       steps,
-      groupId
+      groupId,
+      "SD 1.5"
     );
   }
 }

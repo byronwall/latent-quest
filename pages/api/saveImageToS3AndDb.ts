@@ -5,6 +5,7 @@ import {
   getUuid,
   PromptBreakdown,
   SdImage,
+  SdImageEngines,
 } from "../../libs/shared-types/src";
 
 export async function saveImageToS3AndDb(
@@ -14,7 +15,8 @@ export async function saveImageToS3AndDb(
   seed: number,
   cfg: number,
   steps: number,
-  groupId: string
+  groupId: string,
+  engine: SdImageEngines
 ) {
   const s3MetaData = {
     filename,
@@ -36,6 +38,7 @@ export async function saveImageToS3AndDb(
     url: fileKey,
     dateCreated: new Date().toISOString(),
     groupId: groupId,
+    engine,
   };
   // need to load to S3
   await db_insertGroup({

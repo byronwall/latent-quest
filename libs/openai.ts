@@ -47,7 +47,8 @@ export async function generateDalleImage(imageReq: SdImgGenParams) {
       0,
       0,
       -1,
-      imageReq.groupId ?? getUuid()
+      imageReq.groupId ?? getUuid(),
+      "DALL-E"
     );
 
     return finalImage;

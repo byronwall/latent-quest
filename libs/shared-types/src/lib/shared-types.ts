@@ -4,7 +4,7 @@ export function sharedTypes(): string {
   return "shared-types";
 }
 
-type SdImageEngines = "DALL-E" | "SD 1.5";
+export type SdImageEngines = "DALL-E" | "SD 1.5";
 
 export interface SdImage {
   id: string;
