@@ -1,15 +1,17 @@
-
+DALL-E related:
+    ☐ Disable cfg, seed, and steps for `DALL-E` types
+    ☐ show engine selection on the cards
+    ☐ Give engine as a choice in the variables
+    ☐ Figure out how to handle the grid when using DALL-E since seed is not real - maybe use `seed` even though it's not real?
 
 Image Grid:
+    ☐ main image is being lost when the grid reloads -- find some way to not lose this @critical
     ☐ add ability to compare images side by side
     ☐ tighten the table visuals to reduce white space
-    ☐ main image is being lost when the grid reloads -- find some way to not lose this
     ☐ provide a simple way to get random seeds to test with 
     ☐ show active prompt for main image (and other details too?)
     ☐ update the diff count to show total size of artist list
     ☐ add `imageSize` back into the settings - control with a slider in ticks of 50px this time
-
-    ☐ load the images and group data server side to improve first render speed (avoid bump when group data comes through)
 
     ☐ ability to change sort order of grid -- default appears to be descending
 
@@ -24,3 +26,6 @@ Random:
 
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces
+
+Archive:
+  ✔ load the images and group data server side to improve first render speed (avoid bump when group data comes through) @done(22-11-04 22:47) @project(Image Grid)

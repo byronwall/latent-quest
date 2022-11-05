@@ -1,18 +1,12 @@
 import axios from "axios";
-import { Configuration, OpenAIApi } from "openai";
-import stream from "stream";
-import { promisify } from "util";
 import * as fs from "fs";
-import {
-  getTextForBreakdown,
-  getUuid,
-  SdImagePlaceHolder,
-} from "./shared-types/src";
+import { Configuration, OpenAIApi } from "openai";
 import { join } from "path";
+
+import { SdImgGenParams } from "../pages/api/generateSdImage";
 import { pathToImg } from "../pages/api/img_gen";
 import { saveImageToS3AndDb } from "../pages/api/saveImageToS3AndDb";
-import { getTextOnlyFromPromptPartWithLabel } from "../components/getTextOnlyFromPromptPartWithLabel";
-import { SdImgGenParams } from "../pages/api/generateSdImage";
+import { getUuid } from "./shared-types/src";
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -21,6 +15,7 @@ const configuration = new Configuration({
 export const openai = new OpenAIApi(configuration);
 
 export async function generateDalleImage(imageReq: SdImgGenParams) {
+  // see : https://beta.openai.com/docs/api-reference/images/create
   const response = await openai.createImage({
     prompt: imageReq.promptForSd,
     n: 1,
@@ -44,8 +39,8 @@ export async function generateDalleImage(imageReq: SdImgGenParams) {
       filename,
       getUuid(),
       imageReq.promptBreakdown,
-      0,
-      0,
+      -1,
+      -1,
       -1,
       imageReq.groupId ?? getUuid(),
       "DALL-E"
