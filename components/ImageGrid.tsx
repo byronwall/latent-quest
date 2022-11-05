@@ -4,13 +4,14 @@ import {
   Loader,
   MultiSelect,
   Radio,
+  Select,
   Stack,
   Table,
   Title,
 } from "@mantine/core";
 import { IconDeviceFloppy, IconWand } from "@tabler/icons";
 import produce from "immer";
-import { uniq } from "lodash-es";
+import { orderBy, uniq } from "lodash-es";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useMap } from "react-use";
@@ -154,10 +155,7 @@ export function ImageGrid(props: ImageGridProps) {
     "engine",
   ] as const;
 
-  const variableChoices = [
-    ...fixedVariableChoices,
-    ...availableSubNames,
-  ] as const;
+  const variableChoices = [...fixedVariableChoices, ...availableSubNames];
 
   // store the main image in state
 
@@ -374,6 +372,56 @@ export function ImageGrid(props: ImageGridProps) {
     </Button>
   );
 
+  const getSelectorsForVariableList = (choice) =>
+    fixedVariableChoices.indexOf(choice as any) === -1 ? (
+      <div>
+        <b>{choice}</b>
+        <div>
+          <Switch
+            label={`group (${allSpecialValues[choice]?.length ?? 0})`}
+            onChange={(newVal) => setSpecialChoicesCheckAll(choice, newVal)}
+            checked={specialChoicesCheckAll[choice] ?? false}
+          />
+        </div>
+        <div style={{ display: "flex" }}>
+          <Switch
+            label={`popup (${specialChoices[choice]?.length ?? 0})`}
+            onChange={(newVal) => setSpecialChoicesCheckPopup(choice, newVal)}
+            checked={specialChoicesCheckPopup[choice] ?? false}
+          />
+          <SdSubChooser
+            activeCategory={choice}
+            onNewChoices={(newChoices) => setSpecialChoices(choice, newChoices)}
+          />
+        </div>
+      </div>
+    ) : null;
+
+  const rowSpecial = getSelectorsForVariableList(rowVar);
+  const colSpecial = getSelectorsForVariableList(colVar);
+
+  const getSelectForVar = (
+    selectVar: string,
+    handleChange: (newVal: string) => void,
+    label: string
+  ) => (
+    <Select
+      maxDropdownHeight={300}
+      label={label}
+      data={orderBy(variableChoices).map((choice) => ({
+        label: getTextForChoice(choice, diffCounts),
+        value: choice,
+      }))}
+      value={selectVar}
+      onChange={(val) => handleChange(val ?? "cfg")}
+      searchable
+      autoFocus
+    />
+  );
+
+  const rowVarSelect = getSelectForVar(rowVar, setRowVar, "row var");
+  const colVarSelect = getSelectForVar(colVar, setColVar, "col var");
+
   return (
     <div>
       <div className="container">
@@ -381,124 +429,19 @@ export function ImageGrid(props: ImageGridProps) {
 
         <Stack>
           <Group>
-            <b>row var</b>
-            <Radio.Group value={rowVar} onChange={setRowVar}>
-              {variableChoices.map((choice) => {
-                const isSpecial =
-                  fixedVariableChoices.indexOf(choice as any) === -1;
-                return (
-                  <Radio
-                    key={choice}
-                    value={choice}
-                    label={
-                      <span>
-                        {getTextForChoice(choice, diffCounts)}
-                        {isSpecial && (
-                          <div>
-                            <div>
-                              <Switch
-                                label={`all in group (${
-                                  allSpecialValues[choice]?.length ?? 0
-                                })`}
-                                onChange={(newVal) =>
-                                  setSpecialChoicesCheckAll(choice, newVal)
-                                }
-                                checked={
-                                  specialChoicesCheckAll[choice] ?? false
-                                }
-                              />
-                            </div>
-                            <div style={{ display: "flex" }}>
-                              <Switch
-                                label={`all in popup (${
-                                  specialChoices[choice]?.length ?? 0
-                                })`}
-                                onChange={(newVal) =>
-                                  setSpecialChoicesCheckPopup(choice, newVal)
-                                }
-                                checked={
-                                  specialChoicesCheckPopup[choice] ?? false
-                                }
-                              />
-                              <SdSubChooser
-                                activeCategory={choice}
-                                onNewChoices={(newChoices) =>
-                                  setSpecialChoices(choice, newChoices)
-                                }
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </span>
-                    }
-                  />
-                );
-              })}
-            </Radio.Group>
-            <Switch
-              label="single var only"
-              checked={isSingleVar}
-              onChange={setIsSingleVar}
-            />
+            <>
+              {rowVarSelect}
+
+              {!isSingleVar && <> {colVarSelect} </>}
+              {rowSpecial}
+              {colSpecial}
+              <Switch
+                label="single var only"
+                checked={isSingleVar}
+                onChange={setIsSingleVar}
+              />
+            </>
           </Group>
-          {!isSingleVar && (
-            <Group>
-              <b>col var</b>
-              <Radio.Group value={colVar} onChange={setColVar}>
-                {variableChoices.map((choice) => {
-                  const isSpecial =
-                    fixedVariableChoices.indexOf(choice as any) === -1;
-                  return (
-                    <Radio
-                      key={choice}
-                      value={choice}
-                      label={
-                        <span>
-                          {getTextForChoice(choice, diffCounts)}
-                          {isSpecial && (
-                            <div>
-                              <div>
-                                <Switch
-                                  label={`all in group (${
-                                    allSpecialValues[choice]?.length ?? 0
-                                  })`}
-                                  onChange={(newVal) =>
-                                    setSpecialChoicesCheckAll(choice, newVal)
-                                  }
-                                  checked={
-                                    specialChoicesCheckAll[choice] ?? false
-                                  }
-                                />
-                              </div>
-                              <div style={{ display: "flex" }}>
-                                <Switch
-                                  label={`all in popup (${
-                                    specialChoices[choice]?.length ?? 0
-                                  })`}
-                                  onChange={(newVal) =>
-                                    setSpecialChoicesCheckPopup(choice, newVal)
-                                  }
-                                  checked={
-                                    specialChoicesCheckPopup[choice] ?? false
-                                  }
-                                />
-                                <SdSubChooser
-                                  activeCategory={choice}
-                                  onNewChoices={(newChoices) =>
-                                    setSpecialChoices(choice, newChoices)
-                                  }
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </span>
-                      }
-                    />
-                  );
-                })}
-              </Radio.Group>
-            </Group>
-          )}
         </Stack>
         <div>
           <p>loose transforms</p>
@@ -511,8 +454,8 @@ export function ImageGrid(props: ImageGridProps) {
             </div>
           ))}
         </div>
+        <b>extra choices</b>
         <Group>
-          <b>extra choices</b>
           <MultiSelect
             label="cfg"
             data={cfgChoices}
@@ -669,7 +612,7 @@ function getTextForChoice(
       return labelText;
 
     default:
-      return _labelText;
+      return "**" + _labelText;
   }
 }
 

@@ -4,6 +4,8 @@
 
 - Add support for DALL-E and add `openai` packages
   - Disable controls on new prompt form
+- Improve visuals and reduce space for row/col var selection
+  - Move to `Select` instead of `Radio`
 
 ## 2022-11-03 20:49:13
 
