@@ -21,7 +21,7 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
       style={{
         display: "flex",
         flexWrap: "wrap",
-        maxWidth:200
+        maxWidth: 200,
       }}
     >
       <Tooltip label="seed">
@@ -34,7 +34,9 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
         <Badge>{props.image.steps}</Badge>
       </Tooltip>
       <Tooltip label="engine">
-        <Badge>{props.image.engine}</Badge>
+        <Badge color={props.image.engine === "DALL-E" ? "green" : "grape"}>
+          {props.image.engine}
+        </Badge>
       </Tooltip>
       {props.image.variantStrength && (
         <Tooltip label="strength">
