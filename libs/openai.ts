@@ -4,6 +4,7 @@ import { Configuration, OpenAIApi } from "openai";
 import { join } from "path";
 
 import { SdImgGenParams } from "../pages/api/generateSdImage";
+import { getStreamForImageUrl } from "../pages/api/images/s3/[key]";
 import { pathToImg } from "../pages/api/img_gen";
 import { saveImageToS3AndDb } from "../pages/api/saveImageToS3AndDb";
 import { getUuid } from "./shared-types/src";
@@ -16,11 +17,22 @@ export const openai = new OpenAIApi(configuration);
 
 export async function generateDalleImage(imageReq: SdImgGenParams) {
   // see : https://beta.openai.com/docs/api-reference/images/create
-  const response = await openai.createImage({
-    prompt: imageReq.promptForSd,
-    n: 1,
-    size: "512x512",
-  });
+
+  let response;
+  if (imageReq.variantSourceId) {
+    console.log("creating DALL-E variant");
+
+    const stream = await getStreamForImageUrl(imageReq.variantSourceId);
+
+    // types are wrong, should really be a stream
+    response = await openai.createImageVariation(stream as any, 1, "512x512");
+  } else {
+    response = await openai.createImage({
+      prompt: imageReq.promptForSd,
+      n: 1,
+      size: "512x512",
+    });
+  }
 
   const results = response.data;
 

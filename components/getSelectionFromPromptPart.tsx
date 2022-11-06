@@ -11,7 +11,8 @@ export function getSelectionFromPromptPart(part: PromptPart) {
   // regex to match string with {artist: XXXX} in it
   // if it matches, return the XXXX
   // if it doesn't match, return null
-  const matches2 = Array.from(part.text.matchAll(selRegex));
+
+  const matches2 = Array.from(part.text?.matchAll(selRegex) ?? []);
 
   const results = matches2.map<PromptSelection>((match) => ({
     name: match[1],

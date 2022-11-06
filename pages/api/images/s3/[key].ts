@@ -3,6 +3,7 @@ import * as fs from "fs";
 import { getImagesFromS3 } from "../../../../libs/s3_helpers";
 import { pathToImg } from "../../img_gen";
 import { Readable, Stream } from "stream";
+import { LocalFileData } from "get-file-object-from-local-path";
 
 export default async function handler(req, res) {
   const { key: imageUrl } = req.query;
@@ -54,6 +55,57 @@ async function stream2buffer(stream: Stream): Promise<Buffer> {
     stream.on("end", () => resolve(Buffer.concat(_buf)));
     stream.on("error", (err) => reject(`error converting stream - ${err}`));
   });
+}
+
+export async function getBrowserFileFromImageId(imageId: string) {
+  const filePath = await getLocalImagePathWithDownload(imageId);
+  const fileData = new LocalFileData(filePath) as File;
+
+  console.log("fileData", fileData);
+
+  return fileData;
+}
+
+export async function getLocalImagePathWithDownload(
+  imageUrl: string
+): Promise<string> {
+  const possibleTempPath = path.join(pathToImg, imageUrl);
+
+  const fileExists = fs.existsSync(possibleTempPath);
+
+  if (fileExists) {
+    return possibleTempPath;
+  }
+
+  const badFileExists = fs.existsSync(possibleTempPath + ".bad");
+  if (badFileExists) {
+    throw new Error("Bad image URL");
+  }
+
+  console.log("possibleTempPath", possibleTempPath, fileExists);
+
+  // load image from S3
+  try {
+    // flow:
+    // 1. get image from S3
+    // 2. write to disk
+    // 3. return stream pointed to disk
+
+    const s3res = await getImagesFromS3({ key: imageUrl });
+
+    if (!(s3res.Body instanceof Readable)) {
+      throw new Error("s3res.Body is not a Readable");
+    }
+
+    let writeStream = fs.createWriteStream(possibleTempPath);
+    s3res.Body.pipe(writeStream);
+
+    return possibleTempPath;
+  } catch (e: any) {
+    console.log("error", e);
+  }
+
+  throw new Error("error");
 }
 
 export async function getStreamForImageUrl(imageUrl: string): Promise<Stream> {

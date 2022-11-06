@@ -5,13 +5,18 @@ import { SdPromptToTransform } from "./SdPromptToTransform";
 import { isPlaceholder } from "./ImageGrid";
 import { SdImage } from "../libs/shared-types/src";
 
+export type SdVariantHandler = (
+  image: SdImage,
+  engine: SdImage["engine"]
+) => void;
+
 export function SdCardOrTableCell(props: {
   cell: any;
   imageSize: any;
   handleAddLooseTransform: any;
   mainImage: any;
   setMainImage: any;
-  onCreateVariant: (image: SdImage) => void;
+  onCreateVariant: SdVariantHandler;
 }) {
   const { cell, imageSize, handleAddLooseTransform, mainImage, setMainImage } =
     props;
@@ -43,8 +48,11 @@ export function SdCardOrTableCell(props: {
               set main
             </Button>
 
-            <Button onClick={() => props.onCreateVariant(cell)}>
+            <Button onClick={() => props.onCreateVariant(cell, "SD 1.5")}>
               sd variant
+            </Button>
+            <Button onClick={() => props.onCreateVariant(cell, "DALL-E")}>
+              DALL-E variant
             </Button>
           </>
         )}

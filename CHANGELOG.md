@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-11-05 21:42:27
+
+- Add support for creating variations with DALL-E
+
 ## 2022-11-05 10:14:38
 
 - Add basic support for creating an SD variant of an image

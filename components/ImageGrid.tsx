@@ -36,7 +36,7 @@ import {
 } from "./getSelectionFromPromptPart";
 import { GroupNameViewEdit } from "./GroupNameViewEdit";
 import { Switch } from "./MantineWrappers";
-import { SdCardOrTableCell } from "./SdCardOrTableCell";
+import { SdCardOrTableCell, SdVariantHandler } from "./SdCardOrTableCell";
 import { SdGroupTable } from "./SdGroupTable";
 import { engine_choices } from "./SdNewImagePrompt";
 import { SdSubChooser } from "./SdSubChooser";
@@ -421,11 +421,11 @@ export function ImageGrid(props: ImageGridProps) {
   const rowVarSelect = getSelectForVar(rowVar, setRowVar, "row var");
   const colVarSelect = getSelectForVar(colVar, setColVar, "col var");
 
-  const handleCreateVariant = async (item: SdImage) => {
+  const handleCreateVariant: SdVariantHandler = async (item, engine) => {
     await api_generateImage({
       ...item,
       variantSourceId: item.url,
-      engine: "SD 1.5",
+      engine,
       variantStrength: 0.7,
     });
 
