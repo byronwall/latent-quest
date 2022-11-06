@@ -27,7 +27,13 @@ export function SdCardOrTableCell(props: {
     ) : isPlaceholder(cell) ? (
       <SdImagePlaceHolderComp size={imageSize} placeholder={cell} />
     ) : (
-      <SdImageComp image={cell} size={imageSize} />
+      <SdImageComp
+        image={cell}
+        size={imageSize}
+        shouldShowDetails
+        onCreateVariant={props.onCreateVariant}
+        onSetMainImage={() => setMainImage(cell)}
+      />
     );
 
   return (
@@ -46,13 +52,6 @@ export function SdCardOrTableCell(props: {
               compact
             >
               set main
-            </Button>
-
-            <Button onClick={() => props.onCreateVariant(cell, "SD 1.5")}>
-              sd variant
-            </Button>
-            <Button onClick={() => props.onCreateVariant(cell, "DALL-E")}>
-              DALL-E variant
             </Button>
           </>
         )}

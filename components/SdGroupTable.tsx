@@ -17,6 +17,7 @@ import {
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 import { Switch } from "./MantineWrappers";
+import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdImageComp } from "./SdImageComp";
 import { SdPromptToTransform } from "./SdPromptToTransform";
 
@@ -28,6 +29,7 @@ type SdGroupTableProps = {
   onSetMainImage: (image: SdImage) => void;
 
   onNewTransform: (newTransform: SdImageTransform) => void;
+  onCreateVariant: SdVariantHandler;
 };
 
 export function SdGroupTable(props: SdGroupTableProps) {
@@ -170,6 +172,7 @@ export function SdGroupTable(props: SdGroupTableProps) {
             size={200}
             onSetMainImage={() => onSetMainImage(item)}
             isMainImage={item.id === mainImage.id}
+            onCreateVariant={props.onCreateVariant}
             shouldShowDetails
           />
         </div>

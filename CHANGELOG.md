@@ -3,6 +3,7 @@
 ## 2022-11-05 21:42:27
 
 - Add support for creating variations with DALL-E
+- Add buttons so that variant can be created for any image (regardless of grid)
 
 ## 2022-11-05 10:14:38
 

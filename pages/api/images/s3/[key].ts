@@ -1,9 +1,9 @@
-import path from "path";
 import * as fs from "fs";
+import path from "path";
+import { Readable, Stream } from "stream";
+
 import { getImagesFromS3 } from "../../../../libs/s3_helpers";
 import { pathToImg } from "../../img_gen";
-import { Readable, Stream } from "stream";
-import { LocalFileData } from "get-file-object-from-local-path";
 
 export default async function handler(req, res) {
   const { key: imageUrl } = req.query;
@@ -55,15 +55,6 @@ async function stream2buffer(stream: Stream): Promise<Buffer> {
     stream.on("end", () => resolve(Buffer.concat(_buf)));
     stream.on("error", (err) => reject(`error converting stream - ${err}`));
   });
-}
-
-export async function getBrowserFileFromImageId(imageId: string) {
-  const filePath = await getLocalImagePathWithDownload(imageId);
-  const fileData = new LocalFileData(filePath) as File;
-
-  console.log("fileData", fileData);
-
-  return fileData;
 }
 
 export async function getLocalImagePathWithDownload(

@@ -3,7 +3,6 @@ import {
   Group,
   Loader,
   MultiSelect,
-  Radio,
   Select,
   Stack,
   Table,
@@ -596,6 +595,7 @@ export function ImageGrid(props: ImageGridProps) {
           visibleItems={visibleIds}
           onNewTransform={handleAddLooseTransform}
           onSetMainImage={setMainImage}
+          onCreateVariant={handleCreateVariant}
         />
       </Stack>
     </div>
