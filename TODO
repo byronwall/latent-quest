@@ -4,6 +4,10 @@ DALL-E related:
     ☐ Give engine as a choice in the variables
     ☐ Figure out how to handle the grid when using DALL-E since seed is not real - maybe use `seed` even though it's not real?
 
+Variants and related:
+    ☐ Need to allow prompt to change along with other SD settings
+    ☐ Create a view that tracks the history of variants
+
 Image Grid:
     ☐ main image is being lost when the grid reloads -- find some way to not lose this @critical
     ☐ add ability to compare images side by side

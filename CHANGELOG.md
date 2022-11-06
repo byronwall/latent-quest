@@ -4,6 +4,7 @@
 
 - Add support for creating variations with DALL-E
 - Add buttons so that variant can be created for any image (regardless of grid)
+- Ensure all image info gets to the database (variant source + strength)
 
 ## 2022-11-05 10:14:38
 

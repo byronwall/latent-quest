@@ -420,12 +420,16 @@ export function ImageGrid(props: ImageGridProps) {
   const rowVarSelect = getSelectForVar(rowVar, setRowVar, "row var");
   const colVarSelect = getSelectForVar(colVar, setColVar, "col var");
 
-  const handleCreateVariant: SdVariantHandler = async (item, engine) => {
+  const handleCreateVariant: SdVariantHandler = async (
+    item,
+    engine,
+    strength
+  ) => {
     await api_generateImage({
       ...item,
       variantSourceId: item.url,
       engine,
-      variantStrength: 0.7,
+      variantStrength: strength,
     });
 
     qc.invalidateQueries();

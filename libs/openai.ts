@@ -18,6 +18,8 @@ export const openai = new OpenAIApi(configuration);
 export async function generateDalleImage(imageReq: SdImgGenParams) {
   // see : https://beta.openai.com/docs/api-reference/images/create
 
+  const { promptForSd, ...sdImage } = imageReq;
+
   let response;
   if (imageReq.variantSourceId) {
     console.log("creating DALL-E variant");
@@ -47,16 +49,16 @@ export async function generateDalleImage(imageReq: SdImgGenParams) {
 
     const filename = await downloadUrlToTmp(image.url);
 
-    const finalImage = await saveImageToS3AndDb({
-      filename,
-      fileKey: getUuid(),
-      promptBreakdown: imageReq.promptBreakdown,
-      seed: imageReq.seed, // this is a dummy value - seed does not apply to DALL-E
-      cfg: 10, // rigged to compare to SD
-      steps: 20, // rigged to compare to SD
-      groupId: imageReq.groupId ?? getUuid(),
-      engine: "DALL-E",
-    });
+    const finalImage = await saveImageToS3AndDb(
+      {
+        ...sdImage,
+        cfg: 10, // rigged to compare to SD
+        steps: 20, // rigged to compare to SD
+        groupId: imageReq.groupId ?? getUuid(),
+        engine: "DALL-E",
+      },
+      { filename, fileKey: getUuid() }
+    );
 
     return finalImage;
   }

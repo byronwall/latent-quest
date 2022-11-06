@@ -3,32 +3,20 @@ import { uploadImageToS3 } from "../../libs/s3_helpers";
 import {
   createDefaultViewSettings,
   getUuid,
-  PromptBreakdown,
   SdImage,
-  SdImageEngines,
+  SdImagePlaceHolder,
 } from "../../libs/shared-types/src";
 
-type SdSaveToS3Params = {
-  filename: string;
-  fileKey: any;
-  promptBreakdown: PromptBreakdown;
-  seed: number;
-  cfg: number;
-  steps: number;
-  groupId: string;
-  engine: SdImageEngines;
-};
+export async function saveImageToS3AndDb(
+  image: SdImagePlaceHolder &
+    Required<Pick<SdImagePlaceHolder, "groupId" | "seed" | "cfg" | "steps">>,
+  reqParams: {
+    filename: string;
+    fileKey: any;
+  }
+) {
+  const { filename, fileKey } = reqParams;
 
-export async function saveImageToS3AndDb({
-  filename,
-  fileKey,
-  promptBreakdown,
-  seed,
-  cfg,
-  steps,
-  groupId,
-  engine,
-}: SdSaveToS3Params) {
   const s3MetaData = {
     filename,
     key: fileKey,
@@ -40,22 +28,21 @@ export async function saveImageToS3AndDb({
   const s3res = await uploadImageToS3(s3MetaData);
 
   // delete the file after done ?
+
   const imgResult: SdImage = {
+    ...image,
+
     id: getUuid(),
-    promptBreakdown,
-    seed,
-    cfg,
-    steps,
     url: fileKey,
     dateCreated: new Date().toISOString(),
-    groupId: groupId,
-    engine,
   };
+
   // need to load to S3
   await db_insertGroup({
-    id: imgResult.groupId,
+    id: image.groupId,
     view_settings: createDefaultViewSettings(),
   });
+
   await db_insertImage(imgResult);
 
   return imgResult;

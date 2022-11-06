@@ -13,7 +13,10 @@ export type SdImgGenParams = {
 type SdParams = Parameters<typeof generateAsync>[0];
 
 export async function generateSdImage(input: SdImgGenParams) {
-  const { seed, cfg, steps, promptForSd, promptBreakdown, groupId } = input;
+  const { promptForSd, ...sdImage } = input;
+
+  const { seed, cfg, steps, groupId } = sdImage;
+
   const sdParams: SdParams = {
     apiKey: process.env.STABILITY_KEY ?? "",
     seed,
@@ -69,15 +72,12 @@ export async function generateSdImage(input: SdImgGenParams) {
 
     const fileKey = result.filePath.replace(pathToImg + "/", "");
 
-    return await saveImageToS3AndDb({
-      filename: result.filePath,
-      fileKey,
-      promptBreakdown,
-      seed,
-      cfg,
-      steps,
-      groupId,
-      engine: "SD 1.5",
-    });
+    return await saveImageToS3AndDb(
+      {
+        ...sdImage,
+        engine: "SD 1.5",
+      },
+      { filename: result.filePath, fileKey }
+    );
   }
 }

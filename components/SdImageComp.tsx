@@ -9,6 +9,7 @@ import { getImageUrl } from "./ImageList";
 import { IconZoomIn } from "@tabler/icons";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdVariantHandler } from "./SdCardOrTableCell";
+import { SdVariantMenu } from "./SdVariantMenu";
 
 // nextjs image
 type SdImageCompProps = {
@@ -54,9 +55,12 @@ export function SdImageComp(props: SdImageCompProps) {
               onSetMainImage={onSetMainImage}
               isMainImage={isMainImage}
             />
-            <Button onClick={() => props.onCreateVariant?.(image, "SD 1.5")}>
-              sd variant
-            </Button>
+            {props.onCreateVariant && (
+              <SdVariantMenu
+                image={image}
+                onCreateVariant={props.onCreateVariant}
+              />
+            )}
             <Button onClick={() => props.onCreateVariant?.(image, "DALL-E")}>
               DALL-E variant
             </Button>

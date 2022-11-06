@@ -34,6 +34,11 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
       <Tooltip label="engine">
         <Badge>{props.image.engine}</Badge>
       </Tooltip>
+      {props.image.variantStrength && (
+        <Tooltip label="strength">
+          <Badge>{(1 - props.image.variantStrength).toPrecision(2)}</Badge>
+        </Tooltip>
+      )}
       {!props.shouldHidePrompt && (
         <Tooltip
           label={getTextForBreakdown(props.image.promptBreakdown)}

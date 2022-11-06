@@ -7,7 +7,8 @@ import { SdImage } from "../libs/shared-types/src";
 
 export type SdVariantHandler = (
   image: SdImage,
-  engine: SdImage["engine"]
+  engine: SdImage["engine"],
+  strength?: number
 ) => void;
 
 export function SdCardOrTableCell(props: {
