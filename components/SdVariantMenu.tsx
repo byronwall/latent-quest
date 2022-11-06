@@ -1,5 +1,5 @@
 import { Button, Menu } from "@mantine/core";
-import { IconSettings } from "@tabler/icons";
+
 import { SdImage } from "../libs/shared-types/src";
 import { SdVariantHandler } from "./SdCardOrTableCell";
 
@@ -33,7 +33,9 @@ export function SdVariantMenu(props: SdVariantMenuProps) {
   return (
     <Menu shadow="md" width={200}>
       <Menu.Target>
-        <Button>sd variant</Button>
+        <Button compact color="indigo">
+          SD variant...
+        </Button>
       </Menu.Target>
 
       <Menu.Dropdown>

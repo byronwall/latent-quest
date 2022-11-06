@@ -1,23 +1,15 @@
-import {
-  Button,
-  CopyButton,
-  Group,
-  JsonInput,
-  Popover,
-  Table,
-} from "@mantine/core";
+import { Button, CopyButton, JsonInput, Popover, Table } from "@mantine/core";
 import { useState } from "react";
 
 import { findImageDifferences } from "../libs/helpers";
 import {
   getTextForBreakdown,
   SdImage,
-  SdImagePlaceHolder,
   SdImageTransform,
 } from "../libs/shared-types/src";
-import { api_generateImage } from "../model/api";
 import { Switch } from "./MantineWrappers";
 import { SdVariantHandler } from "./SdCardOrTableCell";
+import { SdCardViewer } from "./SdCardViewer";
 import { SdImageComp } from "./SdImageComp";
 import { SdPromptToTransform } from "./SdPromptToTransform";
 
@@ -163,26 +155,19 @@ export function SdGroupTable(props: SdGroupTableProps) {
     </Table>
   );
 
-  const cardView = (
-    <Group>
-      {data?.map((item: SdImage) => (
-        <div key={item.id}>
-          <SdImageComp
-            image={item}
-            size={200}
-            onSetMainImage={() => onSetMainImage(item)}
-            isMainImage={item.id === mainImage.id}
-            onCreateVariant={props.onCreateVariant}
-            shouldShowDetails
-          />
-        </div>
-      ))}
-    </Group>
-  );
   return (
     <div>
       <Switch label="Card View" checked={isCardView} onChange={setIsCardView} />
-      {isCardView ? cardView : tableView}
+      {isCardView ? (
+        <SdCardViewer
+          data={data}
+          id={mainImage.id}
+          onSetMainImage={onSetMainImage}
+          onCreateVariant={props.onCreateVariant}
+        />
+      ) : (
+        tableView
+      )}
     </div>
   );
 }

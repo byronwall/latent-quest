@@ -20,6 +20,8 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
     <div
       style={{
         display: "flex",
+        flexWrap: "wrap",
+        maxWidth:200
       }}
     >
       <Tooltip label="seed">

@@ -56,14 +56,26 @@ export function SdImageComp(props: SdImageCompProps) {
               isMainImage={isMainImage}
             />
             {props.onCreateVariant && (
-              <SdVariantMenu
-                image={image}
-                onCreateVariant={props.onCreateVariant}
-              />
+              <div
+                style={{
+                  display: "flex",
+                  gap: 5,
+                }}
+              >
+                <SdVariantMenu
+                  image={image}
+                  onCreateVariant={props.onCreateVariant}
+                />
+
+                <Button
+                  compact
+                  color="indigo"
+                  onClick={() => props.onCreateVariant?.(image, "DALL-E")}
+                >
+                  DALL-E variant
+                </Button>
+              </div>
             )}
-            <Button onClick={() => props.onCreateVariant?.(image, "DALL-E")}>
-              DALL-E variant
-            </Button>
           </div>
         )}
 

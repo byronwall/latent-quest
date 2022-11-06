@@ -591,7 +591,7 @@ export function ImageGrid(props: ImageGridProps) {
         </Table>
       )}
 
-      <Stack>
+      <Stack style={{ width: "90vw", margin: "auto" }}>
         <Title order={1}>all images in group</Title>
         <SdGroupTable
           data={imageGroupData}
