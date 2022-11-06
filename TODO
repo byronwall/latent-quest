@@ -6,7 +6,7 @@ DALL-E related:
 
 Variants and related:
     ☐ Need to allow prompt to change along with other SD settings
-    ☐ Create a view that tracks the history of variants
+    ☐ Allow the variant strength to be part of the image grid
 
 Image Grid:
     ☐ main image is being lost when the grid reloads -- find some way to not lose this @critical
@@ -30,6 +30,3 @@ Random:
 
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces
-
-Archive:
-  ✔ load the images and group data server side to improve first render speed (avoid bump when group data comes through) @done(22-11-04 22:47) @project(Image Grid)

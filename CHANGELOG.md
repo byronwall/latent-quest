@@ -11,7 +11,6 @@
 ## 2022-11-05 10:14:38
 
 - Add basic support for creating an SD variant of an image
-  - Next: allow varying the strength and allow strength to part of the grid
 
 ## 2022-11-04 21:39:55
 
