@@ -5,16 +5,18 @@ import {
   NumberInput,
   Select,
   Stack,
-  Title,
 } from "@mantine/core";
+import { IconArrowsShuffle } from "@tabler/icons";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 
 import {
   getBreakdownForText,
+  getRandomSeed,
   getValidEngine,
   PromptBreakdown,
+  SdImage,
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 import { PromptEditor } from "./PromptEditor";
@@ -24,23 +26,31 @@ const starterPrompt =
 
 export const engine_choices = ["DALL-E", "SD 1.5"];
 
-export function SdNewImagePrompt() {
-  const [cfg, cfgSet] = useState(10);
-  const [steps, stepsSet] = useState(20);
+interface SdNewImagePromptProps {
+  defaultImage?: SdImage;
+}
 
-  const [seed, seedSet] = useState(Math.floor(Math.random() * 67823));
+export function SdNewImagePrompt(props: SdNewImagePromptProps) {
+  const { defaultImage } = props;
 
-  const [engine, setEngine] = useState("SD 1.5");
+  const [cfg, cfgSet] = useState(defaultImage?.cfg ?? 10);
+  const [steps, stepsSet] = useState(defaultImage?.steps ?? 20);
+
+  const [seed, seedSet] = useState(defaultImage?.seed ?? getRandomSeed());
+
+  const [engine, setEngine] = useState(defaultImage?.engine ?? "SD 1.5");
 
   const [isLoading, setIsLoading] = useState(false);
 
   const [breakdown, setBreakdown] = useState<PromptBreakdown>(
-    getBreakdownForText(starterPrompt)
+    defaultImage?.promptBreakdown ?? getBreakdownForText(starterPrompt)
   );
 
   const queryClient = useQueryClient();
 
   const router = useRouter();
+
+  const isPartOfExistingGroup = defaultImage !== undefined;
 
   const onGen = async () => {
     setIsLoading(true);
@@ -50,53 +60,68 @@ export function SdNewImagePrompt() {
       steps: steps,
       seed: seed,
       engine: getValidEngine(engine),
+      prevImageId: defaultImage?.id,
+      groupId: defaultImage?.groupId,
     });
     setIsLoading(false);
     queryClient.invalidateQueries();
+
+    if (isPartOfExistingGroup) {
+      // just be done
+      return;
+    }
 
     router.push(`/group/${img[0].groupId}`);
   };
 
   return (
-    <div className="container">
+    <div>
       <Stack>
-        <Title order={1}>test a prompt</Title>
         <PromptEditor
           initialBreakdown={breakdown}
           onBreakdownChange={setBreakdown}
           style={{ minWidth: 400 }}
           shouldAllowSelection
         />
-        <Group align={"flex-start"}>
+        <Group align={"center"}>
           <NumberInput
             label="cfg"
             value={cfg}
             onChange={(val) => cfgSet(val ?? 0)}
             disabled={engine === "DALL-E"}
+            style={{ width: 80 }}
           />
           <NumberInput
             label="steps"
             value={steps}
             onChange={(val) => stepsSet(val ?? 0)}
             disabled={engine === "DALL-E"}
+            style={{ width: 80 }}
           />
           <NumberInput
             label="seed"
             value={seed}
             onChange={(val) => seedSet(val ?? 0)}
             disabled={engine === "DALL-E"}
+            rightSection={
+              <Button onClick={() => seedSet(getRandomSeed())} compact>
+                <IconArrowsShuffle />
+              </Button>
+            }
+            style={{ width: 150 }}
           />
           <Select
             label="engine"
             placeholder="engine"
             data={engine_choices}
             value={engine}
-            onChange={(val) => setEngine(val ?? "SD 1.5")}
+            onChange={(val: any) => setEngine(val ?? "SD 1.5")}
+            style={{ width: 100 }}
           />
           {isLoading ? (
             <Loader />
           ) : (
-            <Button onClick={() => onGen()}>Generate image</Button>
+            <Button onClick={() => onGen()}>create</Button>
           )}
         </Group>
       </Stack>

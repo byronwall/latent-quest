@@ -16,6 +16,8 @@ type SdImageBadgeBarProps = {
 };
 
 export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
+  const { image, onSetMainImage, isMainImage, shouldHidePrompt } = props;
+
   return (
     <div
       style={{
@@ -25,27 +27,27 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
       }}
     >
       <Tooltip label="seed">
-        <Badge>{props.image.seed}</Badge>
+        <Badge>{image.seed}</Badge>
       </Tooltip>
       <Tooltip label="cfg">
-        <Badge>{props.image.cfg}</Badge>
+        <Badge>{image.cfg}</Badge>
       </Tooltip>
       <Tooltip label="steps">
-        <Badge>{props.image.steps}</Badge>
+        <Badge>{image.steps}</Badge>
       </Tooltip>
       <Tooltip label="engine">
-        <Badge color={props.image.engine === "DALL-E" ? "green" : "grape"}>
-          {props.image.engine}
+        <Badge color={image.engine === "DALL-E" ? "green" : "grape"}>
+          {image.engine}
         </Badge>
       </Tooltip>
-      {props.image.variantStrength && (
+      {image.variantStrength && (
         <Tooltip label="strength">
-          <Badge>{(1 - props.image.variantStrength).toPrecision(2)}</Badge>
+          <Badge>{(1 - image.variantStrength).toPrecision(2)}</Badge>
         </Tooltip>
       )}
-      {!props.shouldHidePrompt && (
+      {!shouldHidePrompt && (
         <Tooltip
-          label={getTextForBreakdown(props.image.promptBreakdown)}
+          label={getTextForBreakdown(image.promptBreakdown)}
           width={400}
           color="blue"
           position="bottom"
@@ -56,10 +58,10 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
           </Badge>
         </Tooltip>
       )}
-      {props.onSetMainImage && (
+      {onSetMainImage && (
         <Badge
-          color={props.isMainImage ? "green" : "blue"}
-          onClick={() => props.onSetMainImage?.()}
+          color={isMainImage ? "green" : "blue"}
+          onClick={() => onSetMainImage?.()}
         >
           main
         </Badge>

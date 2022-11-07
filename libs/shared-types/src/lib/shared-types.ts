@@ -17,6 +17,10 @@ export interface SdImage {
 
   groupId: string;
 
+  // field is used when an image is based on another one
+  // may be used to track history
+  prevImageId?: string;
+
   engine: SdImageEngines;
 
   // fields for generate variations
@@ -221,3 +225,7 @@ export type SdSubChoice =
       value: string;
       tags: string[];
     };
+
+export function getRandomSeed() {
+  return Math.floor(Math.random() * 1000000000);
+}

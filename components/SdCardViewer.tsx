@@ -63,8 +63,11 @@ export function SdCardViewer(props: SdCardViewerProps) {
         {rowGroupLabels.map((label) => {
           const group = rowGroups[label];
 
+          // this is a little hokey
+          // variants use the URL while prevImage uses the actual ID
           const sourceImage =
-            colField === "variantSourceId" && data.find((c) => c.url === label);
+            (colField === "variantSourceId" || colField === "prevImageId") &&
+            data.find((c) => c.url === label || c.id === label);
 
           return (
             <div

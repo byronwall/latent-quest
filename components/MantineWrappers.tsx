@@ -1,8 +1,9 @@
 import {
-  SwitchProps as mSwitchProps,
-  Switch as MSwitch,
-  Popover,
   Button,
+  Popover,
+  PopoverProps,
+  Switch as MSwitch,
+  SwitchProps as mSwitchProps,
   Tooltip,
   TooltipProps,
 } from "@mantine/core";
@@ -48,5 +49,20 @@ export function TooltipCommon(props: TooltipProps) {
     >
       {props.children}
     </Tooltip>
+  );
+}
+
+export function PopoverCommon(props: PopoverProps) {
+  return (
+    <Popover
+      {...props}
+      closeOnClickOutside
+      shadow={"rgba(0, 0, 0, 0.8) 15px 22px 70px 4px;"}
+      withArrow
+      arrowSize={30}
+      position="right"
+    >
+      {props.children}
+    </Popover>
   );
 }

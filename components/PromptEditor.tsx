@@ -1,4 +1,4 @@
-import { Badge, Button, Menu, Title, useMantineTheme } from "@mantine/core";
+import { Badge, Button, Menu, useMantineTheme } from "@mantine/core";
 import { useTextSelection } from "@mantine/hooks";
 
 import {
@@ -58,18 +58,20 @@ export function PromptEditor(props: PromptEditorProps) {
 
   const selection = useTextSelection();
 
-  const selectedText = selection?.toString();
+  const selectedText = selection?.toString() ?? "";
+
+  const idxSelectionInBreakdown = prompt.parts.findIndex((part) => {
+    return part.text.includes(selectedText);
+  });
+
+  const isSelectionInBreakdown = idxSelectionInBreakdown !== -1;
 
   const handleCreateSubFromSelection = (name: string) => {
     if (!selectedText) {
       return;
     }
 
-    const inBreakdown = prompt.parts.findIndex((part) => {
-      return part.text.includes(selectedText);
-    });
-
-    if (inBreakdown === -1) {
+    if (!isSelectionInBreakdown) {
       return;
     }
 
@@ -78,7 +80,7 @@ export function PromptEditor(props: PromptEditorProps) {
     }
 
     const newParts = prompt.parts.map((part, index) => {
-      if (index === inBreakdown) {
+      if (index === idxSelectionInBreakdown) {
         const newPart: PromptPart = {
           ...part,
           text: part.text.replace(selectedText, `{${name}:${selectedText}}`),
@@ -102,15 +104,6 @@ export function PromptEditor(props: PromptEditorProps) {
 
   return (
     <div {...rest}>
-      <Title order={2}>prompt editor</Title>
-
-      <p>
-        <i>
-          To activate substitution, select some text and hit the button that
-          appears below.
-        </i>
-      </p>
-
       <TextAreaWithButton
         defaultText={simpleText}
         onChange={handleRawTextChange}
@@ -159,7 +152,13 @@ export function PromptEditor(props: PromptEditorProps) {
           );
         })}
       </div>
-      {shouldAllowSelection && selectedText && (
+      <p>
+        <i>
+          To activate substitution, select text and hit the button that appears
+          below.
+        </i>
+      </p>
+      {shouldAllowSelection && selectedText && isSelectionInBreakdown && (
         <Menu shadow="md" width={200}>
           <Menu.Target>
             <Button>Apply label to selection</Button>

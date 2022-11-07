@@ -5,13 +5,12 @@ import { useState } from "react";
 import { getTextForBreakdown, SdImage } from "../libs/shared-types/src";
 import { getImageUrl } from "./ImageList";
 
-// import zoom in from tabler
 import { IconZoomIn } from "@tabler/icons";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdVariantMenu } from "./SdVariantMenu";
+import { SdImageModifyPrompt } from "./SdImageModifyPrompt";
 
-// nextjs image
 type SdImageCompProps = {
   image: SdImage;
   size: number;
@@ -74,6 +73,8 @@ export function SdImageComp(props: SdImageCompProps) {
                 >
                   DALL-E variant
                 </Button>
+
+                <SdImageModifyPrompt defaultImage={image} />
               </div>
             )}
           </div>

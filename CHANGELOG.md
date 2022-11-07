@@ -1,5 +1,10 @@
 # Changelog
 
+## 2022-11-06 21:19:28
+
+- Add support for a quick editor for any existing image
+  - Will set a new `prevImageId` field and also return the current group
+
 ## 2022-11-05 21:42:27
 
 - Add support for creating variations with DALL-E
