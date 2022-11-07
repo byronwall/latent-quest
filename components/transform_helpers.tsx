@@ -98,7 +98,8 @@ function generateTransformFromSimplerHeader(rowVar: string, rowHeader: any) {
   const rowTransformTemp: SdImageTransformTextSub = {
     type: "text",
     action: "substitute",
-    field: rowVar as any,
+    field: "unknown",
+    subKey: rowVar,
     value: rowHeader,
   };
 
@@ -147,7 +148,7 @@ export function generateSortedTransformList(
         } as SdImageTransformTextBasic)
       : ({
           type: "text",
-          field: rowColVar as any,
+          subKey: rowColVar,
           action: "substitute",
           value: getSelectionAsLookup(mainImage)[rowColVar],
         } as SdImageTransformTextSub);

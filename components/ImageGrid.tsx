@@ -428,6 +428,7 @@ export function ImageGrid(props: ImageGridProps) {
     await api_generateImage({
       ...item,
       variantSourceId: item.url,
+      prevImageId: item.id,
       engine,
       variantStrength: strength,
     });

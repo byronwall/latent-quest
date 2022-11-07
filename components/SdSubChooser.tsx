@@ -1,7 +1,7 @@
 import { Button, Chip, Modal, TextInput, Title } from "@mantine/core";
 import { IconWindowMaximize } from "@tabler/icons";
 import { orderBy, uniq, uniqBy } from "lodash-es";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSet } from "react-use";
 
 import { useChoices } from "../model/api_hooks";
@@ -40,12 +40,13 @@ export function SdSubChooser(props: SdSubChooserProps) {
         .flatMap((choice) => choice.tags)
         .map((c) => c.trim())
         .filter((c) => c.includes(tagFilter))
+        .filter((c) => c.length > 0)
     ),
     (c) => c.toLowerCase()
   );
 
   // store an active tag
-  const [activeTag, setActiveTag] = useState("");
+  const [activeTag, setActiveTag] = useState(allTags[0] ?? "");
 
   const items = orderBy(
     liveItems.filter(

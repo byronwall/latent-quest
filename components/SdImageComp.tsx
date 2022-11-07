@@ -9,7 +9,12 @@ import { IconZoomIn } from "@tabler/icons";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdVariantMenu } from "./SdVariantMenu";
-import { SdImageModifyPrompt } from "./SdImageModifyPrompt";
+import { SdImageModifyPopover } from "./SdImageModifyPrompt";
+import { SdImageSubPopover } from "./SdImageSubPopover";
+import {
+  getSelectionAsLookup,
+  getSelectionFromPromptPart,
+} from "./getSelectionFromPromptPart";
 
 type SdImageCompProps = {
   image: SdImage;
@@ -42,6 +47,9 @@ export function SdImageComp(props: SdImageCompProps) {
     return null;
   }
 
+  const selParts = getSelectionAsLookup(image);
+  const selKeys = Object.keys(selParts);
+
   return (
     <>
       <div style={{ position: "relative" }}>
@@ -58,6 +66,8 @@ export function SdImageComp(props: SdImageCompProps) {
               <div
                 style={{
                   display: "flex",
+                  flexWrap: "wrap",
+                  maxWidth: 200,
                   gap: 5,
                 }}
               >
@@ -74,7 +84,17 @@ export function SdImageComp(props: SdImageCompProps) {
                   DALL-E variant
                 </Button>
 
-                <SdImageModifyPrompt defaultImage={image} />
+                <SdImageModifyPopover defaultImage={image} />
+
+                <>
+                  {selKeys.map((key) => (
+                    <SdImageSubPopover
+                      key={key}
+                      activeCategory={key}
+                      image={image}
+                    />
+                  ))}
+                </>
               </div>
             )}
           </div>

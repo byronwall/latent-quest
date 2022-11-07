@@ -349,13 +349,13 @@ export function generatePlaceholderForTransform(
             placeholder.promptBreakdown.parts.map((c) => {
               let match;
               while ((match = selRegex.exec(c.text))) {
-                if (match && match[1] === transform.field) {
+                if (match && match[1] === transform.subKey) {
                   if (toSubstitute) {
                     return {
                       ...c,
                       text: c.text.replace(
                         selRegex,
-                        `{${transform.field}: ${toSubstitute}}`
+                        `{${transform.subKey}: ${toSubstitute}}`
                       ),
                     };
                   }

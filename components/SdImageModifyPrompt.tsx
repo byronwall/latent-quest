@@ -8,7 +8,7 @@ interface SdImageModifyPromptProps {
   defaultImage?: SdImage;
 }
 
-export function SdImageModifyPrompt(props: SdImageModifyPromptProps) {
+export function SdImageModifyPopover(props: SdImageModifyPromptProps) {
   const { defaultImage } = props;
 
   return (

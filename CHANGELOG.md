@@ -1,5 +1,10 @@
 # Changelog
 
+## 2022-11-06 21:42:46
+
+- Allow multiple substitutions to occur in a single place holder
+  - This currently shuffles the choices and picks items in groups of N until all items are picked
+
 ## 2022-11-06 21:19:28
 
 - Add support for a quick editor for any existing image

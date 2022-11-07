@@ -169,7 +169,10 @@ export interface SdImageTransformTextBasic {
 
 export interface SdImageTransformTextSub {
   type: "text";
+
+  // this can be anything in the choice mgr
   field: BreakdownType;
+  subKey: string;
 
   action: "substitute";
 
