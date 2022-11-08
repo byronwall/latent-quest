@@ -1,5 +1,4 @@
 import { Select, Slider } from "@mantine/core";
-import { access } from "fs";
 import { groupBy, orderBy, uniq } from "lodash-es";
 import { useState } from "react";
 
@@ -90,7 +89,6 @@ export function SdCardViewer(props: SdCardViewerProps) {
             data={colFields}
             value={colField}
             onChange={(value) => setColField(value)}
-            clearable
             searchable
           />
         </div>

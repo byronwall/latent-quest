@@ -102,9 +102,15 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  if (isOpen) {
-    console.log(choicesInActivePrompt);
-  }
+  const handleNewChoices = (newChoices: string[]) => {
+    // add new items
+    const newActiveChoices = [...activeChoices, ...newChoices];
+
+    // remove duplicates
+    const uniqueActiveChoices = Array.from(new Set(newActiveChoices));
+
+    setActiveChoices(uniqueActiveChoices);
+  };
 
   return (
     <PopoverCommon opened={isOpen} onClose={() => setIsOpen(false)}>
@@ -127,7 +133,7 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
                 <SdSubChooser
                   activeCategory={activeCategory}
                   shouldExcludeModal
-                  onNewChoices={setActiveChoices}
+                  onNewChoices={handleNewChoices}
                 />
               </div>
             </Stepper.Step>
