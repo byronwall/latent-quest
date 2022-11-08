@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 export function TextAreaWithButton(props: {
   onChange: (newText: string) => void;
+  onIsDirtyChange?: (isDirty: boolean) => void;
   defaultText: string;
 }) {
   const { onChange, defaultText } = props;
@@ -18,6 +19,35 @@ export function TextAreaWithButton(props: {
   }, [defaultText]);
 
   const isDirty = text !== defaultText;
+
+  useEffect(() => {
+    props.onIsDirtyChange?.(isDirty);
+  }, [isDirty]);
+
+  const handleCommaToPipe = () => {
+    // convert all commas to pipes if they are between braces
+    // iterate chars of text
+    // if we see a comma, and we are in braces, then convert to pipe
+
+    let newText = "";
+    let isInBraces = false;
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      if (char === "{") {
+        isInBraces = true;
+      } else if (char === "}") {
+        isInBraces = false;
+      } else if (char === ",") {
+        if (isInBraces) {
+          newText += "|";
+          continue;
+        }
+      }
+      newText += char;
+    }
+
+    setText(newText);
+  };
 
   return (
     <div
@@ -38,6 +68,7 @@ export function TextAreaWithButton(props: {
       <Button onClick={handleAccept} disabled={!isDirty}>
         accept
       </Button>
+      <Button onClick={handleCommaToPipe}>comma to pipe</Button>
     </div>
   );
 }

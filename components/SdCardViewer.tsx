@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { SdImage } from "../libs/shared-types/src";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
+import { getFinalPromptText } from "./getTextOnlyFromPromptPartWithLabel";
 import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdImageComp } from "./SdImageComp";
 
@@ -46,7 +47,7 @@ export function SdCardViewer(props: SdCardViewerProps) {
 
   const colFields = orderBy(rawFields.concat(subFields));
 
-  const [colField, setColField] = useState<string | null>(null);
+  const [colField, setColField] = useState<string | null>("prevImageId");
 
   const rowGroupsSub = Array.from(allSubValues[colField ?? ""] ?? []);
 
@@ -115,7 +116,10 @@ export function SdCardViewer(props: SdCardViewerProps) {
         }}
       >
         {rowGroupLabels.map((label) => {
-          const group = rowGroups[label];
+          const group = orderBy(
+            rowGroups[label],
+            (c) => getFinalPromptText(c).length
+          );
 
           const willShowImage =
             colField === "variantSourceId" || colField === "prevImageId";

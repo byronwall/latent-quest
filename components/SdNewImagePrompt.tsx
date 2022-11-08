@@ -52,7 +52,18 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
 
   const isPartOfExistingGroup = defaultImage !== undefined;
 
+  const [isPromptDirty, setIsPromptDirty] = useState(false);
+
   const onGen = async () => {
+    if (isPromptDirty) {
+      const shouldCont = confirm(
+        "You have unsaved changes to your prompt. Are you sure you want to continue?"
+      );
+      if (!shouldCont) {
+        return;
+      }
+    }
+
     setIsLoading(true);
     const img = await api_generateImage({
       promptBreakdown: breakdown,
@@ -81,6 +92,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
           initialBreakdown={breakdown}
           onBreakdownChange={setBreakdown}
           style={{ minWidth: 400 }}
+          onIsDirtyChange={setIsPromptDirty}
           shouldAllowSelection
         />
         <Group align={"center"}>

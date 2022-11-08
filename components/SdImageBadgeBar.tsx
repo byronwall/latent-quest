@@ -48,11 +48,7 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
       )}
       {!shouldHidePrompt && (
         <Tooltip
-          label={
-            getTextForBreakdown(image.promptBreakdown) +
-            "--" +
-            getFinalPromptText(image)
-          }
+          label={getFinalPromptText(image)}
           width={400}
           color="blue"
           position="bottom"

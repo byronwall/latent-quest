@@ -29,7 +29,13 @@ interface SdImageSubPopoverProps {
   image: SdImage;
 }
 
-const methods = ["permutation", "combination", "pick_n", "power_set"] as const;
+const methods = [
+  "permutation",
+  "combination",
+  "pick_n",
+  "power_set",
+  "peel_off",
+] as const;
 type SdSubMethod = typeof methods[number];
 
 export function SdImageSubPopover(props: SdImageSubPopoverProps) {
@@ -51,30 +57,20 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
     10
   );
 
-  const [shouldGenAll, setShouldGenAll] = useState(false);
-
-  const [shouldConsiderOrderUnique, setShouldConsiderOrderUnique] =
-    useState(false);
-
   const [shouldRepeatItems, setShouldRepeatItems] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
   const [method, setMethod] = useState<string>("combination");
 
-  const [shouldShuffle, setShouldShuffle] = useState(false);
-
-  const shuffledArray = shouldShuffle
-    ? orderBy(activeChoices, () => Math.random())
-    : activeChoices;
-
-  const groupsToRun = getGroupsFromMethod(
-    shuffledArray,
+  const { results: groupsToRun, totalPossible } = getGroupsFromMethod(
+    activeChoices,
     subCountPerItem ?? 1,
+    totalGenerations ?? 1,
     method
   );
 
-  const itemsToKeep = shouldGenAll ? groupsToRun.length : totalGenerations;
+  const itemsToKeep = totalGenerations;
 
   const placeholders = groupsToRun.slice(0, itemsToKeep).map((group) => {
     const subXForm: SdImageTransformTextSub = {
@@ -143,7 +139,11 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
                 </p>
 
                 <div>
-                  <Radio.Group label="choose your method" onChange={setMethod}>
+                  <Radio.Group
+                    label="choose your method"
+                    onChange={setMethod}
+                    value={method}
+                  >
                     {methods.map((method) => (
                       <Radio key={method} value={method} label={method} />
                     ))}
@@ -162,33 +162,12 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
                   onChange={setTotalGenerations}
                   style={{ width: 200 }}
                   label="Total images to generate"
-                  disabled={shouldGenAll}
                 />
 
                 <p>
-                  <b>total possible items: </b>0
+                  <b>total possible items: </b>
+                  {Number(totalPossible)}
                 </p>
-
-                <Switch
-                  label="Generate all"
-                  checked={shouldGenAll}
-                  onChange={setShouldGenAll}
-                />
-                <Switch
-                  label="Consider order unique"
-                  checked={shouldConsiderOrderUnique}
-                  onChange={setShouldConsiderOrderUnique}
-                />
-                <Switch
-                  label="Repeat items"
-                  checked={shouldRepeatItems}
-                  onChange={setShouldRepeatItems}
-                />
-                <Switch
-                  label="Shuffle items"
-                  checked={shouldShuffle}
-                  onChange={setShouldShuffle}
-                />
               </div>
             </Stepper.Step>
             <Stepper.Step label="Review and run">
@@ -236,36 +215,105 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
   );
 }
 
+interface ComboResult {
+  results: string[][];
+  totalPossible: bigint | number;
+}
+
 function getGroupsFromMethod(
   activeChoices: string[],
   subCountPerItem: number,
+  totalGenerations: number,
   method: string
-): string[][] {
+): ComboResult {
   switch (method) {
     case "permutation":
-      return getPermutations(activeChoices, subCountPerItem);
+      return getPermutations(activeChoices, subCountPerItem, totalGenerations);
     case "combination":
-      return getCombinations(activeChoices, subCountPerItem);
+      return getCombinations(activeChoices, subCountPerItem, totalGenerations);
     case "pick_n":
-      return getPickN(activeChoices, subCountPerItem);
+      return getPickN(activeChoices, subCountPerItem, totalGenerations);
     case "power_set":
-      return getPowerSet(activeChoices);
+      return getPowerSet(activeChoices, totalGenerations);
+    case "peel_off":
+      return getPeelOff(activeChoices, totalGenerations);
   }
 
-  return [];
+  throw new Error("invalid method");
 }
 
-function getPermutations(activeChoices: string[], subCountPerItem: number) {
-  return Array.from(new Permutation(activeChoices, subCountPerItem));
+function getPeelOff(
+  activeChoices: string[],
+  totalGenerations: number
+): ComboResult {
+  const groups: string[][] = [];
+
+  for (let i = 0; i < totalGenerations; i++) {
+    const indexToKeep = Math.floor(
+      (i / totalGenerations) * activeChoices.length
+    );
+
+    const group = activeChoices.slice(0, activeChoices.length - indexToKeep);
+    groups.push(group);
+  }
+
+  return {
+    results: groups,
+    totalPossible: activeChoices.length,
+  };
 }
 
-function getCombinations(activeChoices: string[], subCountPerItem: number) {
-  return Array.from(new Combination(activeChoices, subCountPerItem));
+function getPermutations(
+  activeChoices: string[],
+  subCountPerItem: number,
+  totalCount: number
+): ComboResult {
+  const results: string[][] = [];
+
+  const allPerms = new Permutation(activeChoices, subCountPerItem);
+
+  const totalPossible = allPerms.length;
+  if (totalPossible < totalCount) {
+    return { results: Array.from(allPerms), totalPossible: allPerms.length };
+  }
+
+  for (let i = 0; i < totalCount; i++) {
+    results.push(allPerms.sample() ?? []);
+  }
+  return { results, totalPossible };
 }
-function getPickN(activeChoices: string[], subCountPerItem: number) {
+
+function getCombinations(
+  activeChoices: string[],
+  subCountPerItem: number,
+  totalCount: number
+): ComboResult {
+  const results: string[][] = [];
+
+  const allCombs = new Combination(activeChoices, subCountPerItem);
+
+  const totalPossible = allCombs.length;
+
+  if (totalPossible < totalCount) {
+    return { results: Array.from(allCombs), totalPossible };
+  }
+
+  for (let i = 0; i < totalCount; i++) {
+    results.push(allCombs.sample() ?? []);
+  }
+  return { results, totalPossible };
+}
+
+function getPickN(
+  activeChoices: string[],
+  subCountPerItem: number,
+  totalCount: number
+): ComboResult {
   const groupsToRun: string[][] = [];
 
-  for (let index = 0; index < activeChoices.length; index++) {
+  const itemCount = Math.min(totalCount, activeChoices.length);
+
+  for (let index = 0; index < itemCount; index++) {
     const element = activeChoices[index];
 
     if (index % (subCountPerItem ?? 1) === 0) {
@@ -275,9 +323,24 @@ function getPickN(activeChoices: string[], subCountPerItem: number) {
     groupsToRun[groupsToRun.length - 1].push(element);
   }
 
-  return groupsToRun;
+  return {
+    results: groupsToRun,
+    totalPossible: activeChoices.length,
+  };
 }
 
-function getPowerSet(activeChoices: string[]) {
-  return Array.from(new PowerSet(activeChoices)).filter((c) => c.length > 0);
+function getPowerSet(activeChoices: string[], totalCount: number): ComboResult {
+  const results: string[][] = [];
+
+  const allPowerSets = new PowerSet(activeChoices);
+
+  const totalPossible = allPowerSets.length;
+  if (totalPossible < totalCount) {
+    return { results: Array.from(allPowerSets), totalPossible };
+  }
+
+  for (let i = 0; i < totalCount; i++) {
+    results.push(allPowerSets.sample() ?? []);
+  }
+  return { results, totalPossible };
 }

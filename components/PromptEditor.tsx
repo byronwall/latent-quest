@@ -20,6 +20,8 @@ interface PromptEditorProps {
 
   shouldAllowSelection?: boolean;
 
+  onIsDirtyChange?: (isDirty: boolean) => void;
+
   style?: React.CSSProperties;
 }
 
@@ -107,6 +109,7 @@ export function PromptEditor(props: PromptEditorProps) {
       <TextAreaWithButton
         defaultText={simpleText}
         onChange={handleRawTextChange}
+        onIsDirtyChange={props.onIsDirtyChange}
       />
 
       <div>

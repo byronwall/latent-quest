@@ -8,8 +8,11 @@
   - Shuffle as a choice
   - Uses `|` as the delim inside a list of choices - is turned into a comma later
   - Sub lists are stored as arrays internally and joined at the end
+  - Ensure that all possible sub counts are accurate
 - Improve the viewing of images that contain a given artist name
   - Next: look into performance and caching on this logic
+- Warn on creation if the prompt is dirty
+- Sort CardViewer by prompt length (roughly shows order for most mods)
 - Add `jest` back in (really just for types)
 
 ## 2022-11-06 21:42:46
