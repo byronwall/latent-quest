@@ -22,13 +22,19 @@ export function getSelectionFromPromptPart(part: PromptPart) {
   return results;
 }
 
+export type SdSubLookup = Record<string, string[]>;
+
 export function getSelectionAsLookup(image: SdImage | SdImagePlaceHolder) {
-  const lookup: Record<string, string> = {};
+  const lookup: SdSubLookup = {};
 
   image.promptBreakdown?.parts.forEach((part) => {
     const selections = getSelectionFromPromptPart(part);
     selections.forEach((sel) => {
-      lookup[sel.name] = sel.originalText;
+      // allow pipe or comma to split for now
+      // pipe is intended to be long term
+      const parts = sel.originalText.split(/[\|,]/);
+
+      lookup[sel.name] = parts.map((p) => p.trim());
     });
   });
 

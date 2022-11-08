@@ -23,7 +23,7 @@ export function SdCardViewer(props: SdCardViewerProps) {
   const rowGroups = groupBy(data, (item) => (colField ? item[colField] : ""));
   const rowGroupLabels = Object.keys(rowGroups);
 
-  const [imageSize, setImageSize] = useState(320);
+  const [imageSize, setImageSize] = useState(256);
 
   return (
     <div>

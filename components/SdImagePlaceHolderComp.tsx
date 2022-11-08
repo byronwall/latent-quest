@@ -8,6 +8,7 @@ import {
   SdImagePlaceHolder,
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
+import { getTextOnlyFromPromptPartWithLabel } from "./getTextOnlyFromPromptPartWithLabel";
 import { TooltipCommon } from "./MantineWrappers";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 
@@ -55,9 +56,14 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
         <SdImageBadgeBar image={placeholder} shouldHidePrompt />
       </div>
       <TooltipCommon label={promptText} openDelay={500}>
-        <p className="prompt-clip">
-          {'"'} {promptText} {'"'}
-        </p>
+        <div>
+          <p className="prompt-clip">
+            {'"'}
+            {promptText}
+            {'"'}
+          </p>
+          <p>{getTextOnlyFromPromptPartWithLabel(promptText)}</p>
+        </div>
       </TooltipCommon>
     </div>
   );

@@ -6,6 +6,7 @@ import {
   SdImage,
   SdImagePlaceHolder,
 } from "../libs/shared-types/src";
+import { getFinalPromptText } from "./getTextOnlyFromPromptPartWithLabel";
 
 type SdImageBadgeBarProps = {
   image: SdImage | SdImagePlaceHolder;
@@ -47,7 +48,11 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
       )}
       {!shouldHidePrompt && (
         <Tooltip
-          label={getTextForBreakdown(image.promptBreakdown)}
+          label={
+            getTextForBreakdown(image.promptBreakdown) +
+            "--" +
+            getFinalPromptText(image)
+          }
           width={400}
           color="blue"
           position="bottom"

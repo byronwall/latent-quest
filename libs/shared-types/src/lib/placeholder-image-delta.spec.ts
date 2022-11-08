@@ -1,11 +1,10 @@
-import {
-  isImageSameAsPlaceHolder,
-  SdImage,
-  SdImagePlaceHolder,
-} from "./shared-types";
+import { SdImage, SdImagePlaceHolder } from "./shared-types";
+
+import { isImageSameAsPlaceHolder } from "../../../helpers";
 
 const placeholder: SdImagePlaceHolder = {
   groupId: "5a83069f-2ce1-4ba5-8014-3efe687be13d",
+  engine: "SD 1.5",
   promptBreakdown: {
     parts: [
       {
@@ -74,6 +73,7 @@ const placeholder: SdImagePlaceHolder = {
 const image: SdImage = {
   id: "52e4c2e5-576f-40c8-895e-69762878f82c",
   groupId: "5a83069f-2ce1-4ba5-8014-3efe687be13d",
+  engine: "SD 1.5",
   promptBreakdown: {
     parts: [
       {

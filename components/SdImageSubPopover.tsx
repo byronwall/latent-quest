@@ -2,34 +2,26 @@ import {
   Button,
   Loader,
   NumberInput,
-  Paper,
   Popover,
+  Radio,
   Stepper,
 } from "@mantine/core";
+import { Combination, Permutation, PowerSet } from "js-combinatorics";
+import { orderBy } from "lodash-es";
 import { useState } from "react";
+import { useQueryClient } from "react-query";
 
+import { generatePlaceholderForTransform } from "../libs/helpers";
 import {
   getTextForBreakdown,
   SdImage,
   SdImageTransformTextSub,
 } from "../libs/shared-types/src";
-import { PopoverCommon, Switch } from "./MantineWrappers";
-import { SdSubChooser } from "./SdSubChooser";
-
-import {
-  permutation,
-  combination,
-  Permutation,
-  Combination,
-} from "js-combinatorics";
-import {
-  generatePlaceholderForTransform,
-  generatePlaceholderForTransforms,
-} from "../libs/helpers";
 import { api_generateImage } from "../model/api";
+import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
+import { PopoverCommon, Switch } from "./MantineWrappers";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
-import { orderBy } from "lodash-es";
-import { useQueryClient } from "react-query";
+import { SdSubChooser } from "./SdSubChooser";
 
 interface SdImageSubPopoverProps {
   activeCategory: string;
@@ -37,12 +29,21 @@ interface SdImageSubPopoverProps {
   image: SdImage;
 }
 
+const methods = ["permutation", "combination", "pick_n", "power_set"] as const;
+type SdSubMethod = typeof methods[number];
+
 export function SdImageSubPopover(props: SdImageSubPopoverProps) {
   const { activeCategory, image } = props;
 
   const [active, setActive] = useState(0);
 
-  const [activeChoices, setActiveChoices] = useState<string[]>([]);
+  const choicesInActivePrompt = getSelectionAsLookup(image);
+
+  const choicesForActiveCategory = choicesInActivePrompt[activeCategory];
+
+  const [activeChoices, setActiveChoices] = useState<string[]>(
+    choicesForActiveCategory ?? []
+  );
 
   const [subCountPerItem, setSubCountPerItem] = useState<number | undefined>(1);
 
@@ -59,19 +60,19 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const groupsToRun: Array<string[]> = [];
+  const [method, setMethod] = useState<string>("combination");
 
-  const shuffledArray = orderBy(activeChoices, () => Math.random());
+  const [shouldShuffle, setShouldShuffle] = useState(false);
 
-  for (let index = 0; index < shuffledArray.length; index++) {
-    const element = shuffledArray[index];
+  const shuffledArray = shouldShuffle
+    ? orderBy(activeChoices, () => Math.random())
+    : activeChoices;
 
-    if (index % (subCountPerItem ?? 1) === 0) {
-      groupsToRun.push([]);
-    }
-
-    groupsToRun[groupsToRun.length - 1].push(element);
-  }
+  const groupsToRun = getGroupsFromMethod(
+    shuffledArray,
+    subCountPerItem ?? 1,
+    method
+  );
 
   const itemsToKeep = shouldGenAll ? groupsToRun.length : totalGenerations;
 
@@ -81,7 +82,7 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
       action: "substitute",
       field: "unknown",
       subKey: activeCategory,
-      value: group.join(", "),
+      value: group,
     };
 
     const placeHolder = generatePlaceholderForTransform(image, subXForm);
@@ -103,17 +104,30 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
     qc.invalidateQueries();
   };
 
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (isOpen) {
+    console.log(choicesInActivePrompt);
+  }
+
   return (
-    <PopoverCommon>
+    <PopoverCommon opened={isOpen} onClose={() => setIsOpen(false)}>
       <Popover.Dropdown>
         <div
           style={{
             width: 600,
+            maxHeight: "80vh",
+            overflowY: "auto",
           }}
         >
           <Stepper active={active} onStepClick={setActive} breakpoint="sm">
             <Stepper.Step label={`Choose subs (${activeChoices.length})`}>
               <div>
+                {choicesForActiveCategory?.length > 0 && (
+                  <div>
+                    <b>Items list in active prompt were already chosen.</b>
+                  </div>
+                )}
                 <SdSubChooser
                   activeCategory={activeCategory}
                   shouldExcludeModal
@@ -127,6 +141,14 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
                   <b>prompt: </b>
                   {getTextForBreakdown(image.promptBreakdown)}
                 </p>
+
+                <div>
+                  <Radio.Group label="choose your method" onChange={setMethod}>
+                    {methods.map((method) => (
+                      <Radio key={method} value={method} label={method} />
+                    ))}
+                  </Radio.Group>
+                </div>
 
                 <NumberInput
                   value={subCountPerItem}
@@ -162,6 +184,11 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
                   checked={shouldRepeatItems}
                   onChange={setShouldRepeatItems}
                 />
+                <Switch
+                  label="Shuffle items"
+                  checked={shouldShuffle}
+                  onChange={setShouldShuffle}
+                />
               </div>
             </Stepper.Step>
             <Stepper.Step label="Review and run">
@@ -195,10 +222,62 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
         </div>
       </Popover.Dropdown>
       <Popover.Target>
-        <Button compact color="teal">
+        <Button
+          compact
+          color="teal"
+          onClick={() => {
+            setIsOpen(true);
+          }}
+        >
           {activeCategory}
         </Button>
       </Popover.Target>
     </PopoverCommon>
   );
+}
+
+function getGroupsFromMethod(
+  activeChoices: string[],
+  subCountPerItem: number,
+  method: string
+): string[][] {
+  switch (method) {
+    case "permutation":
+      return getPermutations(activeChoices, subCountPerItem);
+    case "combination":
+      return getCombinations(activeChoices, subCountPerItem);
+    case "pick_n":
+      return getPickN(activeChoices, subCountPerItem);
+    case "power_set":
+      return getPowerSet(activeChoices);
+  }
+
+  return [];
+}
+
+function getPermutations(activeChoices: string[], subCountPerItem: number) {
+  return Array.from(new Permutation(activeChoices, subCountPerItem));
+}
+
+function getCombinations(activeChoices: string[], subCountPerItem: number) {
+  return Array.from(new Combination(activeChoices, subCountPerItem));
+}
+function getPickN(activeChoices: string[], subCountPerItem: number) {
+  const groupsToRun: string[][] = [];
+
+  for (let index = 0; index < activeChoices.length; index++) {
+    const element = activeChoices[index];
+
+    if (index % (subCountPerItem ?? 1) === 0) {
+      groupsToRun.push([]);
+    }
+
+    groupsToRun[groupsToRun.length - 1].push(element);
+  }
+
+  return groupsToRun;
+}
+
+function getPowerSet(activeChoices: string[]) {
+  return Array.from(new PowerSet(activeChoices)).filter((c) => c.length > 0);
 }

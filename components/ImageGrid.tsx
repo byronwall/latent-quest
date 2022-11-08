@@ -218,7 +218,7 @@ export function ImageGrid(props: ImageGridProps) {
   const allSpecialValues = useMemo(() => {
     return availableSubNames.reduce((acc, name) => {
       acc[name] = uniq(
-        imageGroupData.map((x) => getSelectionAsLookup(x)[name])
+        imageGroupData.flatMap((x) => getSelectionAsLookup(x)[name])
       );
       return acc;
     }, {} as { [key: string]: string[] });

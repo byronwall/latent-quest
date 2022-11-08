@@ -176,7 +176,7 @@ export interface SdImageTransformTextSub {
 
   action: "substitute";
 
-  value: string;
+  value: string[];
 
   index?: number;
 }

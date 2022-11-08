@@ -1,3 +1,7 @@
+import * as cloneDeep from "clone-deep";
+import { isEqual, uniqBy } from "lodash-es";
+
+import { selRegex } from "../components/getSelectionFromPromptPart";
 import {
   getTextForBreakdown,
   PromptBreakdown,
@@ -5,13 +9,9 @@ import {
   SdImage,
   SdImagePlaceHolder,
   SdImageTransform,
-  SdImageTransformMulti,
   SdImageTransformNonMulti,
   SdImageTransformText,
 } from "./shared-types/src";
-import * as cloneDeep from "clone-deep";
-import { isEqual, orderBy, uniqBy } from "lodash-es";
-import { selRegex } from "../components/getSelectionFromPromptPart";
 
 export function isImageSameAsPlaceHolder(
   item: SdImage,
@@ -342,7 +342,7 @@ export function generatePlaceholderForTransform(
         }
 
         case "substitute": {
-          const toSubstitute = transform.value;
+          const toSubstitute = transform.value.join("|");
 
           // if a given breakdown contains the {xxx: yyy} pattern, replace with transform
           placeholder.promptBreakdown.parts =

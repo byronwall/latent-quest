@@ -1,8 +1,9 @@
-import { findImageDifferences, SdImage } from "./shared-types";
+import { SdImage } from "./shared-types";
 
 const image1: SdImage = {
   id: "002e81b0-cf5f-41c5-8664-08f7d9cbef2b",
   groupId: "0cf59f1f-3582-41d3-8640-c7f7e754c637",
+  engine: "SD 1.5",
   promptBreakdown: {
     parts: [
       {
@@ -49,6 +50,7 @@ const image1: SdImage = {
 const image2: SdImage = {
   id: "543410dd-05c0-4226-8692-ee761800ee03",
   groupId: "0cf59f1f-3582-41d3-8640-c7f7e754c637",
+  engine: "SD 1.5",
   promptBreakdown: {
     parts: [
       {
@@ -115,3 +117,6 @@ describe("sharedTypes", () => {
     ]);
   });
 });
+function findImageDifferences(image1: SdImage, image2: SdImage) {
+  throw new Error("Function not implemented.");
+}

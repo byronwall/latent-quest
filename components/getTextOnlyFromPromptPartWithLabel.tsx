@@ -1,4 +1,8 @@
-import { PromptPart } from "../libs/shared-types/src";
+import {
+  getTextForBreakdown,
+  SdImage,
+  SdImagePlaceHolder,
+} from "../libs/shared-types/src";
 import { selRegex } from "./getSelectionFromPromptPart";
 
 export function getTextOnlyFromPromptPartWithLabel(text: string) {
@@ -6,5 +10,12 @@ export function getTextOnlyFromPromptPartWithLabel(text: string) {
     return p2;
   });
 
-  return result;
+  // remove pipe and do commas
+  // TODO: consider allowing different separators
+  return result.replaceAll("|", ", ");
+}
+
+export function getFinalPromptText(image: SdImage | SdImagePlaceHolder) {
+  const promptText = getTextForBreakdown(image.promptBreakdown);
+  return getTextOnlyFromPromptPartWithLabel(promptText);
 }

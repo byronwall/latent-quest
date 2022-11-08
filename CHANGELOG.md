@@ -1,5 +1,15 @@
 # Changelog
 
+## 2022-11-07 21:52:53
+
+- Improve the substitutions engine to;
+  - Auto detect available selections in current image
+  - Allow for permutation, combination, pick N, or power sets
+  - Shuffle as a choice
+  - Uses `|` as the delim inside a list of choices - is turned into a comma later
+  - Sub lists are stored as arrays internally and joined at the end
+- Add `jest` back in (really just for types)
+
 ## 2022-11-06 21:42:46
 
 - Allow multiple substitutions to occur in a single place holder
