@@ -8,6 +8,8 @@
   - Shuffle as a choice
   - Uses `|` as the delim inside a list of choices - is turned into a comma later
   - Sub lists are stored as arrays internally and joined at the end
+- Improve the viewing of images that contain a given artist name
+  - Next: look into performance and caching on this logic
 - Add `jest` back in (really just for types)
 
 ## 2022-11-06 21:42:46

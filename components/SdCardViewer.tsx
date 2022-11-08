@@ -1,8 +1,10 @@
 import { Select, Slider } from "@mantine/core";
+import { access } from "fs";
 import { groupBy, orderBy, uniq } from "lodash-es";
 import { useState } from "react";
 
 import { SdImage } from "../libs/shared-types/src";
+import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdImageComp } from "./SdImageComp";
 
@@ -16,11 +18,56 @@ type SdCardViewerProps = {
 export function SdCardViewer(props: SdCardViewerProps) {
   const { data, onSetMainImage, id, onCreateVariant } = props;
 
-  const colFields = orderBy(uniq(data.flatMap((item) => Object.keys(item))));
+  // mapping is sub name -> unique choices
+  const allSubValues: Record<string, Set<string>> = {};
+
+  // item id -> sub name -> sub value
+  const subLookup = data.reduce((acc, item) => {
+    const lookup = getSelectionAsLookup(item);
+
+    acc[item.id] = lookup;
+
+    Object.keys(lookup).forEach((key) => {
+      if (!allSubValues[key]) {
+        allSubValues[key] = new Set();
+      }
+
+      lookup[key].forEach((val) => {
+        allSubValues[key].add(val);
+      });
+    });
+
+    return acc;
+  }, {} as Record<string, Record<string, string[]>>);
+
+  const subFields = Object.keys(allSubValues);
+
+  const rawFields = uniq(data.flatMap((item) => Object.keys(item)));
+
+  const colFields = orderBy(rawFields.concat(subFields));
 
   const [colField, setColField] = useState<string | null>(null);
 
-  const rowGroups = groupBy(data, (item) => (colField ? item[colField] : ""));
+  const rowGroupsSub = Array.from(allSubValues[colField ?? ""] ?? []);
+
+  const isKnownField = data
+    .flatMap((c) => Object.keys(c))
+    .includes(colField ?? "");
+
+  const rowGroups = isKnownField
+    ? groupBy(data, (item) => (colField ? item[colField] : ""))
+    : rowGroupsSub.reduce((acc, rowGroup) => {
+        const items = data.filter((item) => {
+          const subVals = subLookup[item.id][colField ?? ""] ?? [];
+
+          return subVals.includes(rowGroup);
+        });
+
+        acc[rowGroup] = items;
+
+        return acc;
+      }, {} as Record<string, SdImage[]>);
+
   const rowGroupLabels = Object.keys(rowGroups);
 
   const [imageSize, setImageSize] = useState(256);
@@ -59,14 +106,23 @@ export function SdCardViewer(props: SdCardViewerProps) {
           {imageSize}px
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          gap: 20,
+          flexWrap: "wrap",
+        }}
+      >
         {rowGroupLabels.map((label) => {
           const group = rowGroups[label];
 
+          const willShowImage =
+            colField === "variantSourceId" || colField === "prevImageId";
           // this is a little hokey
           // variants use the URL while prevImage uses the actual ID
           const sourceImage =
-            (colField === "variantSourceId" || colField === "prevImageId") &&
+            willShowImage &&
             data.find((c) => c.url === label || c.id === label);
 
           return (
@@ -74,6 +130,7 @@ export function SdCardViewer(props: SdCardViewerProps) {
               key={label}
               style={{
                 display: "flex",
+                flexDirection: willShowImage ? "row" : "column",
                 border: "1px solid black",
                 padding: 10,
                 gap: 5,
