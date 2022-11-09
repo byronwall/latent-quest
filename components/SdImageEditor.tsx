@@ -14,7 +14,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasMaskRef = useRef<HTMLCanvasElement>(null);
 
-  const getCanvasCtx = (ref) => {
+  const getCanvasCtx = (ref: typeof canvasRef) => {
     const canvas = ref.current;
     if (canvas === null) {
       return;
@@ -49,26 +49,18 @@ export function SdImageEditor(props: SdImageEditorProps) {
   }, []);
 
   const handleRedrawImage = async (skipMask = false) => {
-    console.log("darwimage");
     const ctx = getCanvasCtx(canvasRef);
     if (ctx === undefined) {
       return;
     }
 
-    console.log("load img");
-
     let url = props.image.url;
 
-    console.log("url", url);
-    let img = new Image();
-    await new Promise((r) => {
-      img.onload = r;
-      img.src = getImageUrl(url);
-    });
+    await drawImageToCanvas(ctx, getImageUrl(url));
 
-    console.log("img", img);
+    const { dataUrl } = await getDataUrls();
 
-    ctx.drawImage(img, 0, 0);
+    setInitImgData(dataUrl);
 
     if (!skipMask) {
       // reset the mask to all white
@@ -86,12 +78,18 @@ export function SdImageEditor(props: SdImageEditorProps) {
     }
   };
 
+  useEffect(() => {
+    handleRedrawImage();
+  }, [props.image]);
+
   interface MousePoint {
     x: number;
     y: number;
   }
 
   const [mouseStart, setMouseStart] = useState<MousePoint>({ x: 0, y: 0 });
+
+  const [initImgData, setInitImgData] = useState<string>("");
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     console.log("pointer down");
@@ -180,8 +178,6 @@ export function SdImageEditor(props: SdImageEditorProps) {
     }
 
     // redraw the original image and rely on mask
-    await handleRedrawImage(true);
-
     const dataUrl = canvas.toDataURL("image/png");
 
     // get the mask data url
@@ -204,6 +200,14 @@ export function SdImageEditor(props: SdImageEditorProps) {
   const handleCreateClick = async (placeHolder: SdImagePlaceHolder) => {
     // get the image data from the canvas as base64 png
 
+    // force the canvas back to originalimage
+    const ctx = getCanvasCtx(canvasRef);
+    if (ctx === undefined) {
+      return;
+    }
+
+    await drawImageToCanvas(ctx, initImgData);
+
     // send the image data to the server
     const { dataUrl, maskDataUrl } = await getDataUrls();
 
@@ -218,10 +222,44 @@ export function SdImageEditor(props: SdImageEditorProps) {
     console.log("res", res);
   };
 
+  const handleOutPaint = async () => {
+    const ctx = getCanvasCtx(canvasRef);
+    if (ctx === undefined) {
+      return;
+    }
+    const url = getImageUrl(props.image.url);
+    const img = await getImageForCtx(url);
+
+    ctx.clearRect(0, 0, img.width, img.height);
+
+    ctx.drawImage(img, 80, 80, 512 - 80 - 80, 512 - 80 - 80);
+
+    const { dataUrl } = await getDataUrls();
+    setInitImgData(dataUrl);
+
+    // reset the mask to all white
+    const maskCtx = getCanvasCtx(canvasMaskRef);
+    if (maskCtx === undefined || canvasMaskRef.current === null) {
+      return;
+    }
+    maskCtx.fillStyle = "black";
+    maskCtx.fillRect(
+      0,
+      0,
+      canvasMaskRef.current.width,
+      canvasMaskRef.current.height
+    );
+
+    // fill white region in middle where image is
+    maskCtx.fillStyle = "white";
+    maskCtx.fillRect(80, 80, 512 - 80 - 80, 512 - 80 - 80);
+  };
+
   return (
     <div>
       <div>
         <Button onClick={() => handleRedrawImage()}>redraw image</Button>
+        <Button onClick={handleOutPaint}>out paint</Button>
         <Button
           variant={activeTool === "point" ? "filled" : "outline"}
           onClick={() => setActiveTool("point")}
@@ -302,4 +340,23 @@ function downloadDataUri(dataUri: string, fileName: string) {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+async function drawImageToCanvas(ctx: CanvasRenderingContext2D, url: string) {
+  let img = new Image();
+  await new Promise((r) => {
+    img.onload = r;
+    img.src = url;
+  });
+
+  ctx.drawImage(img, 0, 0);
+}
+async function getImageForCtx(url: string) {
+  let img = new Image();
+  await new Promise((r) => {
+    img.onload = r;
+    img.src = url;
+  });
+
+  return img;
 }
