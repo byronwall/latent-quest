@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-11-09 00:47:36
+
+- Add support for in-painting and out-painting via a source image and mask
+
 ## 2022-11-07 21:52:53
 
 - Improve the substitutions engine to;
