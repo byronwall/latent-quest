@@ -6,9 +6,17 @@ import {
   SdImagePlaceHolder,
 } from "../libs/shared-types/src";
 
-export async function api_generateImage(
-  image: SdImagePlaceHolder | SdImagePlaceHolder[]
-) {
+interface SdImgGenReqExtras {
+  imageData?: string;
+  maskData?: string;
+}
+
+type ImgObj = SdImage | SdImagePlaceHolder;
+type ImgObjWithExtras = ImgObj & SdImgGenReqExtras;
+
+type ImgOrImgArray = ImgObjWithExtras | ImgObjWithExtras[];
+
+export async function api_generateImage(image: ImgOrImgArray) {
   // hit the img_gen api -- this will bulk process if an array is sent
   const res = await axios.post("/api/img_gen", image);
 

@@ -1,3 +1,12 @@
+Sub builder:
+    ☐ Pick n needs to allow for shuffling (avoid A-Z order)
+    ☐ Pick N needs to limit the final count correctly (appears to use sample count?)
+    ☐ Add a quick build to run X new seeds from the same image
+
+Image editor:
+    ☐ Open a canvas, delete a region, send to SD for in painting
+    ☐ After that, draw an image in a new spot and do outpainting
+
 DALL-E related:
     ☐ Disable cfg, seed, and steps for `DALL-E` types
     ☐ show engine selection on the cards

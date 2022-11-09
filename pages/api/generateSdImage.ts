@@ -7,10 +7,23 @@ import { saveImageToS3AndDb } from "./saveImageToS3AndDb";
 
 export type SdImgGenParams = {
   promptForSd: string;
+  imageData?: string;
+  maskData?: string;
 } & SdImagePlaceHolder &
   Required<Pick<SdImagePlaceHolder, "seed" | "cfg" | "steps" | "groupId">>;
 
 type SdParams = Parameters<typeof generateAsync>[0];
+
+const base64Regex = /^data:.+\/(.+);base64,(.*)$/;
+
+function getBufferFromBase64(base64: string) {
+  const matches = base64.match(base64Regex);
+  if (!matches) {
+    throw new Error("Invalid base64 string");
+  }
+  const [, , base64Data] = matches;
+  return Buffer.from(base64Data, "base64");
+}
 
 export async function generateSdImage(input: SdImgGenParams) {
   const { promptForSd, ...sdImage } = input;
@@ -32,11 +45,42 @@ export async function generateSdImage(input: SdImgGenParams) {
   };
 
   // if placeholder has a variant, download that image and add to json
+  type VariantParams = Pick<SdParams, "imagePrompt" | "stepSchedule">;
 
-  if (input.variantSourceId) {
+  if (sdImage.imageData) {
+    var buffer = getBufferFromBase64(sdImage.imageData);
+
+    const variantParams: VariantParams = {
+      imagePrompt: {
+        content: buffer,
+        mime: "image/png",
+      },
+      stepSchedule: {
+        start: input.variantStrength ?? 0.5,
+      },
+    };
+
+    // check for a mask too
+    if (
+      sdImage.maskData &&
+      variantParams.imagePrompt &&
+      variantParams.stepSchedule
+    ) {
+      var maskBuffer = getBufferFromBase64(sdImage.maskData);
+
+      variantParams.imagePrompt.mask = {
+        content: maskBuffer,
+        mime: "image/png",
+      };
+
+      variantParams.stepSchedule.start = 1;
+    }
+
+    Object.assign(sdParams, variantParams);
+    delete sdImage.imageData; // this is needed so db write is OK -- don't want to save this data for now
+    delete sdImage.maskData; // this is needed so db write is OK -- don't want to save this data for now
+  } else if (input.variantSourceId) {
     // download image
-    type VariantParams = Pick<SdParams, "imagePrompt" | "stepSchedule">;
-    console.log("generating variant");
 
     const buffer = await getBufferFromImageUrl(input.variantSourceId);
 
@@ -58,11 +102,7 @@ export async function generateSdImage(input: SdImgGenParams) {
       sdParams.engine = undefined;
     }
 
-    console.log("variantParams", variantParams);
-
     Object.assign(sdParams, variantParams);
-
-    console.log("sd params", sdParams);
   }
 
   const { images } = (await generateAsync(sdParams)) as any;

@@ -17,6 +17,7 @@ import {
   getValidEngine,
   PromptBreakdown,
   SdImage,
+  SdImagePlaceHolder,
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 import { PromptEditor } from "./PromptEditor";
@@ -28,6 +29,8 @@ export const engine_choices = ["DALL-E", "SD 1.5"];
 
 interface SdNewImagePromptProps {
   defaultImage?: SdImage;
+
+  onCreate?: (image: SdImagePlaceHolder) => void;
 }
 
 export function SdNewImagePrompt(props: SdNewImagePromptProps) {
@@ -64,8 +67,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
       }
     }
 
-    setIsLoading(true);
-    const img = await api_generateImage({
+    const newImgReq: SdImagePlaceHolder = {
       promptBreakdown: breakdown,
       cfg: cfg,
       steps: steps,
@@ -73,7 +75,16 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
       engine: getValidEngine(engine),
       prevImageId: defaultImage?.id,
       groupId: defaultImage?.groupId,
-    });
+    };
+
+    if (props.onCreate) {
+      props.onCreate(newImgReq);
+      return;
+    }
+
+    setIsLoading(true);
+
+    const img = await api_generateImage(newImgReq);
     setIsLoading(false);
     queryClient.invalidateQueries();
 

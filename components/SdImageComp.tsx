@@ -1,20 +1,17 @@
 import { Button, Modal, Stack } from "@mantine/core";
+import { IconZoomIn } from "@tabler/icons";
 import Image from "next/image";
 import { useState } from "react";
 
 import { getTextForBreakdown, SdImage } from "../libs/shared-types/src";
+import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { getImageUrl } from "./ImageList";
-
-import { IconZoomIn } from "@tabler/icons";
-import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdVariantHandler } from "./SdCardOrTableCell";
-import { SdVariantMenu } from "./SdVariantMenu";
+import { SdImageBadgeBar } from "./SdImageBadgeBar";
+import { SdImageEditorPopover } from "./SdImageEditorPopover";
 import { SdImageModifyPopover } from "./SdImageModifyPrompt";
 import { SdImageSubPopover } from "./SdImageSubPopover";
-import {
-  getSelectionAsLookup,
-  getSelectionFromPromptPart,
-} from "./getSelectionFromPromptPart";
+import { SdVariantMenu } from "./SdVariantMenu";
 
 type SdImageCompProps = {
   image: SdImage;
@@ -85,6 +82,8 @@ export function SdImageComp(props: SdImageCompProps) {
                 </Button>
 
                 <SdImageModifyPopover defaultImage={image} />
+
+                <SdImageEditorPopover image={image} />
 
                 <>
                   {selKeys.map((key) => (

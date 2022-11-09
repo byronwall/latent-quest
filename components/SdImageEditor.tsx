@@ -1,0 +1,305 @@
+import { Button, Slider, TextInput } from "@mantine/core";
+import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "react-query";
+
+import { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
+import { api_generateImage } from "../model/api";
+import { getImageUrl } from "./ImageList";
+import { SdNewImagePrompt } from "./SdNewImagePrompt";
+
+const TOOLS = ["point", "drag_rect"] as const;
+type TOOLS = typeof TOOLS[number];
+
+export function SdImageEditor(props: SdImageEditorProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasMaskRef = useRef<HTMLCanvasElement>(null);
+
+  const getCanvasCtx = (ref) => {
+    const canvas = ref.current;
+    if (canvas === null) {
+      return;
+    }
+    // draw black rectangle on canvas
+    const ctx = canvas.getContext("2d");
+    if (ctx === null) {
+      return;
+    }
+
+    return ctx;
+  };
+
+  const [pointSize, setPointSize] = useState(10);
+  const [activeTool, setActiveTool] = useState<TOOLS>("point");
+
+  const [isMouseDown, setIsMouseDown] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas === null) {
+      return;
+    }
+    // draw black rectangle on canvas
+    const ctx = canvas.getContext("2d");
+    if (ctx === null) {
+      return;
+    }
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width / 2, canvas.height / 2);
+  }, []);
+
+  const handleRedrawImage = async (skipMask = false) => {
+    console.log("darwimage");
+    const ctx = getCanvasCtx(canvasRef);
+    if (ctx === undefined) {
+      return;
+    }
+
+    console.log("load img");
+
+    let url = props.image.url;
+
+    console.log("url", url);
+    let img = new Image();
+    await new Promise((r) => {
+      img.onload = r;
+      img.src = getImageUrl(url);
+    });
+
+    console.log("img", img);
+
+    ctx.drawImage(img, 0, 0);
+
+    if (!skipMask) {
+      // reset the mask to all white
+      const maskCtx = getCanvasCtx(canvasMaskRef);
+      if (maskCtx === undefined || canvasMaskRef.current === null) {
+        return;
+      }
+      maskCtx.fillStyle = "white";
+      maskCtx.fillRect(
+        0,
+        0,
+        canvasMaskRef.current.width,
+        canvasMaskRef.current.height
+      );
+    }
+  };
+
+  interface MousePoint {
+    x: number;
+    y: number;
+  }
+
+  const [mouseStart, setMouseStart] = useState<MousePoint>({ x: 0, y: 0 });
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    console.log("pointer down");
+
+    setMouseStart(getPosRelativeToCanvas(e));
+    setIsMouseDown(true);
+  };
+
+  const getPosRelativeToCanvas = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (canvasRef.current === null) {
+      return { x: 0, y: 0 };
+    }
+
+    var rect = canvasRef.current.getBoundingClientRect();
+    var x = e.clientX - rect.left; //x position within the element.
+    var y = e.clientY - rect.top; //y position within the element.
+
+    return { x, y };
+  };
+
+  useEffect(() => {
+    if (activeTool !== "point") {
+      return;
+    }
+
+    const ctx = getCanvasCtx(canvasRef);
+    if (ctx === undefined) {
+      return;
+    }
+
+    ctx.globalCompositeOperation = "destination-out";
+    //draw circle at mousePt
+    ctx.beginPath();
+    ctx.arc(mouseStart.x, mouseStart.y, pointSize, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.globalCompositeOperation = "source-over";
+  }, [mouseStart, activeTool, pointSize]);
+
+  const [mouseEnd, setMouseEnd] = useState<MousePoint>({ x: 0, y: 0 });
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (isMouseDown) {
+      setMouseEnd(getPosRelativeToCanvas(e));
+    }
+  };
+
+  const handlePointerUp = () => {
+    console.log("pointer up");
+    setIsMouseDown(false);
+
+    // do the deletion here
+
+    // clear a rect that the mouse was over
+    const ctx = getCanvasCtx(canvasRef);
+    if (ctx === undefined) {
+      return;
+    }
+    ctx.clearRect(
+      mouseStart.x,
+      mouseStart.y,
+      mouseEnd.x - mouseStart.x,
+      mouseEnd.y - mouseStart.y
+    );
+
+    // draw a black rect on the mask
+    const maskCtx = getCanvasCtx(canvasMaskRef);
+    if (maskCtx === undefined) {
+      return;
+    }
+    maskCtx.fillStyle = "black";
+    maskCtx.fillRect(
+      mouseStart.x,
+      mouseStart.y,
+      mouseEnd.x - mouseStart.x,
+      mouseEnd.y - mouseStart.y
+    );
+  };
+
+  const qc = useQueryClient();
+
+  const getDataUrls = async () => {
+    const canvas = canvasRef.current;
+    if (canvas === null) {
+      throw new Error("canvas is null");
+    }
+
+    // redraw the original image and rely on mask
+    await handleRedrawImage(true);
+
+    const dataUrl = canvas.toDataURL("image/png");
+
+    // get the mask data url
+    const maskCanvas = canvasMaskRef.current;
+    if (maskCanvas === null) {
+      throw new Error("mask canvas is null");
+    }
+    const maskDataUrl = maskCanvas.toDataURL("image/png");
+
+    return { dataUrl, maskDataUrl };
+  };
+
+  const handleSdProcess = async () => {
+    const { dataUrl, maskDataUrl } = await getDataUrls();
+
+    downloadDataUri(dataUrl, "image.png");
+    downloadDataUri(maskDataUrl, "mask.png");
+  };
+
+  const handleCreateClick = async (placeHolder: SdImagePlaceHolder) => {
+    // get the image data from the canvas as base64 png
+
+    // send the image data to the server
+    const { dataUrl, maskDataUrl } = await getDataUrls();
+
+    const res = await api_generateImage({
+      ...placeHolder,
+      imageData: dataUrl,
+      maskData: maskDataUrl,
+    });
+
+    qc.invalidateQueries();
+
+    console.log("res", res);
+  };
+
+  return (
+    <div>
+      <div>
+        <Button onClick={() => handleRedrawImage()}>redraw image</Button>
+        <Button
+          variant={activeTool === "point" ? "filled" : "outline"}
+          onClick={() => setActiveTool("point")}
+        >
+          select
+        </Button>
+        <Button
+          variant={activeTool === "drag_rect" ? "filled" : "outline"}
+          onClick={() => setActiveTool("drag_rect")}
+        >
+          drag rect
+        </Button>
+
+        <Button onClick={handleSdProcess}>download PNGs</Button>
+        <Slider
+          min={1}
+          max={50}
+          value={pointSize}
+          onChange={(v) => setPointSize(v)}
+        />
+      </div>
+      <div>
+        <SdNewImagePrompt
+          defaultImage={props.image}
+          onCreate={handleCreateClick}
+        />
+      </div>
+      <div style={{ position: "relative" }}>
+        {activeTool === "drag_rect" && isMouseDown && (
+          <div
+            style={{
+              position: "absolute",
+              top: mouseStart.y,
+              left: mouseStart.x,
+              width: mouseEnd.x - mouseStart.x,
+              height: mouseEnd.y - mouseStart.y,
+              border: "5px dashed red",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+        <canvas
+          ref={canvasRef}
+          height={512}
+          width={512}
+          style={{
+            border: "1px solid red",
+            background:
+              "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%)       50% / 20px 20px",
+          }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+        />
+        <canvas
+          ref={canvasMaskRef}
+          height={512}
+          width={512}
+          style={{
+            border: "1px solid red",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+export interface SdImageEditorProps {
+  image: SdImage;
+}
+
+export interface SdImageEditorPopoverProps extends SdImageEditorProps {}
+
+function downloadDataUri(dataUri: string, fileName: string) {
+  const link = document.createElement("a");
+  link.download = fileName;
+  link.href = dataUri;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
