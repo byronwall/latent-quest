@@ -1,13 +1,14 @@
-import { Button, Slider, TextInput } from "@mantine/core";
+import { Button, ColorPicker, Slider } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 
 import { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 import { getImageUrl } from "./ImageList";
+import { Switch } from "./MantineWrappers";
 import { SdNewImagePrompt } from "./SdNewImagePrompt";
 
-const TOOLS = ["point", "drag_rect"] as const;
+const TOOLS = ["point", "drag_rect", "pencil"] as const;
 type TOOLS = typeof TOOLS[number];
 
 export function SdImageEditor(props: SdImageEditorProps) {
@@ -111,15 +112,22 @@ export function SdImageEditor(props: SdImageEditorProps) {
   };
 
   useEffect(() => {
-    if (activeTool !== "point") {
-      return;
-    }
+    switch (activeTool) {
+      case "point":
+        erasePointFromCanvas();
+        break;
 
+      case "pencil":
+        drawPencilOnCanvas(mouseStart);
+        break;
+    }
+  }, [mouseStart, activeTool, pointSize]);
+
+  function erasePointFromCanvas() {
     const ctx = getCanvasCtx(canvasRef);
     if (ctx === undefined) {
       return;
     }
-
     ctx.globalCompositeOperation = "destination-out";
     //draw circle at mousePt
     ctx.beginPath();
@@ -127,19 +135,44 @@ export function SdImageEditor(props: SdImageEditorProps) {
     ctx.fill();
 
     ctx.globalCompositeOperation = "source-over";
-  }, [mouseStart, activeTool, pointSize]);
+  }
+
+  function drawPencilOnCanvas(pt: MousePoint) {
+    const ctx = getCanvasCtx(canvasRef);
+    if (ctx === undefined) {
+      return;
+    }
+
+    //draw circle at mousePt
+
+    ctx.fillStyle = pencilColor;
+
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, pointSize, 0, 2 * Math.PI);
+    ctx.fill();
+  }
 
   const [mouseEnd, setMouseEnd] = useState<MousePoint>({ x: 0, y: 0 });
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (isMouseDown) {
-      setMouseEnd(getPosRelativeToCanvas(e));
+      const relPos = getPosRelativeToCanvas(e);
+
+      if (activeTool === "pencil") {
+        drawPencilOnCanvas(relPos);
+      }
+
+      setMouseEnd(relPos);
     }
   };
 
   const handlePointerUp = () => {
     console.log("pointer up");
     setIsMouseDown(false);
+
+    if (activeTool !== "drag_rect") {
+      return;
+    }
 
     // do the deletion here
 
@@ -206,15 +239,20 @@ export function SdImageEditor(props: SdImageEditorProps) {
       return;
     }
 
-    await drawImageToCanvas(ctx, initImgData);
+    if (isMaskVisible) {
+      // this resets the image back to baseline
+      await drawImageToCanvas(ctx, initImgData);
+    }
 
     // send the image data to the server
     const { dataUrl, maskDataUrl } = await getDataUrls();
 
     const res = await api_generateImage({
       ...placeHolder,
+      variantStrength: 1 - variantStrength / 100.0,
+
       imageData: dataUrl,
-      maskData: maskDataUrl,
+      maskData: isMaskVisible ? maskDataUrl : undefined,
     });
 
     qc.invalidateQueries();
@@ -255,52 +293,77 @@ export function SdImageEditor(props: SdImageEditorProps) {
     maskCtx.fillRect(80, 80, 512 - 80 - 80, 512 - 80 - 80);
   };
 
+  const [isMaskVisible, setIsMaskVisible] = useState(false);
+
+  const [pencilColor, setPencilColor] = useState("#000000");
+
+  const [variantStrength, setVariantStrength] = useState(0.5);
+
   return (
     <div>
       <div>
-        <Button onClick={() => handleRedrawImage()}>redraw image</Button>
-        <Button onClick={handleOutPaint}>out paint</Button>
-        <Button
-          variant={activeTool === "point" ? "filled" : "outline"}
-          onClick={() => setActiveTool("point")}
-        >
-          select
-        </Button>
-        <Button
-          variant={activeTool === "drag_rect" ? "filled" : "outline"}
-          onClick={() => setActiveTool("drag_rect")}
-        >
-          drag rect
-        </Button>
-
-        <Button onClick={handleSdProcess}>download PNGs</Button>
-        <Slider
-          min={1}
-          max={50}
-          value={pointSize}
-          onChange={(v) => setPointSize(v)}
-        />
-      </div>
-      <div>
-        <SdNewImagePrompt
-          defaultImage={props.image}
-          onCreate={handleCreateClick}
-        />
-      </div>
-      <div style={{ position: "relative" }}>
-        {activeTool === "drag_rect" && isMouseDown && (
-          <div
-            style={{
-              position: "absolute",
-              top: mouseStart.y,
-              left: mouseStart.x,
-              width: mouseEnd.x - mouseStart.x,
-              height: mouseEnd.y - mouseStart.y,
-              border: "5px dashed red",
-              pointerEvents: "none",
-            }}
+        <div>
+          <SdNewImagePrompt
+            defaultImage={props.image}
+            onCreate={handleCreateClick}
           />
-        )}
+        </div>
+        <div>
+          <div>
+            <Button onClick={() => handleRedrawImage()}>redraw image</Button>
+            <Button onClick={handleOutPaint}>out paint</Button>
+
+            <Button onClick={handleSdProcess}>download PNGs</Button>
+          </div>
+
+          <div>
+            <Button
+              variant={activeTool === "point" ? "filled" : "outline"}
+              onClick={() => setActiveTool("point")}
+            >
+              select
+            </Button>
+            <Button
+              variant={activeTool === "drag_rect" ? "filled" : "outline"}
+              onClick={() => setActiveTool("drag_rect")}
+            >
+              clear area
+            </Button>
+            <Button
+              variant={activeTool === "pencil" ? "filled" : "outline"}
+              onClick={() => setActiveTool("pencil")}
+            >
+              pencil
+            </Button>
+            <Switch
+              checked={isMaskVisible}
+              onChange={setIsMaskVisible}
+              label="show mask"
+            />
+          </div>
+
+          <Slider
+            min={1}
+            max={50}
+            value={pointSize}
+            onChange={(v) => setPointSize(v)}
+          />
+          <ColorPicker
+            value={pencilColor}
+            onChange={(v) => setPencilColor(v)}
+          />
+
+          <Slider
+            min={0}
+            max={100}
+            value={variantStrength}
+            onChange={(v) => setVariantStrength(v)}
+            label="variant strength %"
+          />
+        </div>
+      </div>
+
+      <div style={{ position: "relative", display: "flex" }}>
         <canvas
           ref={canvasRef}
           height={512}
@@ -314,14 +377,29 @@ export function SdImageEditor(props: SdImageEditorProps) {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
         />
+
         <canvas
           ref={canvasMaskRef}
           height={512}
           width={512}
           style={{
             border: "1px solid red",
+            display: isMaskVisible ? "block" : "none",
           }}
         />
+        {activeTool === "drag_rect" && isMouseDown && (
+          <div
+            style={{
+              position: "absolute",
+              top: mouseStart.y,
+              left: mouseStart.x,
+              width: mouseEnd.x - mouseStart.x,
+              height: mouseEnd.y - mouseStart.y,
+              border: "5px dashed red",
+              pointerEvents: "none",
+            }}
+          />
+        )}
       </div>
     </div>
   );

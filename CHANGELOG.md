@@ -1,5 +1,10 @@
 # Changelog
 
+## 2022-11-09 23:05:16
+
+- Improve image editing -- add a pencil to draw color
+  - Allow the mask to be disabled so that variants are generated based on the image prompt
+
 ## 2022-11-09 00:47:36
 
 - Add support for in-painting and out-painting via a source image and mask
