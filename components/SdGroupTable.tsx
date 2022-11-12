@@ -1,4 +1,5 @@
 import { Button, CopyButton, JsonInput, Popover, Table } from "@mantine/core";
+import { orderBy } from "lodash-es";
 import { useState } from "react";
 
 import { findImageDifferences } from "../libs/helpers";
@@ -25,8 +26,15 @@ type SdGroupTableProps = {
 };
 
 export function SdGroupTable(props: SdGroupTableProps) {
-  const { data, mainImage, visibleItems, onNewTransform, onSetMainImage } =
-    props;
+  const {
+    data: _data,
+    mainImage,
+    visibleItems,
+    onNewTransform,
+    onSetMainImage,
+  } = props;
+
+  const data = orderBy(_data, (c) => c.dateCreated, "desc");
 
   // state to track isCardView
   const [isCardView, setIsCardView] = useState(true);

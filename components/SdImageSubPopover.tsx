@@ -130,6 +130,13 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
                     <b>Items list in active prompt were already chosen.</b>
                   </div>
                 )}
+                <Button
+                  onClick={() => {
+                    setActiveChoices([]);
+                  }}
+                >
+                  clear list
+                </Button>
                 <SdSubChooser
                   activeCategory={activeCategory}
                   shouldExcludeModal
@@ -311,22 +318,26 @@ function getCombinations(
 }
 
 function getPickN(
-  activeChoices: string[],
+  _activeChoices: string[],
   subCountPerItem: number,
   totalCount: number
 ): ComboResult {
   const groupsToRun: string[][] = [];
 
+  const activeChoices = orderBy(_activeChoices, (c) => Math.random());
+
   const itemCount = Math.min(totalCount, activeChoices.length);
 
   for (let index = 0; index < itemCount; index++) {
-    const element = activeChoices[index];
+    // for i in subCountPerItem
 
-    if (index % (subCountPerItem ?? 1) === 0) {
-      groupsToRun.push([]);
+    for (let i = 0; i < subCountPerItem; i++) {
+      if (i === 0) {
+        groupsToRun.push([]);
+      }
+      const group = activeChoices[index + i];
+      groupsToRun[groupsToRun.length - 1].push(group);
     }
-
-    groupsToRun[groupsToRun.length - 1].push(element);
   }
 
   return {
@@ -342,11 +353,20 @@ function getPowerSet(activeChoices: string[], totalCount: number): ComboResult {
 
   const totalPossible = allPowerSets.length;
   if (totalPossible < totalCount) {
-    return { results: Array.from(allPowerSets), totalPossible };
+    const results = Array.from(allPowerSets).filter((c) => c.length > 0);
+    return { results: results, totalPossible };
   }
 
   for (let i = 0; i < totalCount; i++) {
-    results.push(allPowerSets.sample() ?? []);
+    const sample = allPowerSets.sample() ?? [];
+
+    console.log("sample", sample);
+
+    if (sample.length === 0 || sample[0] === "") {
+      continue;
+    }
+
+    results.push(sample);
   }
   return { results, totalPossible };
 }

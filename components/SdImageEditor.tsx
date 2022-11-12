@@ -270,7 +270,16 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
     ctx.clearRect(0, 0, img.width, img.height);
 
-    ctx.drawImage(img, 80, 80, 512 - 80 - 80, 512 - 80 - 80);
+    const outPaintSize = 80;
+    const maskOutPaintSize = outPaintSize * 1.5;
+
+    ctx.drawImage(
+      img,
+      outPaintSize,
+      outPaintSize,
+      512 - outPaintSize * 2,
+      512 - outPaintSize * 2
+    );
 
     const { dataUrl } = await getDataUrls();
     setInitImgData(dataUrl);
@@ -290,14 +299,19 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
     // fill white region in middle where image is
     maskCtx.fillStyle = "white";
-    maskCtx.fillRect(80, 80, 512 - 80 - 80, 512 - 80 - 80);
+    maskCtx.fillRect(
+      maskOutPaintSize,
+      maskOutPaintSize,
+      512 - maskOutPaintSize * 2,
+      512 - maskOutPaintSize * 2
+    );
   };
 
   const [isMaskVisible, setIsMaskVisible] = useState(false);
 
   const [pencilColor, setPencilColor] = useState("#000000");
 
-  const [variantStrength, setVariantStrength] = useState(0.5);
+  const [variantStrength, setVariantStrength] = useState(30);
 
   return (
     <div>
