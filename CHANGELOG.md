@@ -1,5 +1,11 @@
 # Changelog
 
+## 2022-11-13 00:26:38
+
+- Various tweaks to improve image grid with new sub data structures
+  - Prevent dupes and remove undefined items
+- Add a filter to the sub chooser
+
 ## 2022-11-09 23:05:16
 
 - Improve image editing -- add a pencil to draw color

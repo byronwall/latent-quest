@@ -24,7 +24,10 @@ export function getSelectionFromPromptPart(part: PromptPart) {
 
 export type SdSubLookup = Record<string, string[]>;
 
-export function getSelectionAsLookup(image: SdImage | SdImagePlaceHolder) {
+export function getSelectionAsLookup(
+  image: SdImage | SdImagePlaceHolder,
+  shouldSplitParts = true
+) {
   const lookup: SdSubLookup = {};
 
   image.promptBreakdown?.parts.forEach((part) => {
@@ -32,9 +35,13 @@ export function getSelectionAsLookup(image: SdImage | SdImagePlaceHolder) {
     selections.forEach((sel) => {
       // allow pipe or comma to split for now
       // pipe is intended to be long term
-      const parts = sel.originalText.split(/[\|,]/);
+      if (shouldSplitParts) {
+        const parts = sel.originalText.split(/[\|,]/);
 
-      lookup[sel.name] = parts.map((p) => p.trim());
+        lookup[sel.name] = parts.map((p) => p.trim());
+      } else {
+        lookup[sel.name] = [sel.originalText];
+      }
     });
   });
 

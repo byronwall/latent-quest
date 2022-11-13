@@ -100,7 +100,7 @@ function generateTransformFromSimplerHeader(rowVar: string, rowHeader: any) {
     action: "substitute",
     field: "unknown",
     subKey: rowVar,
-    value: rowHeader,
+    value: [rowHeader],
   };
 
   return rowTransformTemp;
@@ -148,6 +148,7 @@ export function generateSortedTransformList(
         } as SdImageTransformTextBasic)
       : ({
           type: "text",
+          field: "unknown",
           subKey: rowColVar,
           action: "substitute",
           value: getSelectionAsLookup(mainImage)[rowColVar],
@@ -171,7 +172,16 @@ export function generateSortedTransformList(
     name: rowColVar,
     transforms: orderBy(
       uniqBy(
-        diffXForm.filter((x) => x.type !== "none" && x.field === rowColVar),
+        diffXForm
+          .filter(
+            (x) =>
+              x.type !== "none" &&
+              (x.field === rowColVar || (x as any).subKey === rowColVar)
+          )
+          .filter(
+            (c) =>
+              "value" in c && c.value !== undefined && c.value[0] !== undefined
+          ),
         jsonStringifyStable
       ),
       getSortValueForXform,

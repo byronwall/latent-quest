@@ -342,7 +342,7 @@ export function generatePlaceholderForTransform(
         }
 
         case "substitute": {
-          const toSubstitute = transform.value.join("|");
+          const toSubstitute = (transform.value ?? []).join("|");
 
           // if a given breakdown contains the {xxx: yyy} pattern, replace with transform
           placeholder.promptBreakdown.parts =

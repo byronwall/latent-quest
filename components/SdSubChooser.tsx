@@ -1,7 +1,7 @@
 import { Button, Chip, Modal, TextInput, Title } from "@mantine/core";
 import { IconWindowMaximize } from "@tabler/icons";
 import { orderBy, uniq, uniqBy } from "lodash-es";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSet } from "react-use";
 
 import { useChoices } from "../model/api_hooks";
@@ -33,6 +33,8 @@ export function SdSubChooser(props: SdSubChooserProps) {
 
   const [tagFilter, setTagFilter] = useState("");
 
+  const [itemFilter, setItemFilter] = useState("");
+
   const allTags = orderBy(
     uniq(
       commonChoices
@@ -49,10 +51,12 @@ export function SdSubChooser(props: SdSubChooserProps) {
   const [activeTag, setActiveTag] = useState(allTags[0] ?? "");
 
   const items = orderBy(
-    liveItems.filter(
-      (item) =>
-        activeTag === "" || item.tags.map((c) => c.trim()).includes(activeTag)
-    ),
+    liveItems
+      .filter(
+        (item) =>
+          activeTag === "" || item.tags.map((c) => c.trim()).includes(activeTag)
+      )
+      .filter((item) => item.value.includes(itemFilter)),
     (c) => c.value
   );
 
@@ -131,6 +135,11 @@ export function SdSubChooser(props: SdSubChooserProps) {
               showing available choices for tag:{" "}
               <b>{activeTag === "" ? "all" : activeTag}</b>
             </p>
+            <TextInput
+              placeholder="search"
+              value={itemFilter}
+              onChange={(evt) => setItemFilter(evt.currentTarget.value)}
+            />
             {items.map((item) => (
               <Chip
                 key={item.value}

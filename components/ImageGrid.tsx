@@ -218,7 +218,8 @@ export function ImageGrid(props: ImageGridProps) {
   const allSpecialValues = useMemo(() => {
     return availableSubNames.reduce((acc, name) => {
       acc[name] = uniq(
-        imageGroupData.flatMap((x) => getSelectionAsLookup(x)[name])
+        // false prevents the groups from being split up
+        imageGroupData.flatMap((x) => getSelectionAsLookup(x, false)[name])
       );
       return acc;
     }, {} as { [key: string]: string[] });
@@ -307,6 +308,8 @@ export function ImageGrid(props: ImageGridProps) {
   );
 
   const colVarToUse = isSingleVar ? "none" : colVar;
+
+  // TODO: why does value: [undefined] happen?
 
   const colExtras =
     colVarToUse === "none"

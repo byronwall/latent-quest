@@ -6,6 +6,10 @@ Sub builder:
 Image editor:
     ☐ Open a canvas, delete a region, send to SD for in painting
     ☐ After that, draw an image in a new spot and do outpainting
+    ☐ Allow for mutliply or other operations that add color without overdoing things
+    ☐ Allow for assorted brush strokes to add splotches of color
+    ☐ Look into context filters for image mods - https://stackoverflow.com/a/67392978/4288101
+        ☐ Or use sharp and send back and forth to the client
 
 DALL-E related:
     ☐ Disable cfg, seed, and steps for `DALL-E` types
@@ -27,6 +31,9 @@ Image Grid:
     ☐ add `imageSize` back into the settings - control with a slider in ticks of 50px this time
 
     ☐ ability to change sort order of grid -- default appears to be descending
+    ☐ sort by date within the groups so new images are first
+    ☐ Use a sticky or something for the previous image so it's always in frame
+    ☐ Show the total number of `gen all` options that will be generated
 
 Sub Chooser related:
     ☐ Allow a choice to use either the modal selections or all active items in group
@@ -39,3 +46,4 @@ Random:
 
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces
+    ☐ Quick feature to remove `!` and other stuff from Lexica
