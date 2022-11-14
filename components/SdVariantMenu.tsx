@@ -8,7 +8,7 @@ interface SdVariantMenuProps {
   image: SdImage;
 }
 
-const fixedStrength = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
+const fixedStrength = [0.9, 0.7, 0.5, 0.4, 0.3, 0.2, 0.1];
 
 export function SdVariantMenu(props: SdVariantMenuProps) {
   const { onCreateVariant, image } = props;
@@ -34,12 +34,12 @@ export function SdVariantMenu(props: SdVariantMenuProps) {
     <Menu shadow="md" width={200}>
       <Menu.Target>
         <Button compact color="indigo">
-          SD variant...
+          variants...
         </Button>
       </Menu.Target>
 
       <Menu.Dropdown>
-        <Menu.Label>strength (0% = brand new image)</Menu.Label>
+        <Menu.Label>SD variants (0% = brand new image)</Menu.Label>
         {fixedStrength.map((strength) => (
           <Menu.Item
             onClick={() => onCreateVariant(image, "SD 1.5", strength)}
@@ -51,6 +51,14 @@ export function SdVariantMenu(props: SdVariantMenuProps) {
         <Menu.Divider />
 
         <Menu.Item onClick={handleCustomClick}>custom...</Menu.Item>
+        <Menu.Divider />
+        <Menu.Label>DALL-E</Menu.Label>
+        <Menu.Item
+          onClick={() => props.onCreateVariant?.(image, "DALL-E")}
+          color="indigo"
+        >
+          DALL-E
+        </Menu.Item>
       </Menu.Dropdown>
     </Menu>
   );

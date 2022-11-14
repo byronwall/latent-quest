@@ -72,14 +72,6 @@ export function SdImageComp(props: SdImageCompProps) {
                   onCreateVariant={props.onCreateVariant}
                 />
 
-                <Button
-                  compact
-                  color="indigo"
-                  onClick={() => props.onCreateVariant?.(image, "DALL-E")}
-                >
-                  DALL-E variant
-                </Button>
-
                 <SdImageEditorPopover image={image} />
 
                 <>
