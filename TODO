@@ -10,6 +10,7 @@ Image editor:
     ☐ Improve out painting controls:
         ☐ Ability to move image around
         ☐ Add some default pixels instead of black bars
+    ☐ Add a color picker to match colors in images
 
 DALL-E related:
     ☐ Figure out how to handle the grid when using DALL-E since seed is not real - maybe use `seed` even though it's not real?
@@ -50,6 +51,7 @@ Random:
     ☐ try the `AppShell` for the NavBar and other stuff
     ☐ Allow rating or loving images / sub values -- start to aggregate "good" or "popular" choices instead of very long lists
     ☐ Ability to search Lexica and bring an image into current study
+    ☐ Custom variant strength does not work?
 
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces
