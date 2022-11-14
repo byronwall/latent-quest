@@ -1,39 +1,46 @@
 Sub builder:
-    ☐ Pick n needs to allow for shuffling (avoid A-Z order)
-    ☐ Pick N needs to limit the final count correctly (appears to use sample count?)
     ☐ Add a quick build to run X new seeds from the same image
 
 Image editor:
-    ☐ Open a canvas, delete a region, send to SD for in painting
-    ☐ After that, draw an image in a new spot and do outpainting
     ☐ Allow for mutliply or other operations that add color without overdoing things
     ☐ Allow for assorted brush strokes to add splotches of color
     ☐ Look into context filters for image mods - https://stackoverflow.com/a/67392978/4288101
         ☐ Or use sharp and send back and forth to the client
 
+    ☐ Improve out painting controls:
+        ☐ Ability to move image around
+        ☐ Add some default pixels instead of black bars
+
 DALL-E related:
-    ☐ Disable cfg, seed, and steps for `DALL-E` types
-    ☐ show engine selection on the cards
-    ☐ Give engine as a choice in the variables
     ☐ Figure out how to handle the grid when using DALL-E since seed is not real - maybe use `seed` even though it's not real?
 
 Variants and related:
-    ☐ Need to allow prompt to change along with other SD settings
     ☐ Allow the variant strength to be part of the image grid
 
 Image Grid:
     ☐ main image is being lost when the grid reloads -- find some way to not lose this @critical
+    ☐ Remove the `xform` choices
+    ☐ Integrate the `modify` mode into the `edit` prompt -- add some toggles for whether the image is retained or dropped in the process.
     ☐ add ability to compare images side by side
     ☐ tighten the table visuals to reduce white space
-    ☐ provide a simple way to get random seeds to test with 
     ☐ show active prompt for main image (and other details too?)
-    ☐ update the diff count to show total size of artist list
     ☐ add `imageSize` back into the settings - control with a slider in ticks of 50px this time
 
     ☐ ability to change sort order of grid -- default appears to be descending
     ☐ sort by date within the groups so new images are first
     ☐ Use a sticky or something for the previous image so it's always in frame
-    ☐ Show the total number of `gen all` options that will be generated
+    ☐ Show the total number of `gen all` options that will be generated for a study (avoid massive requests)
+
+    ☐ Add an explicit popup to create a study based on a main image -- take the current interface pieces and move them into a modal -- does a popup work better for most operations? -- before/after
+    ☐ Allow choosing the preview image(s) for the social graph image
+
+    ☐ For large image studies, allow the user to choose the specific options to display
+        ☐ Then allow linking to those specific views
+        ☐ This would back creating subsets of large views
+        ☐ Default = render a subset; instead of rendering everything everytime
+
+Card viewer:
+    ☐ Find some way to mark "study" images as part of a grid instead of as previous images
 
 Sub Chooser related:
     ☐ Allow a choice to use either the modal selections or all active items in group
@@ -43,7 +50,16 @@ Random:
     ☐ allow creating new groups from an existing study or survey -- keep the image url -- add a `prevGroupId` -- new groupId -- new image id?
     ☐ add a 1D / walk mode which tracks the `previousId` and shows as a directed acyclic graph
     ☐ try the `AppShell` for the NavBar and other stuff
+    ☐ Allow rating or loving images / sub values -- start to aggregate "good" or "popular" choices instead of very long lists
+    ☐ Ability to search Lexica and bring an image into current study
 
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces
     ☐ Quick feature to remove `!` and other stuff from Lexica
+
+Specific problems:
+    ☐ http://localhost:3000/group/06236dd2-d7a5-4bc7-8129-38fe28fd5343
+        ☐ Figure out why the `castle + drawbridge` image is generated multiple times
+
+Archive:
+  ✔ Disable cfg, seed, and steps for `DALL-E` types @done(22-11-13 12:23) @project(DALL-E related)

@@ -9,24 +9,17 @@ import {
   Title,
 } from "@mantine/core";
 import { IconDeviceFloppy, IconWand } from "@tabler/icons";
-import produce from "immer";
 import { orderBy, uniq } from "lodash-es";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useMap } from "react-use";
 
-import {
-  findImageDifferences,
-  generatePlaceholderForTransforms,
-  getImageDiffAsTransforms,
-} from "../libs/helpers";
+import { getImageDiffAsTransforms } from "../libs/helpers";
 import {
   SdImage,
   SdImageGroup,
   SdImagePlaceHolder,
-  SdImageTransform,
   SdImageTransformHolder,
-  SdImageTransformMulti,
 } from "../libs/shared-types/src";
 import { api_generateImage, api_updateGroupData } from "../model/api";
 import {
@@ -43,7 +36,6 @@ import {
   generateSortedTransformList,
   generateTableFromXform,
   genSimpleXFormList,
-  getDescForTransform,
   getRowColHeaderText,
 } from "./transform_helpers";
 import { useGetImageGroup } from "./useGetImageGroup";
@@ -272,21 +264,6 @@ export function ImageGrid(props: ImageGridProps) {
 
   // extra choices to transform
 
-  // need to normalize loose transforms from the `set` to add/remove based on main image
-  const looseTransformsNormalized = looseTransforms.transforms.map((xform) => {
-    const tempImage = generatePlaceholderForTransforms(mainImage, [xform]);
-
-    const diffsFound = findImageDifferences(mainImage, tempImage);
-
-    const newXForm: SdImageTransformMulti = {
-      field: xform.field,
-      type: "multi",
-      transforms: diffsFound,
-    };
-
-    return newXForm;
-  });
-
   // get diff counts by field
   const diffCounts = diffXForm.reduce(
     (acc, x) => {
@@ -296,10 +273,7 @@ export function ImageGrid(props: ImageGridProps) {
     { cfg: 1, seed: 1, steps: 1, unknown: 1, engine: 1 }
   );
 
-  const rowExtras =
-    rowVar === "unknown"
-      ? looseTransformsNormalized
-      : genSimpleXFormList(rowVar, getExtraChoice(rowVar));
+  const rowExtras = genSimpleXFormList(rowVar, getExtraChoice(rowVar));
 
   const rowTransformHolder = generateSortedTransformList(
     rowVar,
@@ -314,8 +288,6 @@ export function ImageGrid(props: ImageGridProps) {
   const colExtras =
     colVarToUse === "none"
       ? []
-      : colVarToUse === "unknown"
-      ? looseTransformsNormalized
       : genSimpleXFormList(colVarToUse, getExtraChoice(colVarToUse));
 
   const colTransformHolder = generateSortedTransformList(
@@ -333,22 +305,6 @@ export function ImageGrid(props: ImageGridProps) {
   );
 
   const imageSize = 200;
-
-  const handleAddLooseTransform = (t: SdImageTransform) => {
-    setLooseTransforms(
-      produce(looseTransforms, (draft) => {
-        draft.transforms.push(t);
-      })
-    );
-  };
-
-  const handleRemoveLooseTransform = (idx: number) => {
-    setLooseTransforms(
-      produce(looseTransforms, (draft) => {
-        draft.transforms.splice(idx, 1);
-      })
-    );
-  };
 
   const [isBulkLoading, setIsBulkLoading] = useState(false);
 
@@ -460,17 +416,7 @@ export function ImageGrid(props: ImageGridProps) {
             </>
           </Group>
         </Stack>
-        <div>
-          <p>loose transforms</p>
-          {looseTransforms.transforms.map((xform, idx) => (
-            <div key={idx}>
-              {getDescForTransform(xform)}
-              <Button onClick={() => handleRemoveLooseTransform(idx)}>
-                remove
-              </Button>
-            </div>
-          ))}
-        </div>
+
         <b>extra choices</b>
         <Group>
           <MultiSelect
@@ -540,7 +486,6 @@ export function ImageGrid(props: ImageGridProps) {
                 <SdCardOrTableCell
                   cell={row[0]}
                   imageSize={imageSize}
-                  handleAddLooseTransform={handleAddLooseTransform}
                   mainImage={mainImage}
                   setMainImage={setMainImage}
                   onCreateVariant={handleCreateVariant}
@@ -581,7 +526,6 @@ export function ImageGrid(props: ImageGridProps) {
                           cell={cell}
                           mainImage={mainImage}
                           imageSize={imageSize}
-                          handleAddLooseTransform={handleAddLooseTransform}
                           setMainImage={setMainImage}
                           onCreateVariant={handleCreateVariant}
                         />
@@ -601,7 +545,6 @@ export function ImageGrid(props: ImageGridProps) {
           data={imageGroupData}
           mainImage={mainImage}
           visibleItems={visibleIds}
-          onNewTransform={handleAddLooseTransform}
           onSetMainImage={setMainImage}
           onCreateVariant={handleCreateVariant}
         />

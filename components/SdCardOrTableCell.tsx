@@ -1,9 +1,9 @@
 import { Button } from "@mantine/core";
+
+import { SdImage } from "../libs/shared-types/src";
+import { isPlaceholder } from "./ImageGrid";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
-import { SdPromptToTransform } from "./SdPromptToTransform";
-import { isPlaceholder } from "./ImageGrid";
-import { SdImage } from "../libs/shared-types/src";
 
 export type SdVariantHandler = (
   image: SdImage,
@@ -14,13 +14,12 @@ export type SdVariantHandler = (
 export function SdCardOrTableCell(props: {
   cell: any;
   imageSize: any;
-  handleAddLooseTransform: any;
+
   mainImage: any;
   setMainImage: any;
   onCreateVariant: SdVariantHandler;
 }) {
-  const { cell, imageSize, handleAddLooseTransform, mainImage, setMainImage } =
-    props;
+  const { cell, imageSize, mainImage, setMainImage } = props;
 
   const content =
     cell === undefined ? (
@@ -41,10 +40,6 @@ export function SdCardOrTableCell(props: {
     <div>
       {content}
       <div style={{ display: "flex" }}>
-        <SdPromptToTransform
-          promptBreakdown={cell.promptBreakdown}
-          onNewTransform={handleAddLooseTransform}
-        />
         {"id" in cell && (
           <>
             <Button

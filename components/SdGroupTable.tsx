@@ -3,16 +3,11 @@ import { orderBy } from "lodash-es";
 import { useState } from "react";
 
 import { findImageDifferences } from "../libs/helpers";
-import {
-  getTextForBreakdown,
-  SdImage,
-  SdImageTransform,
-} from "../libs/shared-types/src";
+import { getTextForBreakdown, SdImage } from "../libs/shared-types/src";
 import { Switch } from "./MantineWrappers";
 import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdCardViewer } from "./SdCardViewer";
 import { SdImageComp } from "./SdImageComp";
-import { SdPromptToTransform } from "./SdPromptToTransform";
 
 type SdGroupTableProps = {
   data: SdImage[];
@@ -21,7 +16,6 @@ type SdGroupTableProps = {
 
   onSetMainImage: (image: SdImage) => void;
 
-  onNewTransform: (newTransform: SdImageTransform) => void;
   onCreateVariant: SdVariantHandler;
 };
 
@@ -30,7 +24,7 @@ export function SdGroupTable(props: SdGroupTableProps) {
     data: _data,
     mainImage,
     visibleItems,
-    onNewTransform,
+
     onSetMainImage,
   } = props;
 
@@ -69,12 +63,6 @@ export function SdGroupTable(props: SdGroupTableProps) {
                 <div style={{ display: "flex" }}>
                   <div style={{ flex: 1 }}>
                     {getTextForBreakdown(item.promptBreakdown)}
-                  </div>
-                  <div>
-                    <SdPromptToTransform
-                      promptBreakdown={item.promptBreakdown}
-                      onNewTransform={onNewTransform}
-                    />
                   </div>
                 </div>
               </td>

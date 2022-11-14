@@ -1,5 +1,10 @@
 # Changelog
 
+## 2022-11-13 21:40:41
+
+- Start cleaning up old/bad UX stuff
+  - Remove the `xform` button and associated handlers
+
 ## 2022-11-13 00:26:38
 
 - Various tweaks to improve image grid with new sub data structures
