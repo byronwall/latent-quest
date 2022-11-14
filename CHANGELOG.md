@@ -6,6 +6,7 @@
   - Remove the `xform` button and associated handlers
   - Remove the `modify` button - logic now handled in the `edit` form with the new `isImagePrompt` setting
   - Combine the variant buttons into a single button with menu items
+  - Move the various subs into a single menu with a common popup
 
 ## 2022-11-13 00:26:38
 

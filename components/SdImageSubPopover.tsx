@@ -1,14 +1,14 @@
 import {
   Button,
   Loader,
+  Modal,
   NumberInput,
-  Popover,
   Radio,
   Stepper,
 } from "@mantine/core";
 import { Combination, Permutation, PowerSet } from "js-combinatorics";
 import { orderBy } from "lodash-es";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
 
 import { generatePlaceholderForTransform } from "../libs/helpers";
@@ -19,7 +19,6 @@ import {
 } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
-import { PopoverCommon, Switch } from "./MantineWrappers";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
 import { SdSubChooser } from "./SdSubChooser";
 
@@ -27,6 +26,9 @@ interface SdImageSubPopoverProps {
   activeCategory: string;
 
   image: SdImage;
+
+  isOpen: boolean;
+  onClose(): void;
 }
 
 const methods = [
@@ -36,10 +38,11 @@ const methods = [
   "power_set",
   "peel_off",
 ] as const;
+
 type SdSubMethod = typeof methods[number];
 
 export function SdImageSubPopover(props: SdImageSubPopoverProps) {
-  const { activeCategory, image } = props;
+  const { activeCategory, image, isOpen, onClose } = props;
 
   const [active, setActive] = useState(0);
 
@@ -51,13 +54,15 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
     choicesForActiveCategory ?? []
   );
 
+  useEffect(() => {
+    setActiveChoices(choicesForActiveCategory ?? []);
+  }, [choicesForActiveCategory]);
+
   const [subCountPerItem, setSubCountPerItem] = useState<number | undefined>(1);
 
   const [totalGenerations, setTotalGenerations] = useState<number | undefined>(
     10
   );
-
-  const [shouldRepeatItems, setShouldRepeatItems] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -100,8 +105,6 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
     qc.invalidateQueries();
   };
 
-  const [isOpen, setIsOpen] = useState(false);
-
   const handleNewChoices = (newChoices: string[]) => {
     // add new items
     const newActiveChoices = [...activeChoices, ...newChoices];
@@ -113,118 +116,105 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
   };
 
   return (
-    <PopoverCommon opened={isOpen} onClose={() => setIsOpen(false)}>
-      <Popover.Dropdown>
-        <div
-          style={{
-            width: 600,
-            maxHeight: "80vh",
-            overflowY: "auto",
-          }}
-        >
-          <Stepper active={active} onStepClick={setActive} breakpoint="sm">
-            <Stepper.Step label={`Choose subs (${activeChoices.length})`}>
-              <div>
-                {choicesForActiveCategory?.length > 0 && (
-                  <div>
-                    <b>Items list in active prompt were already chosen.</b>
-                  </div>
-                )}
-                <Button
-                  onClick={() => {
-                    setActiveChoices([]);
-                  }}
-                >
-                  clear list
-                </Button>
-                <SdSubChooser
-                  activeCategory={activeCategory}
-                  shouldExcludeModal
-                  onNewChoices={handleNewChoices}
-                />
-              </div>
-            </Stepper.Step>
-            <Stepper.Step label="Choice options">
-              <div>
-                <p>
-                  <b>prompt: </b>
-                  {getTextForBreakdown(image.promptBreakdown)}
-                </p>
-
+    <Modal opened={isOpen} onClose={onClose} size="auto">
+      <div
+        style={{
+          width: 600,
+          maxHeight: "80vh",
+          overflowY: "auto",
+        }}
+      >
+        <Stepper active={active} onStepClick={setActive} breakpoint="sm">
+          <Stepper.Step label={`Choose subs (${activeChoices.length})`}>
+            <div>
+              {choicesForActiveCategory?.length > 0 && (
                 <div>
-                  <Radio.Group
-                    label="choose your method"
-                    onChange={setMethod}
-                    value={method}
-                  >
-                    {methods.map((method) => (
-                      <Radio key={method} value={method} label={method} />
-                    ))}
-                  </Radio.Group>
+                  <b>Items list in active prompt were already chosen.</b>
                 </div>
+              )}
+              <Button
+                onClick={() => {
+                  setActiveChoices([]);
+                }}
+              >
+                clear list
+              </Button>
+              <SdSubChooser
+                activeCategory={activeCategory}
+                shouldExcludeModal
+                onNewChoices={handleNewChoices}
+              />
+            </div>
+          </Stepper.Step>
+          <Stepper.Step label="Choice options">
+            <div>
+              <p>
+                <b>prompt: </b>
+                {getTextForBreakdown(image.promptBreakdown)}
+              </p>
 
-                <NumberInput
-                  value={subCountPerItem}
-                  onChange={setSubCountPerItem}
-                  style={{ width: 200 }}
-                  label="Number of subs to include per generation"
-                />
-
-                <NumberInput
-                  value={totalGenerations}
-                  onChange={setTotalGenerations}
-                  style={{ width: 200 }}
-                  label="Total images to generate"
-                />
-
-                <p>
-                  <b>total possible items: </b>
-                  {Number(totalPossible)}
-                </p>
-              </div>
-            </Stepper.Step>
-            <Stepper.Step label="Review and run">
               <div>
-                <p>Following groups will be processed:</p>
-                <ol>
-                  {groupsToRun.map((group, i) => (
-                    <li key={i}>{group.join(", ")}</li>
+                <Radio.Group
+                  label="choose your method"
+                  onChange={setMethod}
+                  value={method}
+                >
+                  {methods.map((method) => (
+                    <Radio key={method} value={method} label={method} />
                   ))}
-                </ol>
-                {isLoading ? (
-                  <Loader />
-                ) : (
-                  <Button onClick={handleGenAll}>generate all</Button>
-                )}
-                <div style={{ display: "flex", flexWrap: "wrap" }}>
-                  {placeholders.map((placeholder, i) => (
-                    <SdImagePlaceHolderComp
-                      key={i}
-                      placeholder={placeholder}
-                      size={200}
-                    />
-                  ))}
-                </div>
+                </Radio.Group>
               </div>
-            </Stepper.Step>
-            <Stepper.Completed>
-              Completed, click back button to get to previous step
-            </Stepper.Completed>
-          </Stepper>
-        </div>
-      </Popover.Dropdown>
-      <Popover.Target>
-        <Button
-          compact
-          color="teal"
-          onClick={() => {
-            setIsOpen(true);
-          }}
-        >
-          {activeCategory}
-        </Button>
-      </Popover.Target>
-    </PopoverCommon>
+
+              <NumberInput
+                value={subCountPerItem}
+                onChange={setSubCountPerItem}
+                style={{ width: 200 }}
+                label="Number of subs to include per generation"
+              />
+
+              <NumberInput
+                value={totalGenerations}
+                onChange={setTotalGenerations}
+                style={{ width: 200 }}
+                label="Total images to generate"
+              />
+
+              <p>
+                <b>total possible items: </b>
+                {Number(totalPossible)}
+              </p>
+            </div>
+          </Stepper.Step>
+          <Stepper.Step label="Review and run">
+            <div>
+              <p>Following groups will be processed:</p>
+              <ol>
+                {groupsToRun.map((group, i) => (
+                  <li key={i}>{group.join(", ")}</li>
+                ))}
+              </ol>
+              {isLoading ? (
+                <Loader />
+              ) : (
+                <Button onClick={handleGenAll}>generate all</Button>
+              )}
+              <div style={{ display: "flex", flexWrap: "wrap" }}>
+                {placeholders.map((placeholder, i) => (
+                  <SdImagePlaceHolderComp
+                    key={i}
+                    placeholder={placeholder}
+                    size={200}
+                  />
+                ))}
+              </div>
+            </div>
+          </Stepper.Step>
+          <Stepper.Completed>
+            Completed, click back button to get to previous step
+          </Stepper.Completed>
+        </Stepper>
+      </div>
+    </Modal>
   );
 }
 

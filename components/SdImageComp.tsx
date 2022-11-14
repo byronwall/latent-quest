@@ -1,4 +1,4 @@
-import { Button, Modal, Stack } from "@mantine/core";
+import { Button, Menu, Modal, Stack } from "@mantine/core";
 import { IconZoomIn } from "@tabler/icons";
 import Image from "next/image";
 import { useState } from "react";
@@ -39,12 +39,16 @@ export function SdImageComp(props: SdImageCompProps) {
   // state for modal state
   const [modalOpened, setModalOpened] = useState(false);
 
+  const selParts = getSelectionAsLookup(image);
+  const selKeys = Object.keys(selParts);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [activeCategory, setActiveCategory] = useState(selKeys[0]);
+
   if (image === undefined) {
     return null;
   }
-
-  const selParts = getSelectionAsLookup(image);
-  const selKeys = Object.keys(selParts);
 
   return (
     <>
@@ -74,19 +78,41 @@ export function SdImageComp(props: SdImageCompProps) {
 
                 <SdImageEditorPopover image={image} />
 
-                <>
-                  {selKeys.map((key) => (
-                    <SdImageSubPopover
-                      key={key}
-                      activeCategory={key}
-                      image={image}
-                    />
-                  ))}
-                </>
+                <Menu shadow="md" width={200}>
+                  <Menu.Target>
+                    <Button compact color="green">
+                      subs...
+                    </Button>
+                  </Menu.Target>
+
+                  <Menu.Dropdown>
+                    <Menu.Label>pick category...</Menu.Label>
+                    {selKeys.map((key) => (
+                      <Menu.Item
+                        key={key}
+                        onClick={() => {
+                          setActiveCategory(key);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        {key}
+                      </Menu.Item>
+                    ))}
+                  </Menu.Dropdown>
+                </Menu>
               </div>
             )}
           </div>
         )}
+
+        <SdImageSubPopover
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+          }}
+          activeCategory={activeCategory}
+          image={image}
+        />
 
         <div
           style={{
