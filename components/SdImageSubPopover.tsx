@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { Combination, Permutation, PowerSet } from "js-combinatorics";
 import { orderBy } from "lodash-es";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 
 import { generatePlaceholderForTransform } from "../libs/helpers";
@@ -46,7 +46,10 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
 
   const [active, setActive] = useState(0);
 
-  const choicesInActivePrompt = getSelectionAsLookup(image);
+  const choicesInActivePrompt = useMemo(
+    () => getSelectionAsLookup(image),
+    [image]
+  );
 
   const choicesForActiveCategory = choicesInActivePrompt[activeCategory];
 
