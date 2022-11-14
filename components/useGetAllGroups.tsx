@@ -23,5 +23,7 @@ export async function queryFnGetAllGroups() {
 }
 
 export function getAbsUrl(slug: string) {
-  return (process.env.NEXT_PUBLIC_API_URL ?? "") + slug;
+  return (
+    (process.env.ASSUMED_PROTOCOL ?? "") + (process.env.VERCEL_URL ?? "") + slug
+  );
 }

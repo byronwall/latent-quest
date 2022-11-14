@@ -19,8 +19,6 @@ Variants and related:
 
 Image Grid:
     ☐ main image is being lost when the grid reloads -- find some way to not lose this @critical
-    ☐ Remove the `xform` choices
-    ☐ Integrate the `modify` mode into the `edit` prompt -- add some toggles for whether the image is retained or dropped in the process.
     ☐ add ability to compare images side by side
     ☐ tighten the table visuals to reduce white space
     ☐ show active prompt for main image (and other details too?)
@@ -60,6 +58,3 @@ Prompt editor:
 Specific problems:
     ☐ http://localhost:3000/group/06236dd2-d7a5-4bc7-8129-38fe28fd5343
         ☐ Figure out why the `castle + drawbridge` image is generated multiple times
-
-Archive:
-  ✔ Disable cfg, seed, and steps for `DALL-E` types @done(22-11-13 12:23) @project(DALL-E related)
