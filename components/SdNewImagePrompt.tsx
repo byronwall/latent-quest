@@ -144,7 +144,9 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
           {isLoading ? (
             <Loader />
           ) : (
-            <Button onClick={() => onGen()}>create</Button>
+            <Button onClick={() => onGen()} color="orange">
+              create
+            </Button>
           )}
         </Group>
       </Stack>

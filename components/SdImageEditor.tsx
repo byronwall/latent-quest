@@ -1,9 +1,9 @@
-import { Button, ColorPicker, Slider } from "@mantine/core";
+import { Button, ColorPicker, Slider, Title } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 
 import { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
-import { api_generateImage } from "../model/api";
+import { api_generateImage, ImgObjWithExtras } from "../model/api";
 import { getImageUrl } from "./ImageList";
 import { Switch } from "./MantineWrappers";
 import { SdNewImagePrompt } from "./SdNewImagePrompt";
@@ -30,9 +30,18 @@ export function SdImageEditor(props: SdImageEditorProps) {
   };
 
   const [pointSize, setPointSize] = useState(10);
+
   const [activeTool, setActiveTool] = useState<TOOLS>("point");
 
   const [isMouseDown, setIsMouseDown] = useState(false);
+
+  const [isMaskVisible, setIsMaskVisible] = useState(false);
+
+  const [pencilColor, setPencilColor] = useState("#000000");
+
+  const [variantStrength, setVariantStrength] = useState(30);
+
+  const [hasImagePrompt, setHasImagePrompt] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -81,7 +90,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
   useEffect(() => {
     handleRedrawImage();
-  }, [props.image]);
+  }, [props.image, hasImagePrompt]);
 
   interface MousePoint {
     x: number;
@@ -93,8 +102,6 @@ export function SdImageEditor(props: SdImageEditorProps) {
   const [initImgData, setInitImgData] = useState<string>("");
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    console.log("pointer down");
-
     setMouseStart(getPosRelativeToCanvas(e));
     setIsMouseDown(true);
   };
@@ -167,7 +174,6 @@ export function SdImageEditor(props: SdImageEditorProps) {
   };
 
   const handlePointerUp = () => {
-    console.log("pointer up");
     setIsMouseDown(false);
 
     if (activeTool !== "drag_rect") {
@@ -231,29 +237,39 @@ export function SdImageEditor(props: SdImageEditorProps) {
   };
 
   const handleCreateClick = async (placeHolder: SdImagePlaceHolder) => {
-    // get the image data from the canvas as base64 png
-
-    // force the canvas back to originalimage
-    const ctx = getCanvasCtx(canvasRef);
-    if (ctx === undefined) {
-      return;
-    }
-
-    if (isMaskVisible) {
-      // this resets the image back to baseline
-      await drawImageToCanvas(ctx, initImgData);
-    }
-
-    // send the image data to the server
-    const { dataUrl, maskDataUrl } = await getDataUrls();
-
-    const res = await api_generateImage({
+    const imageReqData: ImgObjWithExtras = {
       ...placeHolder,
-      variantStrength: 1 - variantStrength / 100.0,
+    };
 
-      imageData: dataUrl,
-      maskData: isMaskVisible ? maskDataUrl : undefined,
-    });
+    if (hasImagePrompt) {
+      // get the image data from the canvas as base64 png
+
+      // force the canvas back to originalimage
+      const ctx = getCanvasCtx(canvasRef);
+      if (ctx === undefined) {
+        return;
+      }
+
+      if (isMaskVisible) {
+        // this resets the image back to baseline
+        await drawImageToCanvas(ctx, initImgData);
+      }
+
+      // send the image data to the server
+      const { dataUrl, maskDataUrl } = await getDataUrls();
+
+      imageReqData.variantStrength = 1 - variantStrength / 100.0;
+
+      imageReqData.imageData = dataUrl;
+
+      if (isMaskVisible) {
+        imageReqData.maskData = maskDataUrl;
+      }
+    }
+
+    console.log("sending image data to server", imageReqData);
+
+    const res = await api_generateImage(imageReqData);
 
     qc.invalidateQueries();
 
@@ -307,76 +323,85 @@ export function SdImageEditor(props: SdImageEditorProps) {
     );
   };
 
-  const [isMaskVisible, setIsMaskVisible] = useState(false);
-
-  const [pencilColor, setPencilColor] = useState("#000000");
-
-  const [variantStrength, setVariantStrength] = useState(30);
-
-  return (
+  const imagePromptSettings = hasImagePrompt && (
     <div>
-      <div>
+      <Title order={3}>image prompt settings</Title>
+      <div style={{ display: "flex", gap: 5 }}>
         <div>
-          <SdNewImagePrompt
-            defaultImage={props.image}
-            onCreate={handleCreateClick}
+          <Button onClick={() => handleRedrawImage()}>redraw image</Button>
+          <Button onClick={handleOutPaint}>out paint</Button>
+          <Button onClick={handleSdProcess}>download PNGs</Button>
+        </div>
+        <div>
+          <Button
+            variant={activeTool === "point" ? "filled" : "outline"}
+            onClick={() => setActiveTool("point")}
+          >
+            select
+          </Button>
+          <Button
+            variant={activeTool === "drag_rect" ? "filled" : "outline"}
+            onClick={() => setActiveTool("drag_rect")}
+          >
+            clear area
+          </Button>
+          <Button
+            variant={activeTool === "pencil" ? "filled" : "outline"}
+            onClick={() => setActiveTool("pencil")}
+          >
+            pencil
+          </Button>
+          <Switch
+            checked={isMaskVisible}
+            onChange={setIsMaskVisible}
+            label="show mask"
           />
         </div>
         <div>
           <div>
-            <Button onClick={() => handleRedrawImage()}>redraw image</Button>
-            <Button onClick={handleOutPaint}>out paint</Button>
-
-            <Button onClick={handleSdProcess}>download PNGs</Button>
-          </div>
-
-          <div>
-            <Button
-              variant={activeTool === "point" ? "filled" : "outline"}
-              onClick={() => setActiveTool("point")}
-            >
-              select
-            </Button>
-            <Button
-              variant={activeTool === "drag_rect" ? "filled" : "outline"}
-              onClick={() => setActiveTool("drag_rect")}
-            >
-              clear area
-            </Button>
-            <Button
-              variant={activeTool === "pencil" ? "filled" : "outline"}
-              onClick={() => setActiveTool("pencil")}
-            >
-              pencil
-            </Button>
-            <Switch
-              checked={isMaskVisible}
-              onChange={setIsMaskVisible}
-              label="show mask"
+            <p>point size = {pointSize}</p>
+            <Slider
+              min={1}
+              max={50}
+              value={pointSize}
+              onChange={(v) => setPointSize(v)}
+              style={{ width: 200 }}
             />
           </div>
-
-          <Slider
-            min={1}
-            max={50}
-            value={pointSize}
-            onChange={(v) => setPointSize(v)}
-          />
-          <ColorPicker
-            value={pencilColor}
-            onChange={(v) => setPencilColor(v)}
-          />
-
-          <Slider
-            min={0}
-            max={100}
-            value={variantStrength}
-            onChange={(v) => setVariantStrength(v)}
-            label="variant strength %"
-          />
+          <div>
+            <p>variant strength = {variantStrength}</p>
+            <Slider
+              min={0}
+              max={100}
+              value={variantStrength}
+              onChange={(v) => setVariantStrength(v)}
+              label="variant strength %"
+            />
+          </div>
         </div>
+        <ColorPicker
+          value={pencilColor}
+          onChange={(v) => setPencilColor(v)}
+          format="rgba"
+          size="xl"
+          swatches={[
+            "#25262b",
+            "#868e96",
+            "#fa5252",
+            "#e64980",
+            "#be4bdb",
+            "#7950f2",
+            "#4c6ef5",
+            "#228be6",
+            "#15aabf",
+            "#12b886",
+            "#40c057",
+            "#82c91e",
+            "#fab005",
+            "#fd7e14",
+          ]}
+        />
       </div>
-
       <div style={{ position: "relative", display: "flex" }}>
         <canvas
           ref={canvasRef}
@@ -405,16 +430,37 @@ export function SdImageEditor(props: SdImageEditorProps) {
           <div
             style={{
               position: "absolute",
-              top: mouseStart.y,
-              left: mouseStart.x,
-              width: mouseEnd.x - mouseStart.x,
-              height: mouseEnd.y - mouseStart.y,
+              top: Math.min(mouseStart.y, mouseEnd.y),
+              left: Math.min(mouseStart.x, mouseEnd.x),
+              width: Math.abs(mouseEnd.x - mouseStart.x),
+              height: Math.abs(mouseEnd.y - mouseStart.y),
               border: "5px dashed red",
               pointerEvents: "none",
             }}
           />
         )}
       </div>
+    </div>
+  );
+
+  return (
+    <div>
+      <div>
+        <div>
+          <SdNewImagePrompt
+            defaultImage={props.image}
+            onCreate={handleCreateClick}
+          />
+        </div>
+        <div>
+          <Switch
+            checked={hasImagePrompt}
+            onChange={setHasImagePrompt}
+            label="is image prompt"
+          />
+        </div>
+      </div>
+      {imagePromptSettings}
     </div>
   );
 }

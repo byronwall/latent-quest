@@ -17,7 +17,9 @@ export function SdImageEditorPopover(props: SdImageEditorPopoverProps) {
         <SdImageEditor {...props} />
       </Modal>
 
-      <Button onClick={() => setIsOpen(true)}>edit</Button>
+      <Button compact color="orange" onClick={() => setIsOpen(true)}>
+        edit
+      </Button>
     </>
   );
 }

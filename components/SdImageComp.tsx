@@ -9,7 +9,6 @@ import { getImageUrl } from "./ImageList";
 import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdImageEditorPopover } from "./SdImageEditorPopover";
-import { SdImageModifyPopover } from "./SdImageModifyPrompt";
 import { SdImageSubPopover } from "./SdImageSubPopover";
 import { SdVariantMenu } from "./SdVariantMenu";
 
@@ -80,8 +79,6 @@ export function SdImageComp(props: SdImageCompProps) {
                 >
                   DALL-E variant
                 </Button>
-
-                <SdImageModifyPopover defaultImage={image} />
 
                 <SdImageEditorPopover image={image} />
 

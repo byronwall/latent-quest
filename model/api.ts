@@ -11,8 +11,8 @@ interface SdImgGenReqExtras {
   maskData?: string;
 }
 
-type ImgObj = SdImage | SdImagePlaceHolder;
-type ImgObjWithExtras = ImgObj & SdImgGenReqExtras;
+export type ImgObj = SdImage | SdImagePlaceHolder;
+export type ImgObjWithExtras = ImgObj & SdImgGenReqExtras;
 
 type ImgOrImgArray = ImgObjWithExtras | ImgObjWithExtras[];
 
