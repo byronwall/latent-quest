@@ -8,7 +8,13 @@ import { getImageUrl } from "./ImageList";
 import { Switch } from "./MantineWrappers";
 import { SdNewImagePrompt } from "./SdNewImagePrompt";
 
-const TOOLS = ["point", "drag_rect", "pencil", "color_picker"] as const;
+const TOOLS = [
+  "point",
+  "clear_rect",
+  "fill_rect",
+  "pencil",
+  "color_picker",
+] as const;
 type TOOLS = typeof TOOLS[number];
 
 export function SdImageEditor(props: SdImageEditorProps) {
@@ -180,36 +186,50 @@ export function SdImageEditor(props: SdImageEditorProps) {
   const handlePointerUp = () => {
     setIsMouseDown(false);
 
-    if (activeTool !== "drag_rect") {
-      return;
-    }
-
-    // do the deletion here
-
-    // clear a rect that the mouse was over
     const ctx = getCanvasCtx(canvasRef);
     if (ctx === undefined) {
       return;
     }
-    ctx.clearRect(
-      mouseStart.x,
-      mouseStart.y,
-      mouseEnd.x - mouseStart.x,
-      mouseEnd.y - mouseStart.y
-    );
 
-    // draw a black rect on the mask
-    const maskCtx = getCanvasCtx(canvasMaskRef);
-    if (maskCtx === undefined) {
-      return;
+    if (activeTool === "clear_rect") {
+      // do the deletion here
+
+      // clear a rect that the mouse was over
+
+      ctx.clearRect(
+        mouseStart.x,
+        mouseStart.y,
+        mouseEnd.x - mouseStart.x,
+        mouseEnd.y - mouseStart.y
+      );
+
+      // draw a black rect on the mask
+      const maskCtx = getCanvasCtx(canvasMaskRef);
+      if (maskCtx === undefined) {
+        return;
+      }
+
+      maskCtx.fillStyle = "black";
+      maskCtx.fillRect(
+        mouseStart.x,
+        mouseStart.y,
+        mouseEnd.x - mouseStart.x,
+        mouseEnd.y - mouseStart.y
+      );
     }
-    maskCtx.fillStyle = "black";
-    maskCtx.fillRect(
-      mouseStart.x,
-      mouseStart.y,
-      mouseEnd.x - mouseStart.x,
-      mouseEnd.y - mouseStart.y
-    );
+    if (activeTool === "fill_rect") {
+      // do the deletion here
+
+      // clear a rect that the mouse was over
+
+      ctx.fillStyle = pencilColor;
+      ctx.fillRect(
+        mouseStart.x,
+        mouseStart.y,
+        mouseEnd.x - mouseStart.x,
+        mouseEnd.y - mouseStart.y
+      );
+    }
   };
 
   const qc = useQueryClient();
@@ -342,24 +362,26 @@ export function SdImageEditor(props: SdImageEditorProps) {
         </div>
         <div>
           <Button
-            variant={activeTool === "point" ? "filled" : "outline"}
-            onClick={() => setActiveTool("point")}
-          >
-            select
-          </Button>
-          <Button
-            variant={activeTool === "drag_rect" ? "filled" : "outline"}
-            onClick={() => setActiveTool("drag_rect")}
+            variant={activeTool === "clear_rect" ? "filled" : "outline"}
+            onClick={() => setActiveTool("clear_rect")}
           >
             clear area
           </Button>
+
+          <Button
+            variant={activeTool === "fill_rect" ? "filled" : "outline"}
+            onClick={() => setActiveTool("fill_rect")}
+          >
+            fill area
+          </Button>
+
           <Button
             variant={activeTool === "pencil" ? "filled" : "outline"}
             onClick={() => setActiveTool("pencil")}
           >
             pencil
           </Button>
-          {/* color picker button */}
+
           <Button
             variant={activeTool === "color_picker" ? "filled" : "outline"}
             onClick={() => setActiveTool("color_picker")}
@@ -441,7 +463,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
             display: isMaskVisible ? "block" : "none",
           }}
         />
-        {activeTool === "drag_rect" && isMouseDown && (
+        {activeTool === "clear_rect" && isMouseDown && (
           <div
             style={{
               position: "absolute",
@@ -451,6 +473,20 @@ export function SdImageEditor(props: SdImageEditorProps) {
               height: Math.abs(mouseEnd.y - mouseStart.y),
               border: "5px dashed red",
               pointerEvents: "none",
+            }}
+          />
+        )}
+        {activeTool === "fill_rect" && isMouseDown && (
+          <div
+            style={{
+              position: "absolute",
+              top: Math.min(mouseStart.y, mouseEnd.y),
+              left: Math.min(mouseStart.x, mouseEnd.x),
+              width: Math.abs(mouseEnd.x - mouseStart.x),
+              height: Math.abs(mouseEnd.y - mouseStart.y),
+              border: "5px dashed red",
+              pointerEvents: "none",
+              background: pencilColor,
             }}
           />
         )}
