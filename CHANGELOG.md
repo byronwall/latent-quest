@@ -4,6 +4,7 @@
 
 - Resolve errors around broken grid display - bad boolean logic
 - Ensure that `create` button will go to a spinner while loading
+- Add a `color picker` to the image editor
 
 ## 2022-11-13 21:40:41
 

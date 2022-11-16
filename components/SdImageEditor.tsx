@@ -8,7 +8,7 @@ import { getImageUrl } from "./ImageList";
 import { Switch } from "./MantineWrappers";
 import { SdNewImagePrompt } from "./SdNewImagePrompt";
 
-const TOOLS = ["point", "drag_rect", "pencil"] as const;
+const TOOLS = ["point", "drag_rect", "pencil", "color_picker"] as const;
 type TOOLS = typeof TOOLS[number];
 
 export function SdImageEditor(props: SdImageEditorProps) {
@@ -102,8 +102,24 @@ export function SdImageEditor(props: SdImageEditorProps) {
   const [initImgData, setInitImgData] = useState<string>("");
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    setMouseStart(getPosRelativeToCanvas(e));
+    const pt = getPosRelativeToCanvas(e);
+    setMouseStart(pt);
     setIsMouseDown(true);
+
+    if (activeTool === "pencil") {
+      drawPencilOnCanvas(pt);
+    }
+
+    if (activeTool === "color_picker") {
+      const ctx = getCanvasCtx(canvasRef);
+      if (ctx === undefined) {
+        return;
+      }
+
+      const pixel = ctx.getImageData(pt.x, pt.y, 1, 1).data;
+      const color = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+      setPencilColor(color);
+    }
   };
 
   const getPosRelativeToCanvas = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -117,18 +133,6 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
     return { x, y };
   };
-
-  useEffect(() => {
-    switch (activeTool) {
-      case "point":
-        erasePointFromCanvas();
-        break;
-
-      case "pencil":
-        drawPencilOnCanvas(mouseStart);
-        break;
-    }
-  }, [mouseStart, activeTool, pointSize]);
 
   function erasePointFromCanvas() {
     const ctx = getCanvasCtx(canvasRef);
@@ -354,6 +358,13 @@ export function SdImageEditor(props: SdImageEditorProps) {
             onClick={() => setActiveTool("pencil")}
           >
             pencil
+          </Button>
+          {/* color picker button */}
+          <Button
+            variant={activeTool === "color_picker" ? "filled" : "outline"}
+            onClick={() => setActiveTool("color_picker")}
+          >
+            color picker
           </Button>
           <Switch
             checked={isMaskVisible}
