@@ -1,5 +1,10 @@
 # Changelog
 
+## 2022-11-15 21:41:50
+
+- Resolve errors around broken grid display - bad boolean logic
+- Ensure that `create` button will go to a spinner while loading
+
 ## 2022-11-13 21:40:41
 
 - Start cleaning up old/bad UX stuff

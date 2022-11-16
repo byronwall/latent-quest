@@ -322,11 +322,13 @@ export function ImageGrid(props: ImageGridProps) {
     qc.invalidateQueries(groupId);
   };
 
+  const newItemCount = tableData.flat().filter(isPlaceholder).length;
+
   const btnGenAll = isBulkLoading ? (
     <Loader />
   ) : (
     <Button onClick={handleGenAll} rightIcon={<IconWand />}>
-      gen all
+      gen all ({newItemCount})
     </Button>
   );
 

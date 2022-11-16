@@ -27,8 +27,7 @@ interface PromptEditorProps {
 
 const defaultBreakdown = { parts: [] };
 export function PromptEditor(props: PromptEditorProps) {
-  const { initialBreakdown, onBreakdownChange, shouldAllowSelection, ...rest } =
-    props;
+  const { initialBreakdown, onBreakdownChange, shouldAllowSelection } = props;
 
   // controlled and uncontrolled updates
   const [prompt, setPrompt] = useControlledUncontrolled<PromptBreakdown>(
@@ -105,7 +104,7 @@ export function PromptEditor(props: PromptEditorProps) {
   const { categories } = useChoiceCategories();
 
   return (
-    <div {...rest}>
+    <div style={{ ...props.style }}>
       <TextAreaWithButton
         defaultText={simpleText}
         onChange={handleRawTextChange}

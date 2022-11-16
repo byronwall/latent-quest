@@ -62,7 +62,6 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
             {promptText}
             {'"'}
           </p>
-          <p>{getTextOnlyFromPromptPartWithLabel(promptText)}</p>
         </div>
       </TooltipCommon>
     </div>

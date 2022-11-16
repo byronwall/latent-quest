@@ -236,7 +236,10 @@ export function SdImageEditor(props: SdImageEditorProps) {
     downloadDataUri(maskDataUrl, "mask.png");
   };
 
-  const handleCreateClick = async (placeHolder: SdImagePlaceHolder) => {
+  const handleCreateClick = async (
+    placeHolder: SdImagePlaceHolder,
+    callback: () => void
+  ) => {
     const imageReqData: ImgObjWithExtras = {
       ...placeHolder,
     };
@@ -270,6 +273,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
     console.log("sending image data to server", imageReqData);
 
     const res = await api_generateImage(imageReqData);
+    callback();
 
     qc.invalidateQueries();
 

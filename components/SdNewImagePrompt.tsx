@@ -30,7 +30,7 @@ export const engine_choices = ["DALL-E", "SD 1.5"];
 interface SdNewImagePromptProps {
   defaultImage?: SdImage;
 
-  onCreate?: (image: SdImagePlaceHolder) => void;
+  onCreate?: (image: SdImagePlaceHolder, cb: () => void) => void;
 }
 
 export function SdNewImagePrompt(props: SdNewImagePromptProps) {
@@ -77,12 +77,15 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
       groupId: defaultImage?.groupId,
     };
 
+    setIsLoading(true);
+
     if (props.onCreate) {
-      props.onCreate(newImgReq);
+      // the callback allows the button to disappear
+      props.onCreate(newImgReq, () => {
+        setIsLoading(false);
+      });
       return;
     }
-
-    setIsLoading(true);
 
     const img = await api_generateImage(newImgReq);
     setIsLoading(false);

@@ -12,6 +12,11 @@ export const pathToImg = "/tmp";
 console.log("pathToImg", pathToImg);
 
 export default async function handler(req, res) {
+  // adding timeout code to trap when the lambda times out
+
+  const start = +Date.now();
+  console.log("img gen start");
+
   const imgGenReqReq = req.body as ImageGenRequest | ImageGenRequest[];
 
   const imgGenReqs = Array.isArray(imgGenReqReq)
@@ -20,6 +25,9 @@ export default async function handler(req, res) {
 
   const results = await Promise.all(imgGenReqs.map(processSingleImgGenReq));
   const goodResults = results.filter((r) => r !== undefined) as SdImage[];
+
+  const end = +Date.now();
+  console.log("img gen done in ", end - start, "ms");
 
   res.status(200).json(goodResults);
 }

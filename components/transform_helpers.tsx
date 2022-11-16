@@ -180,7 +180,8 @@ export function generateSortedTransformList(
           )
           .filter(
             (c) =>
-              "value" in c && c.value !== undefined && c.value[0] !== undefined
+              "value" in c &&
+              (c.value !== undefined || c.value[0] !== undefined)
           ),
         jsonStringifyStable
       ),
