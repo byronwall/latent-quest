@@ -16,7 +16,7 @@ type SdParams = Parameters<typeof generateAsync>[0];
 
 const base64Regex = /^data:.+\/(.+);base64,(.*)$/;
 
-function getBufferFromBase64(base64: string) {
+export function getBufferFromBase64(base64: string) {
   const matches = base64.match(base64Regex);
   if (!matches) {
     throw new Error("Invalid base64 string");

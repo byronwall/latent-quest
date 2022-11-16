@@ -6,6 +6,8 @@
 - Ensure that `create` button will go to a spinner while loading
 - Add a `color picker` to the image editor
 - Add a `fill rect` option to the image editor
+- Add support for DALL-E in painting and outpainting with mask and image data support
+  - This needs to change the mask format for the different engines - code is a mess but works
 
 ## 2022-11-13 21:40:41
 

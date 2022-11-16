@@ -12,6 +12,7 @@ const TOOLS = [
   "point",
   "clear_rect",
   "fill_rect",
+  "select_rect",
   "pencil",
   "color_picker",
 ] as const;
@@ -74,7 +75,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
     await drawImageToCanvas(ctx, getImageUrl(url));
 
-    const { dataUrl } = await getDataUrls();
+    const { dataUrl } = await getDataUrls("SD 1.5");
 
     setInitImgData(dataUrl);
 
@@ -139,20 +140,6 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
     return { x, y };
   };
-
-  function erasePointFromCanvas() {
-    const ctx = getCanvasCtx(canvasRef);
-    if (ctx === undefined) {
-      return;
-    }
-    ctx.globalCompositeOperation = "destination-out";
-    //draw circle at mousePt
-    ctx.beginPath();
-    ctx.arc(mouseStart.x, mouseStart.y, pointSize, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.globalCompositeOperation = "source-over";
-  }
 
   function drawPencilOnCanvas(pt: MousePoint) {
     const ctx = getCanvasCtx(canvasRef);
@@ -234,7 +221,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
   const qc = useQueryClient();
 
-  const getDataUrls = async () => {
+  const getDataUrls = async (engine: SdImagePlaceHolder["engine"]) => {
     const canvas = canvasRef.current;
     if (canvas === null) {
       throw new Error("canvas is null");
@@ -243,18 +230,79 @@ export function SdImageEditor(props: SdImageEditorProps) {
     // redraw the original image and rely on mask
     const dataUrl = canvas.toDataURL("image/png");
 
-    // get the mask data url
-    const maskCanvas = canvasMaskRef.current;
-    if (maskCanvas === null) {
-      throw new Error("mask canvas is null");
+    // if the engine is DALL-E mask needs to be 0 alpha for regions to edit - and 1 alpha white otherwise
+    let maskDataUrl = "";
+
+    if (engine === "DALL-E") {
+      const maskCanvas = canvasMaskRef.current;
+      if (maskCanvas === null) {
+        throw new Error("maskCanvas is null");
+      }
+
+      const maskCtx = maskCanvas.getContext("2d");
+      if (maskCtx === null) {
+        throw new Error("maskCtx is null");
+      }
+
+      const imageData = maskCtx.getImageData(
+        0,
+        0,
+        maskCanvas.width,
+        maskCanvas.height
+      );
+
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        if (
+          imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2] <
+          10
+        ) {
+          imageData.data[i + 3] = 0;
+        } else {
+          imageData.data[i + 3] = 255;
+        }
+      }
+
+      maskCtx.putImageData(imageData, 0, 0);
+
+      maskDataUrl = maskCanvas.toDataURL("image/png");
+    } else {
+      // get the mask data url
+      const maskCanvas = canvasMaskRef.current;
+      if (maskCanvas === null) {
+        throw new Error("mask canvas is null");
+      }
+
+      // go through mask -- if any pixels are 0 alpha transparent -- force to black
+      const maskCtx = maskCanvas.getContext("2d");
+      if (maskCtx === null) {
+        throw new Error("maskCtx is null");
+      }
+
+      const imageData = maskCtx.getImageData(
+        0,
+        0,
+        maskCanvas.width,
+        maskCanvas.height
+      );
+
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        if (imageData.data[i + 3] === 0) {
+          imageData.data[i] = 0;
+          imageData.data[i + 1] = 0;
+          imageData.data[i + 2] = 0;
+        }
+      }
+
+      maskCtx.putImageData(imageData, 0, 0);
+
+      maskDataUrl = maskCanvas.toDataURL("image/png");
     }
-    const maskDataUrl = maskCanvas.toDataURL("image/png");
 
     return { dataUrl, maskDataUrl };
   };
 
   const handleSdProcess = async () => {
-    const { dataUrl, maskDataUrl } = await getDataUrls();
+    const { dataUrl, maskDataUrl } = await getDataUrls("SD 1.5");
 
     downloadDataUri(dataUrl, "image.png");
     downloadDataUri(maskDataUrl, "mask.png");
@@ -283,7 +331,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
       }
 
       // send the image data to the server
-      const { dataUrl, maskDataUrl } = await getDataUrls();
+      const { dataUrl, maskDataUrl } = await getDataUrls(placeHolder.engine);
 
       imageReqData.variantStrength = 1 - variantStrength / 100.0;
 
@@ -291,6 +339,33 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
       if (isMaskVisible) {
         imageReqData.maskData = maskDataUrl;
+      } else if (placeHolder.engine === "DALL-E") {
+        // need to get a full alpha mask as the "edit all" option
+
+        const canRef = canvasRef.current;
+        if (canRef === null) {
+          return;
+        }
+
+        const dummyCanvas = document.createElement("canvas");
+        dummyCanvas.width = canRef.width;
+        dummyCanvas.height = canRef.height;
+
+        const dummyCtx = dummyCanvas.getContext("2d");
+        if (dummyCtx === null) {
+          return;
+        }
+
+        // transparent white
+        dummyCtx.fillStyle = "#ffffff00";
+
+        dummyCtx.fillRect(0, 0, dummyCanvas.width, dummyCanvas.height);
+
+        const dummyDataUrl = dummyCanvas.toDataURL("image/png");
+
+        imageReqData.maskData = dummyDataUrl;
+
+        console.log("dummyDataUrl for empty mask", dummyDataUrl);
       }
     }
 
@@ -325,7 +400,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
       512 - outPaintSize * 2
     );
 
-    const { dataUrl } = await getDataUrls();
+    const { dataUrl } = await getDataUrls("SD 1.5");
     setInitImgData(dataUrl);
 
     // reset the mask to all white
@@ -351,6 +426,33 @@ export function SdImageEditor(props: SdImageEditorProps) {
     );
   };
 
+  const handleZoomIntoSelection = async () => {
+    // get the selection and redraw it onto the full canvas size
+    const ctx = getCanvasCtx(canvasRef);
+    if (ctx === undefined) {
+      return;
+    }
+
+    // save selection into image
+    const savedImg = new Image();
+
+    const { dataUrl } = await getDataUrls("SD 1.5");
+
+    savedImg.src = dataUrl;
+
+    ctx.drawImage(
+      savedImg,
+      mouseStart.x,
+      mouseStart.y,
+      mouseEnd.x - mouseStart.x,
+      mouseEnd.y - mouseStart.y,
+      0,
+      0,
+      ctx.canvas.width,
+      ctx.canvas.height
+    );
+  };
+
   const imagePromptSettings = hasImagePrompt && (
     <div>
       <Title order={3}>image prompt settings</Title>
@@ -358,6 +460,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
         <div>
           <Button onClick={() => handleRedrawImage()}>redraw image</Button>
           <Button onClick={handleOutPaint}>out paint</Button>
+          <Button onClick={handleZoomIntoSelection}>zoom in</Button>
           <Button onClick={handleSdProcess}>download PNGs</Button>
         </div>
         <div>
@@ -373,6 +476,13 @@ export function SdImageEditor(props: SdImageEditorProps) {
             onClick={() => setActiveTool("fill_rect")}
           >
             fill area
+          </Button>
+
+          <Button
+            variant={activeTool === "select_rect" ? "filled" : "outline"}
+            onClick={() => setActiveTool("select_rect")}
+          >
+            select area
           </Button>
 
           <Button
@@ -424,6 +534,8 @@ export function SdImageEditor(props: SdImageEditorProps) {
           swatches={[
             "#25262b",
             "#868e96",
+            "#795548",
+            "#ffffff",
             "#fa5252",
             "#e64980",
             "#be4bdb",
@@ -461,6 +573,8 @@ export function SdImageEditor(props: SdImageEditorProps) {
           style={{
             border: "1px solid red",
             display: isMaskVisible ? "block" : "none",
+            background:
+              "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%)       50% / 20px 20px",
           }}
         />
         {activeTool === "clear_rect" && isMouseDown && (
@@ -487,6 +601,19 @@ export function SdImageEditor(props: SdImageEditorProps) {
               border: "5px dashed red",
               pointerEvents: "none",
               background: pencilColor,
+            }}
+          />
+        )}
+        {activeTool === "select_rect" && (
+          <div
+            style={{
+              position: "absolute",
+              top: Math.min(mouseStart.y, mouseEnd.y),
+              left: Math.min(mouseStart.x, mouseEnd.x),
+              width: Math.abs(mouseEnd.x - mouseStart.x),
+              height: Math.abs(mouseEnd.y - mouseStart.y),
+              border: "3px dashed orange",
+              pointerEvents: "none",
             }}
           />
         )}

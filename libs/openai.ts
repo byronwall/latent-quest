@@ -1,9 +1,13 @@
 import axios from "axios";
 import * as fs from "fs";
+import { Readable } from "stream";
 import { Configuration, OpenAIApi } from "openai";
 import { join } from "path";
 
-import { SdImgGenParams } from "../pages/api/generateSdImage";
+import {
+  getBufferFromBase64,
+  SdImgGenParams,
+} from "../pages/api/generateSdImage";
 import { getStreamForImageUrl } from "../pages/api/images/s3/[key]";
 import { pathToImg } from "../pages/api/img_gen";
 import { saveImageToS3AndDb } from "../pages/api/saveImageToS3AndDb";
@@ -18,7 +22,8 @@ export const openai = new OpenAIApi(configuration);
 export async function generateDalleImage(imageReq: SdImgGenParams) {
   // see : https://beta.openai.com/docs/api-reference/images/create
 
-  const { promptForSd, ...sdImage } = imageReq;
+  // pull out image data so it does not save to DB
+  const { promptForSd, imageData, maskData, ...sdImage } = imageReq;
 
   let response;
   if (imageReq.variantSourceId) {
@@ -28,6 +33,35 @@ export async function generateDalleImage(imageReq: SdImgGenParams) {
 
     // types are wrong, should really be a stream
     response = await openai.createImageVariation(stream as any, 1, "512x512");
+  } else if (imageData) {
+    console.log("creating DALL-E variant from imageData");
+
+    if (maskData === undefined) {
+      throw new Error("maskData is required when imageData is provided");
+    }
+
+    // mask must be provided by the client
+    // DALL-E expects to see 0 alpha for pixels to be edited
+    const stream = getBufferFromBase64(imageData);
+    const mask = getBufferFromBase64(maskData);
+
+    const imgPath = join(pathToImg, getUuid() + "-image.png");
+    const maskPath = join(pathToImg, getUuid() + "-mask.png");
+
+    console.log("wrote images to disk temp:", imgPath, maskPath);
+
+    // write to disk temp
+    fs.writeFileSync(imgPath, stream);
+    fs.writeFileSync(maskPath, mask);
+
+    // types are wrong, should really be a stream
+    response = await openai.createImageEdit(
+      fs.createReadStream(imgPath) as any,
+      fs.createReadStream(maskPath) as any,
+      imageReq.promptForSd,
+      1,
+      "512x512"
+    );
   } else {
     response = await openai.createImage({
       prompt: imageReq.promptForSd,
