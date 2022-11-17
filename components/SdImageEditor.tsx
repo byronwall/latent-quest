@@ -470,6 +470,17 @@ export function SdImageEditor(props: SdImageEditorProps) {
     }
   };
 
+  const handleFilterGreyscale = async () => {
+    const ctx = getCanvasCtx(canvasRef);
+    if (ctx === undefined) {
+      return;
+    }
+
+    ctx.filter = "grayscale(100%)";
+    ctx.drawImage(ctx.canvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.filter = "none";
+  };
+
   const imagePromptSettings = hasImagePrompt && (
     <div>
       <Title order={3}>image prompt settings</Title>
@@ -484,6 +495,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
               set canvas equal to OG prompt
             </Button>
           )}
+          <Button onClick={handleFilterGreyscale}>greyscale</Button>
         </div>
         <div>
           <Button

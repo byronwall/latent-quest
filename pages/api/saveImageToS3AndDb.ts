@@ -12,9 +12,12 @@ export async function saveImageToS3AndDb(
   image: SdImgGenParams,
   reqParams: FileUploadS3
 ) {
-  const s3res = await uploadImageToS3(reqParams);
+  const s3res = uploadImageToS3(reqParams);
 
   // check and remove the imageData if needed
+
+  const promises: Promise<any>[] = [];
+
   if (image.imageData) {
     // write this data to S3 and then delete from image
 
@@ -22,10 +25,12 @@ export async function saveImageToS3AndDb(
 
     // write the image data to disk
 
-    const imageDataS3res = await uploadImageToS3({
+    const imageDataS3res = uploadImageToS3({
       buffer: getBufferFromBase64(image.imageData),
       s3Key: imageDataS3Key,
     });
+
+    promises.push(imageDataS3res);
 
     delete image.imageData;
     image.urlImageSource = imageDataS3Key;
@@ -39,10 +44,12 @@ export async function saveImageToS3AndDb(
 
     // write the image data to disk
 
-    const maskDataS3res = await uploadImageToS3({
+    const maskDataS3res = uploadImageToS3({
       buffer: getBufferFromBase64(image.maskData),
       s3Key: maskDataS3Key,
     });
+
+    promises.push(maskDataS3res);
 
     delete image.maskData;
     image.urlMaskSource = maskDataS3Key;
@@ -52,6 +59,13 @@ export async function saveImageToS3AndDb(
     // remove this extra field
     delete image.promptForSd;
   }
+
+  console.log("waiting on S3 writes");
+  promises.push(s3res);
+
+  await Promise.all(promises);
+
+  console.log("S3 writes done");
 
   // delete the file after done ?
 
