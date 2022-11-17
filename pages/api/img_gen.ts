@@ -5,8 +5,9 @@ import {
   getUuid,
   ImageGenRequest,
   SdImage,
+  SdImgGenParams,
 } from "../../libs/shared-types/src";
-import { generateSdImage, SdImgGenParams } from "./generateSdImage";
+import { generateSdImage } from "./generateSdImage";
 
 export const pathToImg = "/tmp";
 console.log("pathToImg", pathToImg);

@@ -1,17 +1,13 @@
 import axios from "axios";
 import * as fs from "fs";
-import { Readable } from "stream";
 import { Configuration, OpenAIApi } from "openai";
 import { join } from "path";
 
-import {
-  getBufferFromBase64,
-  SdImgGenParams,
-} from "../pages/api/generateSdImage";
+import { getBufferFromBase64 } from "../pages/api/generateSdImage";
 import { getStreamForImageUrl } from "../pages/api/images/s3/[key]";
 import { pathToImg } from "../pages/api/img_gen";
 import { saveImageToS3AndDb } from "../pages/api/saveImageToS3AndDb";
-import { getUuid } from "./shared-types/src";
+import { getUuid, SdImgGenParams } from "./shared-types/src";
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -19,17 +15,21 @@ const configuration = new Configuration({
 
 export const openai = new OpenAIApi(configuration);
 
-export async function generateDalleImage(imageReq: SdImgGenParams) {
+export async function generateDalleImage(sdImage: SdImgGenParams) {
   // see : https://beta.openai.com/docs/api-reference/images/create
 
   // pull out image data so it does not save to DB
-  const { promptForSd, imageData, maskData, ...sdImage } = imageReq;
+  const { promptForSd, imageData, maskData } = sdImage;
+
+  if (promptForSd === undefined) {
+    throw new Error("promptForSd is undefined");
+  }
 
   let response;
-  if (imageReq.variantSourceId) {
+  if (sdImage.variantSourceId) {
     console.log("creating DALL-E variant");
 
-    const stream = await getStreamForImageUrl(imageReq.variantSourceId);
+    const stream = await getStreamForImageUrl(sdImage.variantSourceId);
 
     // types are wrong, should really be a stream
     response = await openai.createImageVariation(stream as any, 1, "512x512");
@@ -58,13 +58,13 @@ export async function generateDalleImage(imageReq: SdImgGenParams) {
     response = await openai.createImageEdit(
       fs.createReadStream(imgPath) as any,
       fs.createReadStream(maskPath) as any,
-      imageReq.promptForSd,
+      promptForSd,
       1,
       "512x512"
     );
   } else {
     response = await openai.createImage({
-      prompt: imageReq.promptForSd,
+      prompt: promptForSd,
       n: 1,
       size: "512x512",
     });
@@ -88,10 +88,10 @@ export async function generateDalleImage(imageReq: SdImgGenParams) {
         ...sdImage,
         cfg: 10, // rigged to compare to SD
         steps: 20, // rigged to compare to SD
-        groupId: imageReq.groupId ?? getUuid(),
+        groupId: sdImage.groupId ?? getUuid(),
         engine: "DALL-E",
       },
-      { filename, fileKey: getUuid() }
+      { pathToReadOnDisk: filename, s3Key: getUuid() }
     );
 
     return finalImage;

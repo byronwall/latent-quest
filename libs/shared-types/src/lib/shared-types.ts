@@ -28,6 +28,9 @@ export interface SdImage {
   variantSourceId?: string;
   variantStrength?: number;
 
+  urlImageSource?: string;
+  urlMaskSource?: string;
+
   // add a source URL later for random internet images
 
   promptBreakdown: PromptBreakdown;
@@ -68,6 +71,13 @@ export type SdImagePlaceHolder = Partial<
   Omit<SdImage, "id" | "dateCreated" | "url">
 > &
   Pick<SdImage, "promptBreakdown" | "engine">;
+
+export type SdImgGenParams = {
+  promptForSd?: string;
+  imageData?: string;
+  maskData?: string;
+} & SdImagePlaceHolder &
+  Required<Pick<SdImagePlaceHolder, "seed" | "cfg" | "steps" | "groupId">>;
 
 export type ImageGenRequest = SdImagePlaceHolder;
 

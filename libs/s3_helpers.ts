@@ -1,7 +1,8 @@
 import {
-  S3Client,
-  PutObjectCommand,
   GetObjectCommand,
+  PutObjectCommand,
+  PutObjectCommandInput,
+  S3Client,
 } from "@aws-sdk/client-s3";
 import * as fs from "fs";
 
@@ -13,10 +14,23 @@ const s3 = new S3Client({
   },
 });
 
-export interface FileUploadS3 {
-  filename: string;
-  key: string;
-  mimetype: string;
+export type FileUploadS3 = FileUploadS3Path | FileUploadS3Buffer;
+
+export interface FileUploadS3Path {
+  pathToReadOnDisk: string;
+  s3Key: string;
+}
+
+export interface FileUploadS3Buffer {
+  buffer: Buffer;
+  s3Key: string;
+}
+
+// type guard to detect a FileUploadS3Buffer
+export function isFileUploadS3Buffer(
+  file: FileUploadS3
+): file is FileUploadS3Buffer {
+  return "buffer" in file;
 }
 
 export interface FileDownloadS3 {
@@ -24,16 +38,17 @@ export interface FileDownloadS3 {
 }
 
 export async function uploadImageToS3(file: FileUploadS3) {
-  const fileStream = fs.createReadStream(file.filename);
+  const Body: PutObjectCommandInput["Body"] = isFileUploadS3Buffer(file)
+    ? file.buffer
+    : fs.createReadStream(file.pathToReadOnDisk);
 
   // upload image to s3
-  const params = {
-    Bucket: process.env.LQ_AWS_BUCKET_NAME,
-    Key: file.key,
-    Body: fileStream,
-  };
 
-  const command = new PutObjectCommand(params);
+  const command = new PutObjectCommand({
+    Bucket: process.env.LQ_AWS_BUCKET_NAME,
+    Key: file.s3Key,
+    Body,
+  });
 
   return await s3.send(command);
 }

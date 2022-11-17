@@ -1,16 +1,9 @@
 import { generateAsync } from "stability-client";
 
-import { SdImagePlaceHolder } from "../../libs/shared-types/src";
+import { SdImgGenParams } from "../../libs/shared-types/src";
 import { getBufferFromImageUrl } from "./images/s3/[key]";
 import { pathToImg } from "./img_gen";
 import { saveImageToS3AndDb } from "./saveImageToS3AndDb";
-
-export type SdImgGenParams = {
-  promptForSd: string;
-  imageData?: string;
-  maskData?: string;
-} & SdImagePlaceHolder &
-  Required<Pick<SdImagePlaceHolder, "seed" | "cfg" | "steps" | "groupId">>;
 
 type SdParams = Parameters<typeof generateAsync>[0];
 
@@ -25,10 +18,12 @@ export function getBufferFromBase64(base64: string) {
   return Buffer.from(base64Data, "base64");
 }
 
-export async function generateSdImage(input: SdImgGenParams) {
-  const { promptForSd, ...sdImage } = input;
+export async function generateSdImage(sdImage: SdImgGenParams) {
+  const { seed, cfg, steps, groupId, promptForSd } = sdImage;
 
-  const { seed, cfg, steps, groupId } = sdImage;
+  if (promptForSd === undefined) {
+    throw new Error("promptForSd is required");
+  }
 
   const sdParams: SdParams = {
     apiKey: process.env.STABILITY_KEY ?? "",
@@ -47,6 +42,14 @@ export async function generateSdImage(input: SdImgGenParams) {
   // if placeholder has a variant, download that image and add to json
   type VariantParams = Pick<SdParams, "imagePrompt" | "stepSchedule">;
 
+  // store a copy of the source image (mask + prompt) in S3
+  // get those URLs and write them to the image data
+
+  const imagePromptDataToSave: Pick<
+    SdImgGenParams,
+    "urlImageSource" | "urlMaskSource" | "imageData" | "maskData"
+  > = {};
+
   if (sdImage.imageData) {
     var buffer = getBufferFromBase64(sdImage.imageData);
 
@@ -56,7 +59,7 @@ export async function generateSdImage(input: SdImgGenParams) {
         mime: "image/png",
       },
       stepSchedule: {
-        start: input.variantStrength ?? 0.5,
+        start: sdImage.variantStrength ?? 0.5,
       },
     };
 
@@ -77,12 +80,12 @@ export async function generateSdImage(input: SdImgGenParams) {
     }
 
     Object.assign(sdParams, variantParams);
-    delete sdImage.imageData; // this is needed so db write is OK -- don't want to save this data for now
-    delete sdImage.maskData; // this is needed so db write is OK -- don't want to save this data for now
-  } else if (input.variantSourceId) {
+
+    imagePromptDataToSave.imageData = sdImage.imageData;
+  } else if (sdImage.variantSourceId) {
     // download image
 
-    const buffer = await getBufferFromImageUrl(input.variantSourceId);
+    const buffer = await getBufferFromImageUrl(sdImage.variantSourceId);
 
     const variantParams: VariantParams = {
       imagePrompt: {
@@ -90,12 +93,12 @@ export async function generateSdImage(input: SdImgGenParams) {
         mime: "image/png",
       },
       stepSchedule: {
-        start: input.variantStrength ?? 0.5,
+        start: sdImage.variantStrength ?? 0.5,
       },
     };
 
     // force values if origin was DALL-E
-    if (input.engine === "DALL-E") {
+    if (sdImage.engine === "DALL-E") {
       sdParams.steps = 20;
       sdParams.cfgScale = 10;
       sdParams.seed = Math.floor(Math.random() * 65000);
@@ -117,7 +120,7 @@ export async function generateSdImage(input: SdImgGenParams) {
         ...sdImage,
         engine: "SD 1.5",
       },
-      { filename: result.filePath, fileKey }
+      { pathToReadOnDisk: result.filePath, s3Key: fileKey }
     );
   }
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-11-16 22:46:05
+
+- Add support for saving the image prompt and associated mask
+
 ## 2022-11-15 21:41:50
 
 - Resolve errors around broken grid display - bad boolean logic

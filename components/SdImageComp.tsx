@@ -6,6 +6,7 @@ import { useState } from "react";
 import { getTextForBreakdown, SdImage } from "../libs/shared-types/src";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { getImageUrl } from "./ImageList";
+import { Switch } from "./MantineWrappers";
 import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdImageEditorPopover } from "./SdImageEditorPopover";
@@ -45,6 +46,8 @@ export function SdImageComp(props: SdImageCompProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [activeCategory, setActiveCategory] = useState(selKeys[0]);
+
+  const [shouldShowSources, setShouldShowSources] = useState(false);
 
   if (image === undefined) {
     return null;
@@ -136,8 +139,32 @@ export function SdImageComp(props: SdImageCompProps) {
       {!disablePopover && (
         <Modal opened={modalOpened} onClose={() => setModalOpened(false)}>
           <Stack>
+            {(image.urlMaskSource || image.urlImageSource) && (
+              <Switch
+                checked={shouldShowSources}
+                onChange={setShouldShowSources}
+                label="show sources"
+              />
+            )}
+            <Image src={getImageUrl(image.url)} width={512} height={512} />
+            <div style={{ display: "flex" }}>
+              {shouldShowSources && image.urlImageSource && (
+                <Image
+                  src={getImageUrl(image.urlImageSource)}
+                  width={512}
+                  height={512}
+                />
+              )}
+              {shouldShowSources && image.urlMaskSource && (
+                <Image
+                  src={getImageUrl(image.urlMaskSource)}
+                  width={512}
+                  height={512}
+                  style={{ border: "1px solid red" }}
+                />
+              )}
+            </div>
             <div>
-              <Image src={getImageUrl(image.url)} width={512} height={512} />
               <div style={{ width: "100%" }}>
                 {getTextForBreakdown(image.promptBreakdown)}
               </div>

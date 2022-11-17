@@ -1,31 +1,57 @@
 import { db_insertGroup, db_insertImage } from "../../libs/db";
-import { uploadImageToS3 } from "../../libs/s3_helpers";
+import { FileUploadS3, uploadImageToS3 } from "../../libs/s3_helpers";
 import {
   createDefaultViewSettings,
   getUuid,
   SdImage,
-  SdImagePlaceHolder,
+  SdImgGenParams,
 } from "../../libs/shared-types/src";
+import { getBufferFromBase64 } from "./generateSdImage";
 
 export async function saveImageToS3AndDb(
-  image: SdImagePlaceHolder &
-    Required<Pick<SdImagePlaceHolder, "groupId" | "seed" | "cfg" | "steps">>,
-  reqParams: {
-    filename: string;
-    fileKey: any;
-  }
+  image: SdImgGenParams,
+  reqParams: FileUploadS3
 ) {
-  const { filename, fileKey } = reqParams;
+  const s3res = await uploadImageToS3(reqParams);
 
-  const s3MetaData = {
-    filename,
-    key: fileKey,
-    mimetype: "image/png",
-  };
+  // check and remove the imageData if needed
+  if (image.imageData) {
+    // write this data to S3 and then delete from image
 
-  console.log("s3MetaData", s3MetaData);
+    const imageDataS3Key = "img_" + reqParams.s3Key;
 
-  const s3res = await uploadImageToS3(s3MetaData);
+    // write the image data to disk
+
+    const imageDataS3res = await uploadImageToS3({
+      buffer: getBufferFromBase64(image.imageData),
+      s3Key: imageDataS3Key,
+    });
+
+    delete image.imageData;
+    image.urlImageSource = imageDataS3Key;
+  }
+
+  // check and remove the maskData if needed
+  if (image.maskData) {
+    // write this data to S3 and then delete from image
+
+    const maskDataS3Key = "mask_" + reqParams.s3Key;
+
+    // write the image data to disk
+
+    const maskDataS3res = await uploadImageToS3({
+      buffer: getBufferFromBase64(image.maskData),
+      s3Key: maskDataS3Key,
+    });
+
+    delete image.maskData;
+    image.urlMaskSource = maskDataS3Key;
+  }
+
+  if (image.promptForSd) {
+    // remove this extra field
+    delete image.promptForSd;
+  }
 
   // delete the file after done ?
 
@@ -33,7 +59,7 @@ export async function saveImageToS3AndDb(
     ...image,
 
     id: getUuid(),
-    url: fileKey,
+    url: reqParams.s3Key,
     dateCreated: new Date().toISOString(),
   };
 

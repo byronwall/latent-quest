@@ -108,6 +108,8 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
   const [initImgData, setInitImgData] = useState<string>("");
 
+  const [initMaskData, setInitMaskData] = useState<string>("");
+
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const pt = getPosRelativeToCanvas(e);
     setMouseStart(pt);
@@ -453,6 +455,21 @@ export function SdImageEditor(props: SdImageEditorProps) {
     );
   };
 
+  const handleUpdateToImageAndMask = async () => {
+    let url = props.image.urlImageSource;
+    const maskUrl = props.image.urlMaskSource;
+
+    const ctx = getCanvasCtx(canvasRef);
+    if (url && ctx !== undefined) {
+      await drawImageToCanvas(ctx, getImageUrl(url));
+    }
+
+    const maskCtx = getCanvasCtx(canvasMaskRef);
+    if (maskUrl && maskCtx !== undefined) {
+      await drawImageToCanvas(maskCtx, getImageUrl(maskUrl));
+    }
+  };
+
   const imagePromptSettings = hasImagePrompt && (
     <div>
       <Title order={3}>image prompt settings</Title>
@@ -462,6 +479,11 @@ export function SdImageEditor(props: SdImageEditorProps) {
           <Button onClick={handleOutPaint}>out paint</Button>
           <Button onClick={handleZoomIntoSelection}>zoom in</Button>
           <Button onClick={handleSdProcess}>download PNGs</Button>
+          {(props.image.urlMaskSource || props.image.urlImageSource) && (
+            <Button onClick={handleUpdateToImageAndMask}>
+              set canvas equal to OG prompt
+            </Button>
+          )}
         </div>
         <div>
           <Button
