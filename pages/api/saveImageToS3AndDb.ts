@@ -18,6 +18,11 @@ export async function saveImageToS3AndDb(
 
   const promises: Promise<any>[] = [];
 
+  if (image.variantSourceId) {
+    // map the variant through to the image data if used
+    image.urlImageSource = image.variantSourceId;
+  }
+
   if (image.imageData) {
     // write this data to S3 and then delete from image
 
