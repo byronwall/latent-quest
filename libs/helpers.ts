@@ -2,6 +2,7 @@ import * as cloneDeep from "clone-deep";
 import { isEqual, uniqBy } from "lodash-es";
 
 import { selRegex } from "../components/getSelectionFromPromptPart";
+import { getTextOnlyFromPromptPartWithLabel } from "../components/getTextOnlyFromPromptPartWithLabel";
 import {
   getTextForBreakdown,
   PromptBreakdown,
@@ -17,8 +18,14 @@ export function isImageSameAsPlaceHolder(
   item: SdImage,
   placeholder: SdImagePlaceHolder
 ): unknown {
-  const sortedItem = getTextForBreakdown(item.promptBreakdown);
-  const sortedPlaceholder = getTextForBreakdown(placeholder.promptBreakdown);
+  // force the prompt to true text for comparison
+  const sortedItem = getTextOnlyFromPromptPartWithLabel(
+    getTextForBreakdown(item.promptBreakdown)
+  );
+  const sortedPlaceholder = getTextOnlyFromPromptPartWithLabel(
+    getTextForBreakdown(placeholder.promptBreakdown)
+  );
+
   const promptSame = sortedItem === sortedPlaceholder;
 
   const sameCfg = item.cfg === placeholder.cfg;
@@ -26,7 +33,24 @@ export function isImageSameAsPlaceHolder(
   const sameSteps = item.steps === placeholder.steps;
   const sameEngine = item.engine === placeholder.engine;
 
-  return promptSame && sameCfg && sameSeed && sameSteps && sameEngine;
+  const sameVariant = item.variantSourceId === placeholder.variantSourceId;
+  const sameVariantStrength =
+    item.variantStrength === placeholder.variantStrength;
+
+  const sameImageUrl = item.urlImageSource === placeholder.urlImageSource;
+  const sameMaskUrl = item.urlMaskSource === placeholder.urlMaskSource;
+
+  return (
+    promptSame &&
+    sameCfg &&
+    sameSeed &&
+    sameSteps &&
+    sameEngine &&
+    sameVariant &&
+    sameVariantStrength &&
+    sameImageUrl &&
+    sameMaskUrl
+  );
 }
 
 export function getImageDiffAsTransforms(

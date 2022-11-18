@@ -19,9 +19,7 @@ Variants and related:
     ☐ Allow the variant strength to be part of the image grid
 
 Image Grid:
-    ☐ main image is being lost when the grid reloads -- find some way to not lose this @critical
     ☐ add ability to compare images side by side
-    ☐ tighten the table visuals to reduce white space
     ☐ show active prompt for main image (and other details too?)
     ☐ add `imageSize` back into the settings - control with a slider in ticks of 50px this time
 
@@ -30,13 +28,15 @@ Image Grid:
     ☐ Use a sticky or something for the previous image so it's always in frame
     ☐ Show the total number of `gen all` options that will be generated for a study (avoid massive requests)
 
-    ☐ Add an explicit popup to create a study based on a main image -- take the current interface pieces and move them into a modal -- does a popup work better for most operations? -- before/after
     ☐ Allow choosing the preview image(s) for the social graph image
 
     ☐ For large image studies, allow the user to choose the specific options to display
         ☐ Then allow linking to those specific views
         ☐ This would back creating subsets of large views
         ☐ Default = render a subset; instead of rendering everything everytime
+    ☐ allow for a user defined note to be the grid variable - useful for image prompts where the user can describe what they were doing
+    ☐ Need to exclude images generate with variants and image prompts from inclusion in the grid choices
+    ☐ Sort out the best way to include/exclude specific items: http://localhost:3000/group/6f3e7f57-bc1c-4e55-8d5f-1a636d3f5483
 
 Card viewer:
     ☐ Find some way to mark "study" images as part of a grid instead of as previous images
@@ -52,6 +52,7 @@ Random:
     ☐ Allow rating or loving images / sub values -- start to aggregate "good" or "popular" choices instead of very long lists
     ☐ Ability to search Lexica and bring an image into current study
     ☐ Custom variant strength does not work?
+    ☐ Ensure that exisitng image data is loaded if a known image+mask URL are submitted
 
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces
@@ -60,3 +61,8 @@ Prompt editor:
 Specific problems:
     ☐ http://localhost:3000/group/06236dd2-d7a5-4bc7-8129-38fe28fd5343
         ☐ Figure out why the `castle + drawbridge` image is generated multiple times
+
+Archive:
+  ✔ tighten the table visuals to reduce white space @done(22-11-17 23:30) @project(Image Grid)
+  ✔ main image is being lost when the grid reloads -- find some way to not lose this @critical @done(22-11-17 23:30) @project(Image Grid)
+  ✔ Add an explicit popup to create a study based on a main image -- take the current interface pieces and move them into a modal -- does a popup work better for most operations? -- before/after @done(22-11-17 23:30) @project(Image Grid)

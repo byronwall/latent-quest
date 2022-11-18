@@ -1,7 +1,7 @@
 import { Button } from "@mantine/core";
 
-import { SdImage } from "../libs/shared-types/src";
-import { isPlaceholder } from "./ImageGrid";
+import { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
+import { isPlaceholder } from "./isPlaceholder";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
 
@@ -12,12 +12,12 @@ export type SdVariantHandler = (
 ) => void;
 
 export function SdCardOrTableCell(props: {
-  cell: any;
-  imageSize: any;
+  cell: SdImage | SdImagePlaceHolder;
+  imageSize: number;
 
-  mainImage: any;
-  setMainImage: any;
-  onCreateVariant: SdVariantHandler;
+  mainImage?: SdImage;
+  setMainImage?: (image: SdImage) => void;
+  onCreateVariant?: SdVariantHandler;
 }) {
   const { cell, imageSize, mainImage, setMainImage } = props;
 
@@ -30,9 +30,8 @@ export function SdCardOrTableCell(props: {
       <SdImageComp
         image={cell}
         size={imageSize}
-        shouldShowDetails
         onCreateVariant={props.onCreateVariant}
-        onSetMainImage={() => setMainImage(cell)}
+        onSetMainImage={setMainImage ? () => setMainImage(cell) : undefined}
       />
     );
 
@@ -40,7 +39,7 @@ export function SdCardOrTableCell(props: {
     <div>
       {content}
       <div style={{ display: "flex" }}>
-        {"id" in cell && (
+        {"id" in cell && mainImage && setMainImage && (
           <>
             <Button
               onClick={() => setMainImage(cell)}

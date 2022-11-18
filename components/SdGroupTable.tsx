@@ -2,7 +2,6 @@ import { Button, CopyButton, JsonInput, Popover, Table } from "@mantine/core";
 import { orderBy } from "lodash-es";
 import { useState } from "react";
 
-import { findImageDifferences } from "../libs/helpers";
 import { getTextForBreakdown, SdImage } from "../libs/shared-types/src";
 import { Switch } from "./MantineWrappers";
 import { SdVariantHandler } from "./SdCardOrTableCell";
@@ -11,22 +10,12 @@ import { SdImageComp } from "./SdImageComp";
 
 type SdGroupTableProps = {
   data: SdImage[];
-  mainImage: SdImage;
-  visibleItems: string[];
-
-  onSetMainImage: (image: SdImage) => void;
 
   onCreateVariant: SdVariantHandler;
 };
 
 export function SdGroupTable(props: SdGroupTableProps) {
-  const {
-    data: _data,
-    mainImage,
-    visibleItems,
-
-    onSetMainImage,
-  } = props;
+  const { data: _data } = props;
 
   const data = orderBy(_data, (c) => c.dateCreated, "desc");
 
@@ -42,7 +31,6 @@ export function SdGroupTable(props: SdGroupTableProps) {
           <th>cfg</th>
           <th>seed</th>
           <th>steps</th>
-          <th>visible</th>
           <th />
           <th />
         </tr>
@@ -50,10 +38,7 @@ export function SdGroupTable(props: SdGroupTableProps) {
       <tbody>
         {data?.map((item: SdImage) => {
           const imgJson = JSON.stringify(item, null, 2);
-          const baseDelta = findImageDifferences(mainImage, item, {
-            shouldReportAddRemove: true,
-          });
-          const baseDeltaJson = JSON.stringify(baseDelta, null, 2);
+
           return (
             <tr key={item.id}>
               <td>
@@ -69,22 +54,7 @@ export function SdGroupTable(props: SdGroupTableProps) {
               <td>{item.cfg}</td>
               <td>{item.seed}</td>
               <td>{item.steps}</td>
-              <td>
-                <>
-                  {visibleItems.find((c: any) => c === item.id) !== undefined
-                    ? "true"
-                    : ""}
-                  <Button
-                    onClick={() => {
-                      props.onSetMainImage(item);
-                    }}
-                    variant="subtle"
-                  >
-                    {" "}
-                    main
-                  </Button>
-                </>
-              </td>
+
               <td>
                 <Popover closeOnClickOutside>
                   <Popover.Dropdown>
@@ -121,28 +91,12 @@ export function SdGroupTable(props: SdGroupTableProps) {
                       }}
                     >
                       <b>JSON for image</b>
-                      <CopyButton value={baseDeltaJson}>
-                        {({ copied, copy }) => (
-                          <Button
-                            color={copied ? "teal" : "blue"}
-                            onClick={copy}
-                          >
-                            {copied ? "Copied url" : "Copy url"}
-                          </Button>
-                        )}
-                      </CopyButton>
-                      <JsonInput value={baseDeltaJson} size="xl" minRows={10} />
                     </div>
                   </Popover.Dropdown>
                   <Popover.Target>
                     <Button>deltas</Button>
                   </Popover.Target>
                 </Popover>
-                <div>
-                  {baseDelta.map((delta, idx) => (
-                    <div key={idx}>{JSON.stringify(delta)}</div>
-                  ))}
-                </div>
               </td>
             </tr>
           );
@@ -156,9 +110,7 @@ export function SdGroupTable(props: SdGroupTableProps) {
       <Switch label="Card View" checked={isCardView} onChange={setIsCardView} />
       {isCardView ? (
         <SdCardViewer
-          data={data}
-          id={mainImage.id}
-          onSetMainImage={onSetMainImage}
+          imageGroupData={data}
           onCreateVariant={props.onCreateVariant}
         />
       ) : (

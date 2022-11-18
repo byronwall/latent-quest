@@ -1,5 +1,10 @@
 # Changelog
 
+## 2022-11-17 22:28:41
+
+- Pull the ImageStudy into its own component and allow them to be saved on their own
+- Improve image sameness check by including variant and other image prompt fields
+
 ## 2022-11-16 22:46:05
 
 - Add support for saving the image prompt and associated mask

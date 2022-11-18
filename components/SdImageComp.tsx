@@ -10,6 +10,7 @@ import { Switch } from "./MantineWrappers";
 import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdImageEditorPopover } from "./SdImageEditorPopover";
+import { SdImageStudyPopover } from "./SdImageStudyPopover";
 import { SdImageSubPopover } from "./SdImageSubPopover";
 import { SdVariantMenu } from "./SdVariantMenu";
 
@@ -25,6 +26,8 @@ type SdImageCompProps = {
 
   onSetMainImage?(): void;
   onCreateVariant?: SdVariantHandler;
+
+  imageGroupData?: SdImage[];
 };
 
 export function SdImageComp(props: SdImageCompProps) {
@@ -35,6 +38,7 @@ export function SdImageComp(props: SdImageCompProps) {
     onSetMainImage,
     shouldShowDetails,
     isMainImage,
+    imageGroupData,
   } = props;
 
   // state for modal state
@@ -81,28 +85,35 @@ export function SdImageComp(props: SdImageCompProps) {
 
                 <SdImageEditorPopover image={image} />
 
-                <Menu shadow="md" width={200}>
-                  <Menu.Target>
-                    <Button compact color="green">
-                      subs...
-                    </Button>
-                  </Menu.Target>
+                {selKeys.length > 0 && (
+                  <Menu shadow="md" width={200}>
+                    <Menu.Target>
+                      <Button compact color="green">
+                        subs...
+                      </Button>
+                    </Menu.Target>
 
-                  <Menu.Dropdown>
-                    <Menu.Label>pick category...</Menu.Label>
-                    {selKeys.map((key) => (
-                      <Menu.Item
-                        key={key}
-                        onClick={() => {
-                          setActiveCategory(key);
-                          setIsModalOpen(true);
-                        }}
-                      >
-                        {key}
-                      </Menu.Item>
-                    ))}
-                  </Menu.Dropdown>
-                </Menu>
+                    <Menu.Dropdown>
+                      <Menu.Label>pick category...</Menu.Label>
+                      {selKeys.map((key) => (
+                        <Menu.Item
+                          key={key}
+                          onClick={() => {
+                            setActiveCategory(key);
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          {key}
+                        </Menu.Item>
+                      ))}
+                    </Menu.Dropdown>
+                  </Menu>
+                )}
+
+                <SdImageStudyPopover
+                  mainImageId={image.id}
+                  imageGroupData={imageGroupData ?? []}
+                />
               </div>
             )}
           </div>

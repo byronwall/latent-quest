@@ -27,8 +27,7 @@ export function generateTableFromXform(
   transformRow: SdImageTransformHolder,
   transformCol: SdImageTransformHolder,
   mainImage: SdImage,
-  data: SdImage[],
-  visibleIds: string[]
+  data: SdImage[]
 ): SdImageGrid {
   const tableData: Array<Array<SdImage | SdImagePlaceHolder>> = [];
   if (transformRow && transformCol) {
@@ -46,10 +45,6 @@ export function generateTableFromXform(
         const found = data?.find((item) =>
           isImageSameAsPlaceHolder(item, placeholder)
         );
-
-        if (found) {
-          visibleIds.push(found.id);
-        }
 
         tableData[row][col] = found ?? placeholder;
       }
