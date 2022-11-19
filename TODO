@@ -12,6 +12,10 @@ Image editor:
         ☐ Add some default pixels instead of black bars
     ☐ Add a color picker to match colors in images
 
+Dream Studio:
+    ☐ Catch error related to bad prompt: `a highly detailed epic cinematic concept art, a thin man in a black coat and bowler hat talks with  young girl who is dressed in a red coat`
+        ☐ "Young girl" is not allowed -- get error back to user
+
 DALL-E related:
     ☐ Figure out how to handle the grid when using DALL-E since seed is not real - maybe use `seed` even though it's not real?
 
@@ -37,6 +41,7 @@ Image Grid:
     ☐ allow for a user defined note to be the grid variable - useful for image prompts where the user can describe what they were doing
     ☐ Need to exclude images generate with variants and image prompts from inclusion in the grid choices
     ☐ Sort out the best way to include/exclude specific items: http://localhost:3000/group/6f3e7f57-bc1c-4e55-8d5f-1a636d3f5483
+    ☐ Add a `gen all` button for each row/col of the grid?
 
 Card viewer:
     ☐ Find some way to mark "study" images as part of a grid instead of as previous images

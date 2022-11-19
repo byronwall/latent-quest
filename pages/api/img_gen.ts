@@ -1,6 +1,7 @@
 import { getTextOnlyFromPromptPartWithLabel } from "../../components/getTextOnlyFromPromptPartWithLabel";
 import { generateDalleImage } from "../../libs/openai";
 import {
+  getRandomSeed,
   getTextForBreakdown,
   getUuid,
   ImageGenRequest,
@@ -36,7 +37,7 @@ export default async function handler(req, res) {
 async function processSingleImgGenReq(
   imgGenReq: ImageGenRequest
 ): Promise<SdImage | undefined> {
-  const seed = imgGenReq.seed ?? Math.floor(Math.random() * 100000);
+  const seed = imgGenReq.seed ?? getRandomSeed();
   const cfg = imgGenReq.cfg ?? 10;
   const steps = imgGenReq.steps ?? 20;
   const prompt = getTextForBreakdown(imgGenReq.promptBreakdown);

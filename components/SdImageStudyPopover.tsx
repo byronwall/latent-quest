@@ -31,7 +31,7 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
         <div
           style={{
             maxHeight: "calc(80vh - 40px)",
-            maxWidth: "calc(80vw - 20px)",
+            maxWidth: "calc(90vw - 20px)",
             overflow: "auto",
           }}
         >

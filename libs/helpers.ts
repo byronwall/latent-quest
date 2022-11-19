@@ -112,7 +112,7 @@ export function summarizeAllDifferences(base: SdImage, allImages: SdImage[]) {
   // take all of those and build a unique summary
 
   const summary = results.reduce((acc, cur) => {
-    if (cur.type === "num-delta" || cur.type === "none") {
+    if (cur.type === "none") {
       // skip deltas -- they won't appear
       return acc;
     }
@@ -305,10 +305,6 @@ export function generatePlaceholderForTransform(
   switch (transform.type) {
     case "num-raw":
       placeholder[transform.field] = transform.value;
-      break;
-    case "num-delta":
-      // TODO: apply a min/max
-      placeholder[transform.field] += transform.delta;
       break;
 
     case "set-text-prop":

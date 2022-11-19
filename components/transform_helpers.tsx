@@ -1,4 +1,4 @@
-import { orderBy, uniqBy } from "lodash-es";
+import { orderBy, uniq, uniqBy } from "lodash-es";
 
 import {
   findImageDifferences,
@@ -166,26 +166,80 @@ export function generateSortedTransformList(
   const rowTransformHolder: SdImageTransformHolder = {
     name: rowColVar,
     transforms: orderBy(
-      uniqBy(
-        diffXForm
-          .filter(
-            (x) =>
-              x.type !== "none" &&
-              (x.field === rowColVar || (x as any).subKey === rowColVar)
-          )
-          .filter(
-            (c) =>
-              "value" in c &&
-              (c.value !== undefined || c.value[0] !== undefined)
-          ),
-        jsonStringifyStable
-      ),
+      uniqBy(diffXForm, jsonStringifyStable),
       getSortValueForXform,
       "desc"
     ),
   };
 
   return rowTransformHolder;
+}
+
+export function getAllUniqueValuesForChoice(
+  rowColVar: string,
+  allPossibleXForms: SdImageTransform[]
+) {
+  const allValues = allPossibleXForms
+    .filter((c) => c.field === rowColVar)
+    .map(getValueForXForm);
+
+  return orderBy(uniq(allValues));
+}
+
+export function getValueForXForm(xform: SdImageTransform) {
+  if (xform.type === "multi" || xform.field === "none") {
+    return;
+  }
+
+  if (
+    xform.field === "seed" ||
+    xform.field === "cfg" ||
+    xform.field === "steps"
+  ) {
+    return xform.value;
+  }
+
+  if (xform.field === "engine") {
+    return xform.value;
+  }
+
+  if (xform.field === "unknown") {
+    return "";
+  }
+}
+
+export function getFinalXFormList(
+  rowColVar: string,
+  allPossibleXForms: any[],
+  _exclusions: any[] | undefined,
+  _forcedChoices: any[] | undefined
+) {
+  const finalColTransforms = allPossibleXForms
+    .filter(
+      (x) =>
+        x.type !== "none" &&
+        (x.field === rowColVar || (x as any).subKey === rowColVar)
+    )
+    .filter(
+      (c) => "value" in c && (c.value !== undefined || c.value[0] !== undefined)
+    );
+
+  // otherwise, apply the exclusions
+
+  const forcedChoices = _forcedChoices ?? [];
+  const exclusions = _exclusions ?? [];
+
+  // forcing wins if present
+  const results =
+    forcedChoices.length > 0
+      ? finalColTransforms.filter((c) => forcedChoices.includes(c.value))
+      : finalColTransforms.filter((c) => !exclusions.includes(c.value));
+
+  const uniqResults = uniqBy(results, jsonStringifyStable);
+
+  const sortedUniqResults = orderBy(uniqResults, getSortValueForXform, "desc");
+
+  return sortedUniqResults;
 }
 
 function getSortValueForXform(c: SdImageTransform) {
@@ -200,9 +254,6 @@ function getSortValueForXform(c: SdImageTransform) {
 
     case "num-raw":
       return c.value;
-
-    case "num-delta":
-      return c.delta;
 
     case "none":
       return 0;
@@ -259,9 +310,6 @@ export function getDescForTransform(transform: SdImageTransform): string {
 
     case "num-raw":
       return `${transform.value}`;
-
-    case "num-delta":
-      return `${transform.delta}`;
 
     case "set-text-prop":
       return `${transform.value}`;

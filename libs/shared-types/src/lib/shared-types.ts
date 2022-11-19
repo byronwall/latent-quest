@@ -158,12 +158,6 @@ export interface SdImageTransformSetTextProp {
   value: string;
 }
 
-export interface SdImageTransformNumberDelta {
-  type: "num-delta";
-  field: COMMON_FIELDS;
-  delta: number;
-}
-
 export type SdImageTransformText =
   | SdImageTransformTextBasic
   | SdImageTransformTextSub;
@@ -208,7 +202,6 @@ export const TransformNone: SdImageTransformNone = {
 
 export type SdImageTransformNonMulti =
   | SdImageTransformNumberRaw
-  | SdImageTransformNumberDelta
   | SdImageTransformText
   | SdImageTransformNone
   | SdImageTransformSetTextProp;

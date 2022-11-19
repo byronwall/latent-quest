@@ -1,7 +1,6 @@
 import { generatePlaceholderForTransform } from "../../../helpers";
 import {
   SdImage,
-  SdImageTransformNumberDelta,
   SdImageTransformNumberRaw,
   SdImageTransformText,
   sharedTypes,
@@ -98,18 +97,5 @@ describe("sharedTypes", () => {
     const modifiedImage = generatePlaceholderForTransform(image, xForm);
 
     expect(modifiedImage.cfg).toEqual(11);
-  });
-  it("should modify an image -- delta cfg text", () => {
-    const image = getBaseImage();
-
-    const xForm: SdImageTransformNumberDelta = {
-      type: "num-delta",
-      field: "cfg",
-      delta: 2,
-    };
-
-    const modifiedImage = generatePlaceholderForTransform(image, xForm);
-
-    expect(modifiedImage.cfg).toEqual(12);
   });
 });

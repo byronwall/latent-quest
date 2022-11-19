@@ -1,5 +1,11 @@
 # Changelog
 
+## 2022-11-18 21:47:15
+
+- Start to add features back into the study builder
+- Allow for a range of controls when creating a study
+- Remove types related to the `NumDelta` transforms - not needed?
+
 ## 2022-11-17 22:28:41
 
 - Pull the ImageStudy into its own component and allow them to be saved on their own

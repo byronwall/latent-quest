@@ -7,16 +7,18 @@ import {
   Table,
   Title,
 } from "@mantine/core";
-import { IconWand } from "@tabler/icons";
+import { IconEyeOff, IconWand } from "@tabler/icons";
 import produce from "immer";
-import { orderBy, uniq } from "lodash-es";
+import { orderBy, uniq, uniqBy } from "lodash-es";
 import { useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useMap } from "react-use";
 
-import { getImageDiffAsTransforms } from "../libs/helpers";
-import { SdImage } from "../libs/shared-types/src";
+import { getImageDiffAsTransforms, jsonStringifyStable } from "../libs/helpers";
+import { SdImage, SdImageTransform } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
+import { CfgPicker } from "./CfgPicker";
+import { EnginePicker } from "./EnginePicker";
 import {
   getSelectionAsLookup,
   getSelectionFromPromptPart,
@@ -25,12 +27,18 @@ import { isPlaceholder } from "./isPlaceholder";
 import { Switch } from "./MantineWrappers";
 import { SdCardOrTableCell } from "./SdCardOrTableCell";
 import { SdSubChooser } from "./SdSubChooser";
+import { SeedPicker } from "./SeedPicker";
+import { StepsPicker } from "./StepsPicker";
 import {
   generateSortedTransformList,
   generateTableFromXform,
   genSimpleXFormList,
+  getAllUniqueValuesForChoice,
+  getFinalXFormList,
   getRowColHeaderText,
+  getValueForXForm,
 } from "./transform_helpers";
+import { useCustomChoiceMap } from "./useCustomChoiceMap";
 
 interface SdImageStudyProps {
   initialStudyDef: SdImageStudyDef;
@@ -69,6 +77,41 @@ export function SdImageStudy(props: SdImageStudyProps) {
     rowValues,
     colValues,
   } = studyDefState;
+
+  // holds a map of var name to choices[]
+  const { addChoice, customChoices, setChoice, removeChoice } =
+    useCustomChoiceMap();
+
+  // this list will track those items which should not be visible
+  const {
+    addChoice: hideChoice,
+    customChoices: hiddenChoices,
+    setChoice: setHiddenChoice,
+  } = useCustomChoiceMap();
+
+  const {
+    customChoices: forcedChoices,
+    addChoice: forceChoice,
+    setChoice: setForcedChoices,
+  } = useCustomChoiceMap();
+
+  const handleHideItem = (key: string, xform: SdImageTransform) => {
+    // check if item is in the customChoices -- if so, remove it
+
+    const choice = getValueForXForm(xform);
+
+    if (choice === undefined) {
+      return;
+    }
+
+    if (customChoices[key]?.includes(choice)) {
+      removeChoice(key, choice);
+    } else {
+      hideChoice(key, choice);
+    }
+
+    // if not there, then add to the list of hiddenChoices
+  };
 
   const availableSubNames = useMemo(
     () =>
@@ -124,32 +167,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
   }, [imageGroupData, availableSubNames]);
 
   function getExtraChoice(key: string) {
-    switch (key) {
-      case "cfg":
-      case "seed":
-      case "steps":
-      case "engine":
-      case "unknown":
-        return [];
-
-      default: {
-        const results: string[] = [];
-
-        if (specialChoicesCheckPopup[key]) {
-          const extraMatch = specialChoices[key] ?? [];
-          results.push(...extraMatch);
-        }
-
-        if (specialChoicesCheckAll[key]) {
-          // get unique values for all
-          const allValues = allSpecialValues[key] ?? [];
-
-          results.push(...allValues);
-        }
-
-        return results;
-      }
-    }
+    return customChoices[key] ?? [];
   }
 
   const mainImage = useMemo(() => {
@@ -179,9 +197,16 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
   const rowExtras = genSimpleXFormList(rowVar, getExtraChoice(rowVar));
 
-  const rowTransformHolder = generateSortedTransformList(
+  const rowXFormsToMap = getFinalXFormList(
     rowVar,
     diffXForm.concat(rowExtras),
+    hiddenChoices[rowVar],
+    forcedChoices[rowVar]
+  );
+
+  const rowTransformHolder = generateSortedTransformList(
+    rowVar,
+    rowXFormsToMap,
     mainImage
   );
 
@@ -196,9 +221,16 @@ export function SdImageStudy(props: SdImageStudyProps) {
       ? []
       : genSimpleXFormList(colVarToUse, getExtraChoice(colVarToUse));
 
-  const colTransformHolder = generateSortedTransformList(
+  const colXFormsToMap = getFinalXFormList(
     colVarToUse,
     diffXForm.concat(colExtras),
+    hiddenChoices[colVarToUse],
+    forcedChoices[colVarToUse]
+  );
+
+  const colTransformHolder = generateSortedTransformList(
+    colVarToUse,
+    colXFormsToMap,
     mainImage
   );
 
@@ -208,6 +240,8 @@ export function SdImageStudy(props: SdImageStudyProps) {
     mainImage,
     imageGroupData
   );
+
+  const allPossibleXForms = diffXForm.concat(rowExtras).concat(colExtras);
 
   const getSelectorsForVariableList = (choice) =>
     fixedVariableChoices.indexOf(choice as any) === -1 ? (
@@ -314,33 +348,85 @@ export function SdImageStudy(props: SdImageStudyProps) {
     );
   };
 
+  const isFieldVisible = (field: string) => {
+    return rowVar === field || colVar === field;
+  };
+
+  const seedPickerComp = isFieldVisible("seed") && (
+    <SeedPicker
+      choices={getAllUniqueValuesForChoice("seed", allPossibleXForms)}
+      onAddItem={(item) => addChoice("seed", item)}
+      forcedChoices={forcedChoices.seed}
+      onSetForcedChoice={(newChoices) => setForcedChoices("seed", newChoices)}
+      exclusions={hiddenChoices.seed ?? []}
+      onSetExclusion={(item) => setHiddenChoice("seed", item)}
+    />
+  );
+
+  const cfgPickerComp = isFieldVisible("cfg") && (
+    <CfgPicker
+      choices={getAllUniqueValuesForChoice("cfg", allPossibleXForms)}
+      onAddItem={(item) => addChoice("cfg", item)}
+      forcedChoices={forcedChoices.cfg ?? []}
+      onSetForcedChoice={(item) => setForcedChoices("cfg", item)}
+      exclusions={hiddenChoices.cfg ?? []}
+      onSetExclusion={(item) => setHiddenChoice("cfg", item)}
+    />
+  );
+
+  const stepsPickerComp = isFieldVisible("steps") && (
+    <StepsPicker
+      choices={getAllUniqueValuesForChoice("steps", allPossibleXForms)}
+      onAddItem={(item) => addChoice("steps", item)}
+      forcedChoices={forcedChoices.steps ?? []}
+      onSetForcedChoice={(item) => setForcedChoices("steps", item)}
+      exclusions={hiddenChoices.steps ?? []}
+      onSetExclusion={(item) => setHiddenChoice("steps", item)}
+    />
+  );
+
+  const enginePickerComp = isFieldVisible("engine") && (
+    <EnginePicker
+      choices={getAllUniqueValuesForChoice("engine", allPossibleXForms)}
+      onAddItem={(item) => addChoice("engine", item)}
+      forcedChoices={forcedChoices.engine ?? []}
+      onSetForcedChoice={(item) => setForcedChoices("engine", item)}
+      exclusions={hiddenChoices.engine ?? []}
+      onSetExclusion={(item) => setHiddenChoice("engine", item)}
+    />
+  );
+
   return (
-    <div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <Title order={2}>image study</Title>
 
-      <Stack>
-        <Group>
-          <>
-            {rowVarSelect}
+      <Group>
+        {rowVarSelect}
 
-            {!isSingleVar && <> {colVarSelect} </>}
-            {!isSingleVar && <Button onClick={handleFlipRowCol}>flip</Button>}
-            {rowSpecial}
-            {colSpecial}
-            <Switch
-              label="single var only"
-              checked={isSingleVar}
-              onChange={(newVal) => {
-                if (newVal) {
-                  setColVar("none");
-                } else {
-                  setColVar("seed");
-                }
-              }}
-            />
-          </>
-        </Group>
+        {!isSingleVar && <> {colVarSelect} </>}
+        {!isSingleVar && <Button onClick={handleFlipRowCol}>flip</Button>}
+        {rowSpecial}
+        {colSpecial}
+        <Switch
+          label="row var only (will wrap)"
+          checked={isSingleVar}
+          onChange={(newVal) => {
+            if (newVal) {
+              setColVar("none");
+            } else {
+              setColVar("seed");
+            }
+          }}
+        />
+      </Group>
+
+      <Stack>
+        {seedPickerComp}
+        {cfgPickerComp}
+        {stepsPickerComp}
+        {enginePickerComp}
       </Stack>
+
       {isSingleVar ? (
         <div>
           <div>{btnGenAll}</div>
@@ -352,20 +438,24 @@ export function SdImageStudy(props: SdImageStudyProps) {
               margin: "auto",
             }}
           >
-            {tableData.map((row, rowIdx) => (
-              <div key={rowIdx} style={{ width: 200 }}>
-                <div style={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-                  <Title order={3}>
-                    {getRowColHeaderText(
-                      rowTransformHolder.transforms[rowIdx],
-                      rowVar,
-                      mainImage
-                    )}
-                  </Title>
+            {tableData.map((row, rowIdx) => {
+              const rowXForm = rowTransformHolder.transforms[rowIdx];
+              return (
+                <div key={rowIdx} style={{ width: 200 }}>
+                  <div
+                    style={{
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    <Title order={3}>
+                      {getRowColHeaderText(rowXForm, rowVar, mainImage)}
+                    </Title>
+                  </div>
+                  <SdCardOrTableCell cell={row[0]} imageSize={imageSize} />
                 </div>
-                <SdCardOrTableCell cell={row[0]} imageSize={imageSize} />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       ) : (
@@ -383,9 +473,18 @@ export function SdImageStudy(props: SdImageStudyProps) {
                     className="prompt-clip"
                     style={{
                       maxHeight: 300,
+                      position: "relative",
                     }}
                   >
                     {getRowColHeaderText(col, colVar, mainImage)}
+                    <Button
+                      style={{ position: "absolute", top: 0, right: 0 }}
+                      compact
+                      variant="subtle"
+                      onClick={() => handleHideItem(colVar, col)}
+                    >
+                      <IconEyeOff />
+                    </Button>
                   </div>
                 </th>
               ))}
@@ -398,8 +497,19 @@ export function SdImageStudy(props: SdImageStudyProps) {
                 <tr key={rowIndex}>
                   <>
                     <td>
-                      <div className="prompt-clip">
+                      <div
+                        className="prompt-clip"
+                        style={{ position: "relative" }}
+                      >
                         {getRowColHeaderText(rowXForm, rowVar, mainImage)}
+                        <Button
+                          style={{ position: "absolute", top: 0, right: 0 }}
+                          compact
+                          variant="subtle"
+                          onClick={() => handleHideItem(rowVar, rowXForm)}
+                        >
+                          <IconEyeOff />
+                        </Button>
                       </div>
                     </td>
 
