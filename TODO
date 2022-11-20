@@ -2,15 +2,11 @@ Sub builder:
     ☐ Add a quick build to run X new seeds from the same image
 
 Image editor:
-    ☐ Allow for mutliply or other operations that add color without overdoing things
     ☐ Allow for assorted brush strokes to add splotches of color
-    ☐ Look into context filters for image mods - https://stackoverflow.com/a/67392978/4288101
-        ☐ Or use sharp and send back and forth to the client
 
     ☐ Improve out painting controls:
         ☐ Ability to move image around
         ☐ Add some default pixels instead of black bars
-    ☐ Add a color picker to match colors in images
 
 Dream Studio:
     ☐ Catch error related to bad prompt: `a highly detailed epic cinematic concept art, a thin man in a black coat and bowler hat talks with  young girl who is dressed in a red coat`
@@ -21,6 +17,10 @@ DALL-E related:
 
 Variants and related:
     ☐ Allow the variant strength to be part of the image grid
+
+Group viewer:
+    ☐ Add a proper modal to the preview button for the main ImageList view -- maybe limit the number of images
+    ☐ Allow studies to be shown on the main ImageList view
 
 Image Grid:
     ☐ add ability to compare images side by side
@@ -33,20 +33,16 @@ Image Grid:
     ☐ Show the total number of `gen all` options that will be generated for a study (avoid massive requests)
 
     ☐ Allow choosing the preview image(s) for the social graph image
-
-    ☐ For large image studies, allow the user to choose the specific options to display
-        ☐ Then allow linking to those specific views
-        ☐ This would back creating subsets of large views
-        ☐ Default = render a subset; instead of rendering everything everytime
-    ☐ allow for a user defined note to be the grid variable - useful for image prompts where the user can describe what they were doing
+    
     ☐ Need to exclude images generate with variants and image prompts from inclusion in the grid choices
     ☐ Sort out the best way to include/exclude specific items: http://localhost:3000/group/6f3e7f57-bc1c-4e55-8d5f-1a636d3f5483
     ☐ Add a `gen all` button for each row/col of the grid?
 
-
 Image studies:
-    ☐ Probably need to disable the study button for image prompt results for now - will eventually force these to be prompts as well?
-    ☐ Some sort of issue when opening in a new tab before save?
+    ☐ Figure out how to get the "open in new tab" link available for a just saved study
+    ☐ Choose whether or not to show the main image in the grid when other forces/excludes are in place
+    ☐ Give options around multi-value subs -- filter any or exact match
+    ☐ allow for a user defined note to be the grid variable - useful for image prompts where the user can describe what they were doing
 
 Card viewer:
     ☐ Find some way to mark "study" images as part of a grid instead of as previous images
@@ -63,6 +59,7 @@ Random:
     ☐ Ability to search Lexica and bring an image into current study
     ☐ Custom variant strength does not work?
     ☐ Ensure that exisitng image data is loaded if a known image+mask URL are submitted
+    ☐ For the prevImageId view, give some sort of summary or indication for what was changed
 
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces
@@ -73,6 +70,17 @@ Specific problems:
         ☐ Figure out why the `castle + drawbridge` image is generated multiple times
 
 Archive:
+  ✔ For large image studies, allow the user to choose the specific options to display @done(22-11-20 15:21) @project(Image Grid)
+  ✔ Then allow linking to those specific views @done(22-11-20 15:21) @project(Image Grid)
+  ✔ This would back creating subsets of large views @done(22-11-20 15:21) @project(Image Grid)
+  ✔ Default = render a subset; instead of rendering everything everytime @done(22-11-20 15:21) @project(Image Grid)
+  ✔ Look into context filters for image mods - https://stackoverflow.com/a/67392978/4288101 @done(22-11-20 15:20) @project(Image editor)
+  ✔ Or use sharp and send back and forth to the client @done(22-11-20 15:20) @project(Image editor)
+  ✔ Allow for mutliply or other operations that add color without overdoing things @done(22-11-20 15:20) @project(Image editor)
+  ✔ Add a color picker to match colors in images @done(22-11-20 15:20) @project(Image editor)
+  ✔ Probably need to disable the study button for image prompt results for now - will eventually force these to be prompts as well? @done(22-11-20 15:19) @project(Image studies)
+  ✔ Some sort of issue when opening in a new tab before save? @done(22-11-20 15:19) @project(Image studies)
+  ✔ Creating a new study does not show in the list until reload? @done(22-11-20 15:19) @project(Image studies)
   ✔ tighten the table visuals to reduce white space @done(22-11-17 23:30) @project(Image Grid)
   ✔ main image is being lost when the grid reloads -- find some way to not lose this @critical @done(22-11-17 23:30) @project(Image Grid)
   ✔ Add an explicit popup to create a study based on a main image -- take the current interface pieces and move them into a modal -- does a popup work better for most operations? -- before/after @done(22-11-17 23:30) @project(Image Grid)

@@ -1,9 +1,10 @@
 import { Button } from "@mantine/core";
 
-import { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 import { isPlaceholder } from "./isPlaceholder";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
+
+import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 
 export type SdVariantHandler = (
   image: SdImage,

@@ -39,6 +39,7 @@ import { useGetImageGroup } from "./useGetImageGroup";
 
 import { api_generateImage, api_upsertStudy } from "../model/api";
 import { getImageDiffAsTransforms } from "../libs/helpers";
+import { getUuid } from "../libs/shared-types/src";
 
 import type {
   SdImage,
@@ -127,7 +128,10 @@ export function SdImageStudy(props: SdImageStudyProps) {
       return;
     }
 
-    if (customChoices[key]?.includes(choice)) {
+    // the sub variables should always put the hidden value into exclusions
+    const isKeyLinkedToSub = isRowColSubVar(key);
+
+    if (!isKeyLinkedToSub && customChoices[key]?.includes(choice)) {
       removeChoice(key, choice);
     } else {
       hideChoice(key, choice);
@@ -355,11 +359,17 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
       draft.colValuesExcluded =
         (draft.colVar ? hiddenChoices[draft.colVar]?.map(String) : []) ?? [];
+
+      if (draft.id === "") {
+        draft.id = getUuid();
+      }
     });
 
     console.log("saveData", saveData);
 
+    // push save state into current - should give bumpless return
     await api_upsertStudy(saveData);
+    setStudyDefState(saveData);
 
     qc.invalidateQueries();
 
@@ -414,18 +424,24 @@ export function SdImageStudy(props: SdImageStudyProps) {
     />
   );
 
-  const subPickers = [rowVar, colVar].map((varName) => (
-    <SubPicker
-      key={varName}
-      rowColVar={varName}
-      choices={(customChoices[varName] ?? []).filter((c) => c !== undefined)}
-      onAddItem={(item) => addChoice(varName, item)}
-      forcedChoices={forcedChoices[varName]?.map(String) ?? []}
-      onSetForcedChoice={(item) => setForcedChoices(varName, item)}
-      exclusions={hiddenChoices[varName]?.map(String) ?? []}
-      onSetExclusion={(item) => setHiddenChoice(varName, item)}
-    />
-  ));
+  const isRowColSubVar = (field: string) => {
+    return availableSubNames.includes(field);
+  };
+
+  const subPickers = [rowVar, colVar]
+    .filter(isRowColSubVar)
+    .map((varName) => (
+      <SubPicker
+        key={varName}
+        rowColVar={varName}
+        choices={(customChoices[varName] ?? []).filter((c) => c !== undefined)}
+        onAddItem={(item) => addChoice(varName, item)}
+        forcedChoices={forcedChoices[varName]?.map(String) ?? []}
+        onSetForcedChoice={(item) => setForcedChoices(varName, item)}
+        exclusions={hiddenChoices[varName]?.map(String) ?? []}
+        onSetExclusion={(item) => setHiddenChoice(varName, item)}
+      />
+    ));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -486,9 +502,9 @@ export function SdImageStudy(props: SdImageStudyProps) {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    <Title order={3}>
+                    <p className="prompt-clip" style={{ height: 50 }}>
                       {getRowColHeaderText(rowXForm, rowVar, mainImage)}
-                    </Title>
+                    </p>
                   </div>
                   <SdCardOrTableCell cell={row[0]} imageSize={imageSize} />
                 </div>

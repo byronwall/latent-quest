@@ -207,8 +207,11 @@ export function getValueForXForm(xform: SdImageTransform) {
     return xform.value;
   }
 
+  // TODO: this is not correct
+  // needs to handle multi-value scenarios
+  // needs to address prompt only changes vs. subs
   if (xform.field === "unknown") {
-    return "";
+    return xform.value[0];
   }
 }
 

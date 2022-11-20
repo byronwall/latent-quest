@@ -1,15 +1,16 @@
 # Changelog
 
+## 2022-11-20 15:23:56
+
+- Add a `SubPicker` which handles showing an interface for studies on a substitution
+- Small tweaks related to managing studies with substitutions - more needed
+
 ## 2022-11-19 20:57:26
 
 - Add support for saving studies to the database
 - Add a page that allows for a study to be loaded on its own
 - Show a list of saved studies on the group page -- maybe show these results in-line where the grid used to be shown
 - Expand UX around studies to support subs (and maybe image variants too)
-- Working:
-  - Need to add sub chooser into the sub picker interface
-  - Study UX should show the common values for the main image which are unchanging
-  - Add fields for a title and description to the study - maybe allow Markdown?
 
 ## 2022-11-18 21:47:15
 

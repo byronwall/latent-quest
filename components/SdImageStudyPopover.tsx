@@ -47,6 +47,7 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           colVar: "seed",
           groupId,
           dateCreated: new Date().toISOString(),
+          id: "",
         };
 
   return (
@@ -74,9 +75,9 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
         >
           <SdImageStudy
             imageGroupData={imageGroupData}
-            initialStudyDef={initialStudyDef as SdImageStudyDef}
+            initialStudyDef={initialStudyDef}
           />
-          {"id" in initialStudyDef && (
+          {initialStudyDef.id && (
             <a
               target="_blank"
               rel="noreferrer"
