@@ -46,6 +46,7 @@ Image Grid:
 
 Image studies:
     ☐ Probably need to disable the study button for image prompt results for now - will eventually force these to be prompts as well?
+    ☐ Some sort of issue when opening in a new tab before save?
 
 Card viewer:
     ☐ Find some way to mark "study" images as part of a grid instead of as previous images

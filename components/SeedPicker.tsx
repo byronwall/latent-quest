@@ -3,9 +3,10 @@ import { IconArrowsShuffle, IconPlus } from "@tabler/icons";
 import { useState } from "react";
 
 import { getRandomSeed } from "../libs/shared-types/src";
-import { CommonPickerProps } from "./CfgPicker";
 
-interface SeedPickerProps extends CommonPickerProps<number> {}
+import type { CommonPickerProps } from "./CfgPicker";
+
+type SeedPickerProps = CommonPickerProps<number>;
 
 export function SeedPicker(props: SeedPickerProps) {
   const {

@@ -1,9 +1,10 @@
 import { generateAsync } from "stability-client";
 
-import { SdImgGenParams } from "../../libs/shared-types/src";
 import { getBufferFromImageUrl } from "./images/s3/[key]";
 import { pathToImg } from "./img_gen";
 import { saveImageToS3AndDb } from "./saveImageToS3AndDb";
+
+import type { SdImgGenParams } from "../../libs/shared-types/src";
 
 type SdParams = Parameters<typeof generateAsync>[0];
 
@@ -51,7 +52,7 @@ export async function generateSdImage(sdImage: SdImgGenParams) {
   > = {};
 
   if (sdImage.imageData) {
-    var buffer = getBufferFromBase64(sdImage.imageData);
+    const buffer = getBufferFromBase64(sdImage.imageData);
 
     const variantParams: VariantParams = {
       imagePrompt: {
@@ -69,7 +70,7 @@ export async function generateSdImage(sdImage: SdImgGenParams) {
       variantParams.imagePrompt &&
       variantParams.stepSchedule
     ) {
-      var maskBuffer = getBufferFromBase64(sdImage.maskData);
+      const maskBuffer = getBufferFromBase64(sdImage.maskData);
 
       variantParams.imagePrompt.mask = {
         content: maskBuffer,

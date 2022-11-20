@@ -2,11 +2,14 @@ import { Button, ColorPicker, Slider, Title } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 
-import { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
-import { api_generateImage, ImgObjWithExtras } from "../model/api";
 import { getImageUrl } from "./ImageList";
 import { Switch } from "./MantineWrappers";
 import { SdNewImagePrompt } from "./SdNewImagePrompt";
+
+import { api_generateImage } from "../model/api";
+
+import type { ImgObjWithExtras } from "../model/api";
+import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 
 const TOOLS = [
   "point",
@@ -71,7 +74,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
       return;
     }
 
-    let url = props.image.url;
+    const url = props.image.url;
 
     await drawImageToCanvas(ctx, getImageUrl(url));
 
@@ -136,9 +139,9 @@ export function SdImageEditor(props: SdImageEditorProps) {
       return { x: 0, y: 0 };
     }
 
-    var rect = canvasRef.current.getBoundingClientRect();
-    var x = e.clientX - rect.left; //x position within the element.
-    var y = e.clientY - rect.top; //y position within the element.
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left; //x position within the element.
+    const y = e.clientY - rect.top; //y position within the element.
 
     return { x, y };
   };
@@ -456,7 +459,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
   };
 
   const handleUpdateToImageAndMask = async () => {
-    let url = props.image.urlImageSource;
+    const url = props.image.urlImageSource;
     const maskUrl = props.image.urlMaskSource;
 
     const ctx = getCanvasCtx(canvasRef);
@@ -681,7 +684,7 @@ export interface SdImageEditorProps {
   image: SdImage;
 }
 
-export interface SdImageEditorPopoverProps extends SdImageEditorProps {}
+export type SdImageEditorPopoverProps = SdImageEditorProps;
 
 function downloadDataUri(dataUri: string, fileName: string) {
   const link = document.createElement("a");
@@ -693,7 +696,7 @@ function downloadDataUri(dataUri: string, fileName: string) {
 }
 
 async function drawImageToCanvas(ctx: CanvasRenderingContext2D, url: string) {
-  let img = new Image();
+  const img = new Image();
   await new Promise((r) => {
     img.onload = r;
     img.src = url;
@@ -702,7 +705,7 @@ async function drawImageToCanvas(ctx: CanvasRenderingContext2D, url: string) {
   ctx.drawImage(img, 0, 0);
 }
 async function getImageForCtx(url: string) {
-  let img = new Image();
+  const img = new Image();
   await new Promise((r) => {
     img.onload = r;
     img.src = url;

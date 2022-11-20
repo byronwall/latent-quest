@@ -1,9 +1,11 @@
 import * as fs from "fs";
 import path from "path";
-import { Readable, Stream } from "stream";
+import { Readable } from "stream";
 
 import { getImagesFromS3 } from "../../../../libs/s3_helpers";
 import { pathToImg } from "../../img_gen";
+
+import type { Stream } from "stream";
 
 export default async function handler(req, res) {
   const { key: imageUrl } = req.query;
@@ -34,7 +36,7 @@ export default async function handler(req, res) {
   try {
     const s3res = await getImagesFromS3({ key: imageUrl });
 
-    let writeStream = fs.createWriteStream(possibleTempPath);
+    const writeStream = fs.createWriteStream(possibleTempPath);
     (s3res.Body as Readable).pipe(writeStream);
     (s3res.Body as Readable).pipe(res);
 
@@ -88,7 +90,7 @@ export async function getLocalImagePathWithDownload(
       throw new Error("s3res.Body is not a Readable");
     }
 
-    let writeStream = fs.createWriteStream(possibleTempPath);
+    const writeStream = fs.createWriteStream(possibleTempPath);
     s3res.Body.pipe(writeStream);
 
     return possibleTempPath;
@@ -128,10 +130,10 @@ export async function getStreamForImageUrl(imageUrl: string): Promise<Stream> {
       throw new Error("s3res.Body is not a Readable");
     }
 
-    let writeStream = fs.createWriteStream(possibleTempPath);
+    const writeStream = fs.createWriteStream(possibleTempPath);
     s3res.Body.pipe(writeStream);
 
-    let readStream = fs.createReadStream(possibleTempPath);
+    const readStream = fs.createReadStream(possibleTempPath);
 
     return readStream;
   } catch (e: any) {

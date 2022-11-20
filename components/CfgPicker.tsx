@@ -12,7 +12,7 @@ export interface CommonPickerProps<T> {
   onSetExclusion: (cfg: T[]) => void;
 }
 
-interface CfgPickerProps extends CommonPickerProps<number> {}
+type CfgPickerProps = CommonPickerProps<number>;
 
 const cfgFixedChoices = [2, 4, 6, 8, 10, 12, 14, 16];
 

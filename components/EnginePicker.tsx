@@ -1,7 +1,8 @@
 import { Button, MultiSelect } from "@mantine/core";
-import { CommonPickerProps } from "./CfgPicker";
 
-interface EnginePickerProps extends CommonPickerProps<string> {}
+import type { CommonPickerProps } from "./CfgPicker";
+
+type EnginePickerProps = CommonPickerProps<string>;
 
 const engineFixedChoices = ["SD 1.5", "DALL-E"];
 

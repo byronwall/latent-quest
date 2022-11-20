@@ -2,7 +2,7 @@ import { NavLink } from "@mantine/core";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-export function Navigation(props: {}) {
+export function Navigation() {
   const router = useRouter();
 
   const pathname = router.pathname;

@@ -1,7 +1,8 @@
 import { Button, MultiSelect } from "@mantine/core";
-import { CommonPickerProps } from "./CfgPicker";
 
-interface StepsPickerProps extends CommonPickerProps<number> {}
+import type { CommonPickerProps } from "./CfgPicker";
+
+type StepsPickerProps = CommonPickerProps<number>;
 
 const stepsFixedChoices = [10, 20, 30, 40, 50, 80];
 
