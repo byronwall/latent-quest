@@ -35,7 +35,7 @@ import {
   getRowColHeaderText,
   getValueForXForm,
 } from "./transform_helpers";
-import { useCustomChoiceMap } from "./useCustomChoiceMap";
+import { convertStringToType, useCustomChoiceMap } from "./useCustomChoiceMap";
 import { useGetImageGroup } from "./useGetImageGroup";
 
 import { api_generateImage, api_upsertStudy } from "../model/api";
@@ -63,29 +63,61 @@ export function SdImageStudy(props: SdImageStudyProps) {
     xxx
   );
 
-  const {
-    rowVar = "none",
-    colVar = "none",
-    rowValues,
-    colValues,
-  } = studyDefState;
+  const { rowVar = "none", colVar = "none" } = studyDefState;
 
   // holds a map of var name to choices[]
   const { addChoice, customChoices, setChoice, removeChoice } =
     useCustomChoiceMap();
+
+  const {
+    hiddenChoices: initialHiddenChoices,
+    forcedChoices: initialForcedChoices,
+  } = useMemo(() => {
+    const hiddenChoices = {};
+    const forcedChoices = {};
+
+    const { rowVar, colVar, rowValuesExcluded, colValuesExcluded } =
+      initialStudyDef;
+
+    if (rowVar) {
+      hiddenChoices[rowVar] = convertStringToType(
+        rowVar,
+        rowValuesExcluded ?? []
+      );
+
+      forcedChoices[rowVar] = convertStringToType(
+        rowVar,
+        initialStudyDef.rowValuesForced ?? []
+      );
+    }
+
+    if (colVar) {
+      hiddenChoices[colVar] = convertStringToType(
+        colVar,
+        colValuesExcluded ?? []
+      );
+
+      forcedChoices[colVar] = convertStringToType(
+        colVar,
+        initialStudyDef.colValuesForced ?? []
+      );
+    }
+
+    return { hiddenChoices, forcedChoices };
+  }, [initialStudyDef]);
 
   // this list will track those items which should not be visible
   const {
     addChoice: hideChoice,
     customChoices: hiddenChoices,
     setChoice: setHiddenChoice,
-  } = useCustomChoiceMap();
+  } = useCustomChoiceMap(initialHiddenChoices);
 
   const {
     customChoices: forcedChoices,
     addChoice: forceChoice,
     setChoice: setForcedChoices,
-  } = useCustomChoiceMap();
+  } = useCustomChoiceMap(initialForcedChoices);
 
   const handleHideItem = (key: string, xform: SdImageTransform) => {
     // check if item is in the customChoices -- if so, remove it
@@ -347,7 +379,26 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
     setIsSaving(true);
 
-    await api_upsertStudy(studyDefState);
+    // do some logic here to convert the internal state to the saved include/force fields
+
+    const saveData = produce(studyDefState, (draft) => {
+      draft.rowValuesForced =
+        (draft.rowVar ? forcedChoices[draft.rowVar]?.map(String) : []) ?? [];
+
+      draft.rowValuesExcluded =
+        (draft.rowVar ? hiddenChoices[draft.rowVar]?.map(String) : []) ?? [];
+
+      draft.colValuesForced =
+        (draft.colVar ? forcedChoices[draft.colVar]?.map(String) : []) ?? [];
+
+      draft.colValuesExcluded =
+        (draft.colVar ? hiddenChoices[draft.colVar]?.map(String) : []) ?? [];
+    });
+
+    console.log("saveData", saveData);
+
+    await api_upsertStudy(saveData);
+
     qc.invalidateQueries();
 
     setIsSaving(false);

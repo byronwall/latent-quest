@@ -1,60 +1,82 @@
 import produce from "immer";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-export function useCustomChoiceMap() {
-  interface DataType {
-    seed?: number[];
-    cfg?: number[];
-    steps?: number[];
-    engine?: string[];
-
-    [key: string]: (number | string)[] | undefined;
+export function convertStringToType(
+  choice: string,
+  values: string[] | undefined
+) {
+  if (values === undefined) {
+    return [];
   }
 
-  const [customChoices, setCustomChoices] = useState<DataType>({});
+  switch (choice) {
+    case "seed":
+    case "cfg":
+    case "steps":
+      // parse int
+      return values.map((value) => parseInt(value));
 
-  const addChoice = <K extends keyof DataType>(
-    varName: K,
-    choice: string | number
-  ) => {
-    if (choice === undefined) {
-      return;
-    }
+    case "engine":
+      return values;
+  }
 
-    setCustomChoices(
-      produce((draft) => {
-        if (draft[varName] === undefined) {
-          draft[varName] = [];
-        }
-        draft[varName]!.push(choice);
-      })
-    );
-  };
+  return values;
+}
 
-  const removeChoice = <K extends keyof DataType>(
-    varName: K,
-    choice: string | number
-  ) => {
-    setCustomChoices(
-      produce((draft) => {
-        if (draft[varName] === undefined) {
-          return;
-        }
-        draft[varName] = draft[varName]!.filter((x) => x !== choice);
-      })
-    );
-  };
+interface DataType {
+  seed?: number[];
+  cfg?: number[];
+  steps?: number[];
+  engine?: string[];
 
-  const setChoice = <K extends keyof DataType>(
-    varName: K,
-    choices: DataType[K]
-  ) => {
-    setCustomChoices(
-      produce((draft) => {
-        draft[varName] = choices;
-      })
-    );
-  };
+  [key: string]: (number | string)[] | undefined;
+}
+
+export function useCustomChoiceMap(initialState = {}) {
+  const [customChoices, setCustomChoices] = useState<DataType>(initialState);
+
+  const addChoice = useCallback(
+    <K extends keyof DataType>(varName: K, choice: string | number) => {
+      if (choice === undefined) {
+        return;
+      }
+
+      setCustomChoices(
+        produce((draft) => {
+          if (draft[varName] === undefined) {
+            draft[varName] = [];
+          }
+          draft[varName]!.push(choice);
+        })
+      );
+    },
+    []
+  );
+
+  const removeChoice = useCallback(
+    <K extends keyof DataType>(varName: K, choice: string | number) => {
+      setCustomChoices(
+        produce((draft) => {
+          if (draft[varName] === undefined) {
+            return;
+          }
+          draft[varName] = draft[varName]!.filter((x) => x !== choice);
+        })
+      );
+    },
+    []
+  );
+
+  const setChoice = useCallback(
+    <K extends keyof DataType>(varName: K, choices: DataType[K]) => {
+      setCustomChoices(
+        produce((draft) => {
+          draft[varName] = choices;
+        })
+      );
+    },
+    []
+  );
 
   return { customChoices, addChoice, setChoice, removeChoice };
 }

@@ -44,21 +44,20 @@ export interface SdImageStudyDef extends ContainsGroupId, CommonDbFields {
   title?: string;
   description?: string;
 
-  rowVar?: string;
+  mainImageId: string;
 
   // 1D study will have an undefined colVar
+  rowVar?: string;
   colVar?: string | undefined;
 
-  // these will store the known values at time of creation
-  // these will also store the desired order if the user moved things around
-  rowValues?: string[];
-  colValues?: string[] | undefined;
+  // if none forced, these items will be hidden
+  rowValuesExcluded?: string[];
+  colValuesExcluded?: string[];
 
-  // these will store the items being displayed
-  rowValuesDisplayed?: string[];
-  colValuesDisplayed?: string[] | undefined;
-
-  mainImageId: string;
+  // if present, these will force the display
+  // type conversion happens later
+  rowValuesForced?: string[];
+  colValuesForced?: string[];
 }
 
 export function getValidEngine(engine: string): SdImageEngines {
