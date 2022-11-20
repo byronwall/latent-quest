@@ -9,14 +9,11 @@ import {
 } from "@mantine/core";
 import { IconEyeOff, IconWand } from "@tabler/icons";
 import produce from "immer";
-import { orderBy, uniq, uniqBy } from "lodash-es";
+import { orderBy, uniq } from "lodash-es";
 import { useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useMap } from "react-use";
 
-import { getImageDiffAsTransforms, jsonStringifyStable } from "../libs/helpers";
-import { SdImage, SdImageTransform } from "../libs/shared-types/src";
-import { api_generateImage } from "../model/api";
 import { CfgPicker } from "./CfgPicker";
 import { EnginePicker } from "./EnginePicker";
 import {
@@ -40,30 +37,18 @@ import {
 } from "./transform_helpers";
 import { useCustomChoiceMap } from "./useCustomChoiceMap";
 
+import { api_generateImage, api_upsertStudy } from "../model/api";
+import { getImageDiffAsTransforms } from "../libs/helpers";
+
+import type {
+  SdImage,
+  SdImageStudyDef,
+  SdImageTransform,
+} from "../libs/shared-types/src";
+
 interface SdImageStudyProps {
   initialStudyDef: SdImageStudyDef;
   imageGroupData: SdImage[];
-}
-
-interface SdImageStudyDef {
-  title?: string;
-  description?: string;
-
-  rowVar?: string;
-
-  // 1D study will have an undefined colVar
-  colVar?: string | undefined;
-
-  // these will store the known values at time of creation
-  // these will also store the desired order if the user moved things around
-  rowValues?: string[];
-  colValues?: string[] | undefined;
-
-  // these will store the items being displayed
-  rowValuesDisplayed?: string[];
-  colValuesDisplayed?: string[] | undefined;
-
-  mainImageId: string;
 }
 
 export function SdImageStudy(props: SdImageStudyProps) {
@@ -348,6 +333,19 @@ export function SdImageStudy(props: SdImageStudyProps) {
     );
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveStudy = async () => {
+    // fire off API request
+
+    setIsSaving(true);
+
+    await api_upsertStudy(studyDefState);
+    qc.invalidateQueries();
+
+    setIsSaving(false);
+  };
+
   const isFieldVisible = (field: string) => {
     return rowVar === field || colVar === field;
   };
@@ -399,6 +397,13 @@ export function SdImageStudy(props: SdImageStudyProps) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <Title order={2}>image study</Title>
+      <div>
+        {isSaving ? (
+          <Loader />
+        ) : (
+          <Button onClick={handleSaveStudy}>save study</Button>
+        )}
+      </div>
 
       <Group>
         {rowVarSelect}

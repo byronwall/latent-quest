@@ -1,8 +1,8 @@
 import {
+  db_updateGroup,
   db_deleteImageGroup,
   db_getGroup,
-  db_updateGroup,
-} from "../../../libs/db";
+} from "../../../libs/db/groups";
 
 // next.js api handler
 export default async function handler(req, res) {

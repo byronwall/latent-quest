@@ -3,16 +3,19 @@ import { IconZoomIn } from "@tabler/icons";
 import Image from "next/image";
 import { useState } from "react";
 
-import { getTextForBreakdown, SdImage } from "../libs/shared-types/src";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { getImageUrl } from "./ImageList";
 import { Switch } from "./MantineWrappers";
-import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdImageEditorPopover } from "./SdImageEditorPopover";
 import { SdImageStudyPopover } from "./SdImageStudyPopover";
 import { SdImageSubPopover } from "./SdImageSubPopover";
 import { SdVariantMenu } from "./SdVariantMenu";
+
+import { getTextForBreakdown } from "../libs/shared-types/src";
+
+import type { SdVariantHandler } from "./SdCardOrTableCell";
+import type { SdImage } from "../libs/shared-types/src";
 
 type SdImageCompProps = {
   image: SdImage;
@@ -113,6 +116,7 @@ export function SdImageComp(props: SdImageCompProps) {
                 <SdImageStudyPopover
                   mainImageId={image.id}
                   imageGroupData={imageGroupData ?? []}
+                  groupId={image.groupId}
                 />
               </div>
             )}

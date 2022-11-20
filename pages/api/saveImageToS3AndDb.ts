@@ -1,12 +1,15 @@
-import { db_insertGroup, db_insertImage } from "../../libs/db";
-import { FileUploadS3, uploadImageToS3 } from "../../libs/s3_helpers";
+import { getBufferFromBase64 } from "./generateSdImage";
+
+import { uploadImageToS3 } from "../../libs/s3_helpers";
 import {
   createDefaultViewSettings,
   getUuid,
-  SdImage,
-  SdImgGenParams,
 } from "../../libs/shared-types/src";
-import { getBufferFromBase64 } from "./generateSdImage";
+import { db_insertGroup } from "../../libs/db/groups";
+import { db_insertImage } from "../../libs/db/images";
+
+import type { FileUploadS3 } from "../../libs/s3_helpers";
+import type { SdImage, SdImgGenParams } from "../../libs/shared-types/src";
 
 export async function saveImageToS3AndDb(
   image: SdImgGenParams,

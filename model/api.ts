@@ -1,9 +1,10 @@
 import axios from "axios";
 
-import {
+import type {
   SdImage,
   SdImageGroup,
   SdImagePlaceHolder,
+  SdImageStudyDef,
 } from "../libs/shared-types/src";
 
 interface SdImgGenReqExtras {
@@ -30,4 +31,8 @@ export function api_updateGroupData(postData: SdImageGroup) {
     `/api/group/${postData.id}`,
     postData as any
   );
+}
+
+export function api_upsertStudy(postData: SdImageStudyDef) {
+  axios.post<any, any, SdImageStudyDef>(`/api/studies`, postData as any);
 }

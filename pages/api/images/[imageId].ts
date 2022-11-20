@@ -1,4 +1,4 @@
-import { db_getSingleImages } from "../../../libs/db";
+import { db_getSingleImages } from "../../../libs/db/images";
 
 export default async function handler(req, res) {
   const { imageId } = req.query;

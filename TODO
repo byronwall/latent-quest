@@ -43,6 +43,10 @@ Image Grid:
     ☐ Sort out the best way to include/exclude specific items: http://localhost:3000/group/6f3e7f57-bc1c-4e55-8d5f-1a636d3f5483
     ☐ Add a `gen all` button for each row/col of the grid?
 
+
+Image studies:
+    ☐ Probably need to disable the study button for image prompt results for now - will eventually force these to be prompts as well?
+
 Card viewer:
     ☐ Find some way to mark "study" images as part of a grid instead of as previous images
 

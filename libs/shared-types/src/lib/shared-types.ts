@@ -6,16 +6,20 @@ export function sharedTypes(): string {
 
 export type SdImageEngines = "DALL-E" | "SD 1.5";
 
-export interface SdImage {
+interface CommonDbFields {
   id: string;
+  dateCreated: string;
+}
 
+interface ContainsGroupId {
+  groupId: string;
+}
+
+export interface SdImage extends ContainsGroupId, CommonDbFields {
   seed: number;
   cfg: number;
   steps: number;
   url: string;
-  dateCreated: string;
-
-  groupId: string;
 
   // field is used when an image is based on another one
   // may be used to track history
@@ -34,6 +38,27 @@ export interface SdImage {
   // add a source URL later for random internet images
 
   promptBreakdown: PromptBreakdown;
+}
+
+export interface SdImageStudyDef extends ContainsGroupId, CommonDbFields {
+  title?: string;
+  description?: string;
+
+  rowVar?: string;
+
+  // 1D study will have an undefined colVar
+  colVar?: string | undefined;
+
+  // these will store the known values at time of creation
+  // these will also store the desired order if the user moved things around
+  rowValues?: string[];
+  colValues?: string[] | undefined;
+
+  // these will store the items being displayed
+  rowValuesDisplayed?: string[];
+  colValuesDisplayed?: string[] | undefined;
+
+  mainImageId: string;
 }
 
 export function getValidEngine(engine: string): SdImageEngines {

@@ -1,4 +1,4 @@
-import { db_getAllSubChoices, supabase } from "../../../libs/db";
+import { supabase } from "../../../libs/db/supabase";
 
 // next.js api handler
 export default async function handler(req, res) {

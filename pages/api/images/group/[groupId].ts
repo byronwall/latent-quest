@@ -1,4 +1,4 @@
-import { db_getImagesFromGroup } from "../../../../libs/db";
+import { db_getImagesFromGroup } from "../../../../libs/db/groups";
 
 export default async function handler(req, res) {
   const { groupId } = req.query;

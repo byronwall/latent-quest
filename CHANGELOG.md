@@ -1,5 +1,15 @@
 # Changelog
 
+## 2022-11-19 20:57:26
+
+- Working:
+  - Add support for saving studies to the database
+  - Expand UX around studies to support subs (and maybe image variants too)
+  - Study UX should show the common values for the main image which are unchanging
+  - Add fields for a title and description to the study - maybe allow Markdown?
+  - Add a page that allows for a study to be loaded on its own
+  - Show a list of saved studies on the group page -- maybe show these results in-line where the grid used to be shown
+
 ## 2022-11-18 21:47:15
 
 - Start to add features back into the study builder

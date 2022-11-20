@@ -1,25 +1,38 @@
 import { Stack, Title } from "@mantine/core";
 import { useQuery, useQueryClient } from "react-query";
 
-import { SdImage, SdImageGroup } from "../libs/shared-types/src";
-import { api_generateImage } from "../model/api";
 import { GroupNameViewEdit } from "./GroupNameViewEdit";
-import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdGroupTable } from "./SdGroupTable";
-import { SdImageStudy } from "./SdImageStudy";
 import { useGetImageGroup } from "./useGetImageGroup";
+import { useGetImageGroupStudies } from "./useGetImageGroupStudies";
+import { SdImageStudyPopover } from "./SdImageStudyPopover";
+
+import { api_generateImage } from "../model/api";
+
+import type { SdVariantHandler } from "./SdCardOrTableCell";
+import type {
+  SdImage,
+  SdImageGroup,
+  SdImageStudyDef,
+} from "../libs/shared-types/src";
 
 export interface ImageGridProps {
   groupId: string;
   initialData?: SdImage[];
+  initialStudies?: SdImageStudyDef[];
 }
 
 export function ImageGrid(props: ImageGridProps) {
-  const { groupId, initialData } = props;
+  const { groupId, initialData, initialStudies } = props;
 
   // create a query for 1 id
 
   const { imageGroup: imageGroupData } = useGetImageGroup(groupId, initialData);
+
+  const { imageGroupStudies } = useGetImageGroupStudies(
+    groupId,
+    initialStudies
+  );
 
   const { data: groupData } = useQuery("group:" + groupId, async () => {
     const res = await fetch(`/api/group/${props.groupId}`);
@@ -58,15 +71,20 @@ export function ImageGrid(props: ImageGridProps) {
     <div>
       <div className="container">
         <GroupNameViewEdit groupData={groupData} />
+      </div>
 
-        {/* <SdImageStudy
-          initialStudyDef={{
-            mainImageId: "a70a6f54-db9b-4b01-9045-7c3c4c05a5ab",
-            rowVar: "cfg",
-            colVar: "seed",
-          }}
-          imageGroupData={imageGroupData}
-        /> */}
+      <div className="container">
+        <Title order={3}>Studies for Group</Title>
+        <Stack>
+          {imageGroupStudies.map((study) => (
+            <SdImageStudyPopover
+              key={study.id}
+              groupId={groupId}
+              imageGroupData={imageGroupData}
+              initialStudyDef={study}
+            />
+          ))}
+        </Stack>
       </div>
 
       <Stack style={{ width: "90vw", margin: "auto" }}>

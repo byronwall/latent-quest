@@ -1,7 +1,7 @@
 import {
   db_getAllSubChoices,
   db_getAllSubChoicesCategory,
-} from "../../../libs/db";
+} from "../../../libs/db/choices";
 
 // next.js api handler
 export default async function handler(req, res) {

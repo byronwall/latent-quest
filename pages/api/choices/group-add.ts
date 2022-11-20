@@ -1,5 +1,6 @@
-import { db_insertSubChoice } from "../../../libs/db";
-import { SdSubChoice } from "../../../libs/shared-types/src";
+import { db_insertSubChoice } from "../../../libs/db/choices";
+
+import type { SdSubChoice } from "../../../libs/shared-types/src";
 
 // next.js api handler
 export default async function handler(req, res) {

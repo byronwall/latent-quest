@@ -1,7 +1,8 @@
 import { useQuery } from "react-query";
 
-import { SdImage } from "../libs/shared-types/src";
 import { getAbsUrl } from "./useGetAllGroups";
+
+import type { SdImage } from "../libs/shared-types/src";
 
 export function useGetImageGroup(groupId: string, initialData?: SdImage[]) {
   const { data, isLoading, isError, error } = useQuery({

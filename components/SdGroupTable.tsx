@@ -2,11 +2,14 @@ import { Button, CopyButton, JsonInput, Popover, Table } from "@mantine/core";
 import { orderBy } from "lodash-es";
 import { useState } from "react";
 
-import { getTextForBreakdown, SdImage } from "../libs/shared-types/src";
 import { Switch } from "./MantineWrappers";
-import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdCardViewer } from "./SdCardViewer";
 import { SdImageComp } from "./SdImageComp";
+
+import { getTextForBreakdown } from "../libs/shared-types/src";
+
+import type { SdVariantHandler } from "./SdCardOrTableCell";
+import type { SdImage } from "../libs/shared-types/src";
 
 type SdGroupTableProps = {
   data: SdImage[];
