@@ -10,9 +10,8 @@ import {
 import { IconEyeOff, IconWand } from "@tabler/icons";
 import produce from "immer";
 import { orderBy, uniq } from "lodash-es";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
-import { useMap } from "react-use";
 
 import { CfgPicker } from "./CfgPicker";
 import { EnginePicker } from "./EnginePicker";
@@ -23,9 +22,9 @@ import {
 import { isPlaceholder } from "./isPlaceholder";
 import { Switch } from "./MantineWrappers";
 import { SdCardOrTableCell } from "./SdCardOrTableCell";
-import { SdSubChooser } from "./SdSubChooser";
 import { SeedPicker } from "./SeedPicker";
 import { StepsPicker } from "./StepsPicker";
+import { SubPicker } from "./SubPicker";
 import {
   generateSortedTransformList,
   generateTableFromXform,
@@ -162,24 +161,6 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
   const variableChoices = [...fixedVariableChoices, ...availableSubNames];
 
-  const [specialChoices, { set: setSpecialChoices }] = useMap<{
-    [key: string]: string[];
-  }>({});
-
-  const [
-    specialChoicesCheckAll,
-    { set: setSpecialChoicesCheckAll, setAll: initSpecialChoicesCheckAll },
-  ] = useMap<{
-    [key: string]: boolean;
-  }>({});
-
-  const [
-    specialChoicesCheckPopup,
-    { set: setSpecialChoicesCheckPopup, setAll: initSpecialChoicesCheckPopup },
-  ] = useMap<{
-    [key: string]: boolean;
-  }>({});
-
   const allSpecialValues = useMemo(() => {
     return availableSubNames.reduce((acc, name) => {
       acc[name] = uniq(
@@ -189,6 +170,15 @@ export function SdImageStudy(props: SdImageStudyProps) {
       return acc;
     }, {} as { [key: string]: string[] });
   }, [imageGroupData, availableSubNames]);
+
+  useEffect(() => {
+    // add all the special values to the customChoices
+    Object.entries(allSpecialValues).forEach(([key, values]) => {
+      values.forEach((value) => {
+        addChoice(key, value);
+      });
+    });
+  }, [allSpecialValues, addChoice]);
 
   function getExtraChoice(key: string) {
     return customChoices[key] ?? [];
@@ -266,34 +256,6 @@ export function SdImageStudy(props: SdImageStudyProps) {
   );
 
   const allPossibleXForms = diffXForm.concat(rowExtras).concat(colExtras);
-
-  const getSelectorsForVariableList = (choice) =>
-    fixedVariableChoices.indexOf(choice as any) === -1 ? (
-      <div>
-        <b>{choice}</b>
-        <div>
-          <Switch
-            label={`group (${allSpecialValues[choice]?.length ?? 0})`}
-            onChange={(newVal) => setSpecialChoicesCheckAll(choice, newVal)}
-            checked={specialChoicesCheckAll[choice] ?? false}
-          />
-        </div>
-        <div style={{ display: "flex" }}>
-          <Switch
-            label={`popup (${specialChoices[choice]?.length ?? 0})`}
-            onChange={(newVal) => setSpecialChoicesCheckPopup(choice, newVal)}
-            checked={specialChoicesCheckPopup[choice] ?? false}
-          />
-          <SdSubChooser
-            activeCategory={choice}
-            onNewChoices={(newChoices) => setSpecialChoices(choice, newChoices)}
-          />
-        </div>
-      </div>
-    ) : null;
-
-  const rowSpecial = getSelectorsForVariableList(rowVar);
-  const colSpecial = getSelectorsForVariableList(colVar);
 
   const getSelectForVar = (
     selectVar: string,
@@ -452,6 +414,19 @@ export function SdImageStudy(props: SdImageStudyProps) {
     />
   );
 
+  const subPickers = [rowVar, colVar].map((varName) => (
+    <SubPicker
+      key={varName}
+      rowColVar={varName}
+      choices={(customChoices[varName] ?? []).filter((c) => c !== undefined)}
+      onAddItem={(item) => addChoice(varName, item)}
+      forcedChoices={forcedChoices[varName]?.map(String) ?? []}
+      onSetForcedChoice={(item) => setForcedChoices(varName, item)}
+      exclusions={hiddenChoices[varName]?.map(String) ?? []}
+      onSetExclusion={(item) => setHiddenChoice(varName, item)}
+    />
+  ));
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <Title order={2}>image study</Title>
@@ -468,8 +443,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
         {!isSingleVar && <> {colVarSelect} </>}
         {!isSingleVar && <Button onClick={handleFlipRowCol}>flip</Button>}
-        {rowSpecial}
-        {colSpecial}
+
         <Switch
           label="row var only (will wrap)"
           checked={isSingleVar}
@@ -488,6 +462,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
         {cfgPickerComp}
         {stepsPickerComp}
         {enginePickerComp}
+        {subPickers}
       </Stack>
 
       {isSingleVar ? (

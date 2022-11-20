@@ -3,8 +3,6 @@ import { useState } from "react";
 
 import { SdImageStudy } from "./SdImageStudy";
 
-import { getUuid } from "../libs/shared-types/src";
-
 import type { SdImage, SdImageStudyDef } from "../libs/shared-types/src";
 
 interface SdImageStudyPopoverCommon {
@@ -49,7 +47,6 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           colVar: "seed",
           groupId,
           dateCreated: new Date().toISOString(),
-          id: getUuid(),
         };
 
   return (
@@ -77,23 +74,25 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
         >
           <SdImageStudy
             imageGroupData={imageGroupData}
-            initialStudyDef={initialStudyDef}
+            initialStudyDef={initialStudyDef as SdImageStudyDef}
           />
-          <a
-            target="_blank"
-            rel="noreferrer"
-            href={`/study/${initialStudyDef.id}`}
-            style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              padding: 10,
-              background: "white",
-              border: "1px solid black",
-            }}
-          >
-            open in new tab
-          </a>
+          {"id" in initialStudyDef && (
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href={`/study/${initialStudyDef.id}`}
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                padding: 10,
+                background: "white",
+                border: "1px solid black",
+              }}
+            >
+              open in new tab
+            </a>
+          )}
         </div>
       </Modal>
     </>

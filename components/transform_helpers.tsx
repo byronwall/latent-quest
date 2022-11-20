@@ -1,5 +1,7 @@
 import { orderBy, uniq, uniqBy } from "lodash-es";
 
+import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
+
 import {
   findImageDifferences,
   generatePlaceholderForTransform,
@@ -10,6 +12,10 @@ import {
 import {
   getTextForBreakdown,
   PromptBreakdownSortOrder,
+  TransformNone,
+} from "../libs/shared-types/src";
+
+import type {
   SdImage,
   SdImagePlaceHolder,
   SdImageTransform,
@@ -19,9 +25,7 @@ import {
   SdImageTransformText,
   SdImageTransformTextBasic,
   SdImageTransformTextSub,
-  TransformNone,
 } from "../libs/shared-types/src";
-import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 
 export function generateTableFromXform(
   transformRow: SdImageTransformHolder,
@@ -232,14 +236,21 @@ export function getFinalXFormList(
   // forcing wins if present
   const results =
     forcedChoices.length > 0
-      ? finalColTransforms.filter((c) => forcedChoices.includes(c.value))
-      : finalColTransforms.filter((c) => !exclusions.includes(c.value));
+      ? finalColTransforms.filter((c) => arrayContains(forcedChoices, c))
+      : finalColTransforms.filter((c) => !arrayContains(exclusions, c));
 
   const uniqResults = uniqBy(results, jsonStringifyStable);
 
   const sortedUniqResults = orderBy(uniqResults, getSortValueForXform, "desc");
 
   return sortedUniqResults;
+}
+
+function arrayContains(forcedChoices: any[], c: any): unknown {
+  return (
+    forcedChoices.includes(c.value) ||
+    (Array.isArray(c.value) && c.value.some((v) => forcedChoices.includes(v)))
+  );
 }
 
 function getSortValueForXform(c: SdImageTransform) {
