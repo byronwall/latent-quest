@@ -36,6 +36,7 @@ import {
   getValueForXForm,
 } from "./transform_helpers";
 import { useCustomChoiceMap } from "./useCustomChoiceMap";
+import { useGetImageGroup } from "./useGetImageGroup";
 
 import { api_generateImage, api_upsertStudy } from "../model/api";
 import { getImageDiffAsTransforms } from "../libs/helpers";
@@ -46,15 +47,21 @@ import type {
   SdImageTransform,
 } from "../libs/shared-types/src";
 
-interface SdImageStudyProps {
+export interface SdImageStudyProps {
   initialStudyDef: SdImageStudyDef;
   imageGroupData: SdImage[];
 }
 
 export function SdImageStudy(props: SdImageStudyProps) {
-  const { initialStudyDef, imageGroupData } = props;
+  const { initialStudyDef, imageGroupData: xxx } = props;
 
   const [studyDefState, setStudyDefState] = useState(initialStudyDef);
+
+  // use the hook which ensures updates pass through when loaded as a bare comp
+  const { imageGroup: imageGroupData } = useGetImageGroup(
+    studyDefState.groupId,
+    xxx
+  );
 
   const {
     rowVar = "none",

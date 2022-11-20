@@ -72,12 +72,28 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
             maxHeight: "calc(80vh - 40px)",
             maxWidth: "calc(90vw - 20px)",
             overflow: "auto",
+            position: "relative",
           }}
         >
           <SdImageStudy
             imageGroupData={imageGroupData}
             initialStudyDef={initialStudyDef}
           />
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href={`/study/${initialStudyDef.id}`}
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              padding: 10,
+              background: "white",
+              border: "1px solid black",
+            }}
+          >
+            open in new tab
+          </a>
         </div>
       </Modal>
     </>

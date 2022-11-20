@@ -5,6 +5,8 @@ import { db_getStudyForId } from "../../../libs/db/studies";
 export default async function handler(req, res) {
   const { studyId } = req.query;
 
+  console.log("studyId", studyId);
+
   const study = await db_getStudyForId(studyId);
 
   res.status(200).json(study);

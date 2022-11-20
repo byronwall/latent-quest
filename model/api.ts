@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { getAbsUrl } from "../components/useGetAllGroups";
+
 import type {
   SdImage,
   SdImageGroup,
@@ -35,4 +37,13 @@ export function api_updateGroupData(postData: SdImageGroup) {
 
 export function api_upsertStudy(postData: SdImageStudyDef) {
   axios.post<any, any, SdImageStudyDef>(`/api/studies`, postData as any);
+}
+
+export async function api_getStudy(id: string) {
+  const url = getAbsUrl(`/api/studies/${id}`);
+
+  const res = await axios.get<SdImageStudyDef>(url);
+  const data = res.data;
+
+  return data;
 }
