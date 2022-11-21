@@ -76,6 +76,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
   const {
     hiddenChoices: initialHiddenChoices,
     forcedChoices: initialForcedChoices,
+    settings: initialSettings,
   } = useMemo(() => {
     const hiddenChoices = {};
     const forcedChoices = {};
@@ -107,7 +108,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
       );
     }
 
-    return { hiddenChoices, forcedChoices };
+    return { hiddenChoices, forcedChoices, settings: initialStudyDef.settings };
   }, [initialStudyDef]);
 
   // this list will track those items which should not be visible
@@ -123,9 +124,8 @@ export function SdImageStudy(props: SdImageStudyProps) {
     setChoice: setForcedChoices,
   } = useCustomChoiceMap(initialForcedChoices);
 
-  const [studySettings, { set: setStudySettings }] = useMap<
-    Record<string, SdImageStudyDefSettings>
-  >({});
+  const [studySettings, { set: setStudySettings }] =
+    useMap<Record<string, SdImageStudyDefSettings>>(initialSettings);
 
   const handleHideItem = (key: string, xform: SdImageTransform) => {
     // check if item is in the customChoices -- if so, remove it
@@ -370,6 +370,8 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
       draft.colValuesExcluded =
         (draft.colVar ? hiddenChoices[draft.colVar]?.map(String) : []) ?? [];
+
+      draft.settings = studySettings;
 
       if (draft.id === "") {
         draft.id = getUuid();
