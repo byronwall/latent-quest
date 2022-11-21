@@ -12,6 +12,7 @@ import produce from "immer";
 import { orderBy, uniq } from "lodash-es";
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
+import { useMap } from "react-use";
 
 import { CfgPicker } from "./CfgPicker";
 import { EnginePicker } from "./EnginePicker";
@@ -33,6 +34,7 @@ import {
   getFinalXFormList,
   getRowColHeaderText,
   getValueForXForm,
+  itemOrArrayContains,
 } from "./transform_helpers";
 import { convertStringToType, useCustomChoiceMap } from "./useCustomChoiceMap";
 import { useGetImageGroup } from "./useGetImageGroup";
@@ -41,10 +43,12 @@ import { api_generateImage, api_upsertStudy } from "../model/api";
 import { getImageDiffAsTransforms } from "../libs/helpers";
 import { getUuid } from "../libs/shared-types/src";
 
+import type { CommonPickerProps } from "./CfgPicker";
 import type {
   SdImage,
   SdImageStudyDef,
   SdImageTransform,
+  SdImageStudyDefSettings,
 } from "../libs/shared-types/src";
 
 export interface SdImageStudyProps {
@@ -119,6 +123,10 @@ export function SdImageStudy(props: SdImageStudyProps) {
     setChoice: setForcedChoices,
   } = useCustomChoiceMap(initialForcedChoices);
 
+  const [studySettings, { set: setStudySettings }] = useMap<
+    Record<string, SdImageStudyDefSettings>
+  >({});
+
   const handleHideItem = (key: string, xform: SdImageTransform) => {
     // check if item is in the customChoices -- if so, remove it
 
@@ -130,8 +138,9 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
     // the sub variables should always put the hidden value into exclusions
     const isKeyLinkedToSub = isRowColSubVar(key);
+    const isMatch = itemOrArrayContains(customChoices[key], xform);
 
-    if (!isKeyLinkedToSub && customChoices[key]?.includes(choice)) {
+    if (!isKeyLinkedToSub && isMatch) {
       removeChoice(key, choice);
     } else {
       hideChoice(key, choice);
@@ -219,7 +228,8 @@ export function SdImageStudy(props: SdImageStudyProps) {
     rowVar,
     diffXForm.concat(rowExtras),
     hiddenChoices[rowVar],
-    forcedChoices[rowVar]
+    forcedChoices[rowVar],
+    studySettings[rowVar]
   );
 
   const rowTransformHolder = generateSortedTransformList(
@@ -243,7 +253,8 @@ export function SdImageStudy(props: SdImageStudyProps) {
     colVarToUse,
     diffXForm.concat(colExtras),
     hiddenChoices[colVarToUse],
-    forcedChoices[colVarToUse]
+    forcedChoices[colVarToUse],
+    studySettings[colVarToUse]
   );
 
   const colTransformHolder = generateSortedTransformList(
@@ -380,68 +391,21 @@ export function SdImageStudy(props: SdImageStudyProps) {
     return rowVar === field || colVar === field;
   };
 
-  const seedPickerComp = isFieldVisible("seed") && (
-    <SeedPicker
-      choices={getAllUniqueValuesForChoice("seed", allPossibleXForms)}
-      onAddItem={(item) => addChoice("seed", item)}
-      forcedChoices={forcedChoices.seed}
-      onSetForcedChoice={(newChoices) => setForcedChoices("seed", newChoices)}
-      exclusions={hiddenChoices.seed ?? []}
-      onSetExclusion={(item) => setHiddenChoice("seed", item)}
-    />
-  );
-
-  const cfgPickerComp = isFieldVisible("cfg") && (
-    <CfgPicker
-      choices={getAllUniqueValuesForChoice("cfg", allPossibleXForms)}
-      onAddItem={(item) => addChoice("cfg", item)}
-      forcedChoices={forcedChoices.cfg ?? []}
-      onSetForcedChoice={(item) => setForcedChoices("cfg", item)}
-      exclusions={hiddenChoices.cfg ?? []}
-      onSetExclusion={(item) => setHiddenChoice("cfg", item)}
-    />
-  );
-
-  const stepsPickerComp = isFieldVisible("steps") && (
-    <StepsPicker
-      choices={getAllUniqueValuesForChoice("steps", allPossibleXForms)}
-      onAddItem={(item) => addChoice("steps", item)}
-      forcedChoices={forcedChoices.steps ?? []}
-      onSetForcedChoice={(item) => setForcedChoices("steps", item)}
-      exclusions={hiddenChoices.steps ?? []}
-      onSetExclusion={(item) => setHiddenChoice("steps", item)}
-    />
-  );
-
-  const enginePickerComp = isFieldVisible("engine") && (
-    <EnginePicker
-      choices={getAllUniqueValuesForChoice("engine", allPossibleXForms)}
-      onAddItem={(item) => addChoice("engine", item)}
-      forcedChoices={forcedChoices.engine ?? []}
-      onSetForcedChoice={(item) => setForcedChoices("engine", item)}
-      exclusions={hiddenChoices.engine ?? []}
-      onSetExclusion={(item) => setHiddenChoice("engine", item)}
-    />
-  );
+  const varNameComp = {
+    cfg: CfgPicker,
+    seed: SeedPicker,
+    steps: StepsPicker,
+    engine: EnginePicker,
+  };
 
   const isRowColSubVar = (field: string) => {
     return availableSubNames.includes(field);
   };
 
-  const subPickers = [rowVar, colVar]
-    .filter(isRowColSubVar)
-    .map((varName) => (
-      <SubPicker
-        key={varName}
-        rowColVar={varName}
-        choices={(customChoices[varName] ?? []).filter((c) => c !== undefined)}
-        onAddItem={(item) => addChoice(varName, item)}
-        forcedChoices={forcedChoices[varName]?.map(String) ?? []}
-        onSetForcedChoice={(item) => setForcedChoices(varName, item)}
-        exclusions={hiddenChoices[varName]?.map(String) ?? []}
-        onSetExclusion={(item) => setHiddenChoice(varName, item)}
-      />
-    ));
+  // add the SubPicker if needed
+  [rowVar, colVar].filter(isRowColSubVar).forEach((varName) => {
+    varNameComp[varName] = SubPicker;
+  });
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -474,11 +438,30 @@ export function SdImageStudy(props: SdImageStudyProps) {
       </Group>
 
       <Stack>
-        {seedPickerComp}
-        {cfgPickerComp}
-        {stepsPickerComp}
-        {enginePickerComp}
-        {subPickers}
+        {Object.keys(varNameComp).map((varName) => {
+          // iterates through all picker options and renders those that are needed
+          if (!isFieldVisible(varName)) {
+            return null;
+          }
+
+          const Comp = varNameComp[varName] as React.FC<CommonPickerProps<any>>;
+          return (
+            <Comp
+              key={varName}
+              rowColVar={varName}
+              choices={getAllUniqueValuesForChoice(varName, allPossibleXForms)}
+              onAddItem={(item) => addChoice(varName, item)}
+              forcedChoices={forcedChoices[varName] ?? []}
+              onSetForcedChoice={(item) => setForcedChoices(varName, item)}
+              exclusions={hiddenChoices[varName] ?? []}
+              onSetExclusion={(item) => setHiddenChoice(varName, item)}
+              settings={studySettings[varName] ?? {}}
+              onSetSettings={(newSettings) =>
+                setStudySettings(varName, newSettings)
+              }
+            />
+          );
+        })}
       </Stack>
 
       {isSingleVar ? (
@@ -490,22 +473,33 @@ export function SdImageStudy(props: SdImageStudyProps) {
               flexWrap: "wrap",
               maxWidth: "90vw",
               margin: "auto",
+              gap: 5,
             }}
           >
             {tableData.map((row, rowIdx) => {
               const rowXForm = rowTransformHolder.transforms[rowIdx];
               return (
-                <div key={rowIdx} style={{ width: 200 }}>
-                  <div
+                <div
+                  key={rowIdx}
+                  style={{
+                    width: imageSize,
+                  }}
+                >
+                  <p
+                    className="prompt-clip"
                     style={{
-                      whiteSpace: "nowrap",
+                      height: 54,
                       textOverflow: "ellipsis",
+                      paddingLeft: 8,
+                      background: "#E7F5FF",
+                      WebkitLineClamp: 2,
+                      borderTopRightRadius: 8,
+                      borderTopLeftRadius: 8,
                     }}
                   >
-                    <p className="prompt-clip" style={{ height: 50 }}>
-                      {getRowColHeaderText(rowXForm, rowVar, mainImage)}
-                    </p>
-                  </div>
+                    {getRowColHeaderText(rowXForm, rowVar, mainImage)}
+                  </p>
+
                   <SdCardOrTableCell cell={row[0]} imageSize={imageSize} />
                 </div>
               );

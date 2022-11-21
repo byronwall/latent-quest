@@ -3,14 +3,14 @@ import { IconWand } from "@tabler/icons";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 
-import {
-  getTextForBreakdown,
-  SdImagePlaceHolder,
-} from "../libs/shared-types/src";
-import { api_generateImage } from "../model/api";
 import { getTextOnlyFromPromptPartWithLabel } from "./getTextOnlyFromPromptPartWithLabel";
 import { TooltipCommon } from "./MantineWrappers";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
+
+import { getTextForBreakdown } from "../libs/shared-types/src";
+import { api_generateImage } from "../model/api";
+
+import type { SdImagePlaceHolder } from "../libs/shared-types/src";
 
 type SdImagePlaceHolderCompProps = {
   size: number;
@@ -42,7 +42,7 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
         backgroundColor: "lightgray",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", paddingTop: 4 }}>
         <div>
           {isLoading && <Loader />}
           {!isLoading && (

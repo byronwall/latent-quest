@@ -58,6 +58,12 @@ export interface SdImageStudyDef extends ContainsGroupId, CommonDbFields {
   // type conversion happens later
   rowValuesForced?: string[];
   colValuesForced?: string[];
+
+  settings: Record<string, SdImageStudyDefSettings>;
+}
+
+export interface SdImageStudyDefSettings {
+  isExactMatch: boolean;
 }
 
 export function getValidEngine(engine: string): SdImageEngines {

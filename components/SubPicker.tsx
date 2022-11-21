@@ -1,11 +1,11 @@
 import { MultiSelect } from "@mantine/core";
 import { orderBy, uniq } from "lodash-es";
 
+import { Switch } from "./MantineWrappers";
+
 import type { CommonPickerProps } from "./CfgPicker";
 
-type SubPickerProps = CommonPickerProps<string> & {
-  rowColVar: string;
-};
+type SubPickerProps = CommonPickerProps<string>;
 
 export function SubPicker(props: SubPickerProps) {
   const {
@@ -15,11 +15,23 @@ export function SubPicker(props: SubPickerProps) {
     forcedChoices = [],
     onSetForcedChoice,
     rowColVar,
+    settings,
+    onSetSettings,
   } = props;
 
-  const sortedChoices = uniqAndSort(choices.map((s) => s.toString()));
+  const { isExactMatch } = settings;
+
+  const allValues = isExactMatch
+    ? choices
+    : choices.flatMap((c) => c.split("|").map((v) => v.trim()));
+
+  const sortedChoices = uniqAndSort(allValues);
   const sortedExclusions = uniqAndSort(exclusions.map((s) => s.toString()));
   const sortedForced = uniqAndSort(forcedChoices.map((s) => s.toString()));
+
+  const handleExactMatchChange = (newExactMatch: boolean) => {
+    onSetSettings({ ...settings, isExactMatch: newExactMatch });
+  };
 
   return (
     <div style={{ display: "flex", gap: 5 }}>
@@ -46,6 +58,11 @@ export function SubPicker(props: SubPickerProps) {
         }}
         clearable
         searchable
+      />
+      <Switch
+        label="exact match"
+        checked={isExactMatch}
+        onChange={handleExactMatchChange}
       />
     </div>
   );

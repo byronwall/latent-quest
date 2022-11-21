@@ -1,7 +1,11 @@
 import { Button, MultiSelect } from "@mantine/core";
 
+import type { SdImageStudyDefSettings } from "../libs/shared-types/src";
+
 export interface CommonPickerProps<T> {
-  choices: any[];
+  rowColVar: string;
+
+  choices: T[];
 
   onAddItem: (cfg: T) => void;
 
@@ -10,6 +14,9 @@ export interface CommonPickerProps<T> {
 
   exclusions: T[];
   onSetExclusion: (cfg: T[]) => void;
+
+  settings: SdImageStudyDefSettings;
+  onSetSettings: (settings: SdImageStudyDefSettings) => void;
 }
 
 type CfgPickerProps = CommonPickerProps<number>;

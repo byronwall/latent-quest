@@ -38,7 +38,7 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
     return null;
   }
 
-  const initialStudyDef =
+  const initialStudyDef: SdImageStudyDef =
     "initialStudyDef" in props
       ? props.initialStudyDef
       : {
@@ -48,6 +48,7 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           groupId,
           dateCreated: new Date().toISOString(),
           id: "",
+          settings: {},
         };
 
   return (

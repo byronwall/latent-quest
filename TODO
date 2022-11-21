@@ -43,6 +43,7 @@ Image studies:
     ☐ Choose whether or not to show the main image in the grid when other forces/excludes are in place
     ☐ Give options around multi-value subs -- filter any or exact match
     ☐ allow for a user defined note to be the grid variable - useful for image prompts where the user can describe what they were doing
+    ☐ Forced choices should include the values for the main image
 
 Card viewer:
     ☐ Find some way to mark "study" images as part of a grid instead of as previous images

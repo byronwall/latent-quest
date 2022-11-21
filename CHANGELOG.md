@@ -1,5 +1,10 @@
 # Changelog
 
+## 2022-11-20 23:17:13
+
+- Consolidate the various `Picker` calls into a single common factory
+- Add support for `settings` to the study def
+
 ## 2022-11-20 15:23:56
 
 - Add a `SubPicker` which handles showing an interface for studies on a substitution

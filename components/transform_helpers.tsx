@@ -25,6 +25,7 @@ import type {
   SdImageTransformText,
   SdImageTransformTextBasic,
   SdImageTransformTextSub,
+  SdImageStudyDefSettings,
 } from "../libs/shared-types/src";
 
 export function generateTableFromXform(
@@ -184,7 +185,9 @@ export function getAllUniqueValuesForChoice(
   allPossibleXForms: SdImageTransform[]
 ) {
   const allValues = allPossibleXForms
-    .filter((c) => c.field === rowColVar)
+    .filter(
+      (c) => c.field === rowColVar || ("subKey" in c && c.subKey === rowColVar)
+    )
     .map(getValueForXForm);
 
   return orderBy(uniq(allValues));
@@ -211,6 +214,10 @@ export function getValueForXForm(xform: SdImageTransform) {
   // needs to handle multi-value scenarios
   // needs to address prompt only changes vs. subs
   if (xform.field === "unknown") {
+    if (xform.action === "substitute") {
+      return xform.value[0];
+    }
+
     return xform.value[0];
   }
 }
@@ -219,8 +226,11 @@ export function getFinalXFormList(
   rowColVar: string,
   allPossibleXForms: any[],
   _exclusions: any[] | undefined,
-  _forcedChoices: any[] | undefined
+  _forcedChoices: any[] | undefined,
+  settings: SdImageStudyDefSettings
 ) {
+  const { isExactMatch = true } = settings ?? {};
+
   const finalColTransforms = allPossibleXForms
     .filter(
       (x) =>
@@ -239,8 +249,12 @@ export function getFinalXFormList(
   // forcing wins if present
   const results =
     forcedChoices.length > 0
-      ? finalColTransforms.filter((c) => arrayContains(forcedChoices, c))
-      : finalColTransforms.filter((c) => !arrayContains(exclusions, c));
+      ? finalColTransforms.filter((xform) =>
+          itemOrArrayContains(forcedChoices, xform, isExactMatch)
+        )
+      : finalColTransforms.filter(
+          (xform) => !itemOrArrayContains(exclusions, xform, isExactMatch)
+        );
 
   const uniqResults = uniqBy(results, jsonStringifyStable);
 
@@ -249,11 +263,38 @@ export function getFinalXFormList(
   return sortedUniqResults;
 }
 
-function arrayContains(forcedChoices: any[], c: any): unknown {
-  return (
-    forcedChoices.includes(c.value) ||
-    (Array.isArray(c.value) && c.value.some((v) => forcedChoices.includes(v)))
+export function itemOrArrayContains(
+  needles: any[] | undefined,
+  haystack: SdImageTransform,
+  isExactMatch = true
+): boolean {
+  if (needles === undefined) {
+    return false;
+  }
+
+  const hasMulti = haystack.type === "multi";
+  if (hasMulti) {
+    return false;
+  }
+
+  const isNone = haystack.type === "none";
+  if (isNone) {
+    return false;
+  }
+
+  const searchVals = Array.isArray(haystack.value)
+    ? haystack.value
+    : [haystack.value];
+
+  const searchObj = searchVals.flatMap((c) =>
+    String(c)
+      .split("|")
+      .map((c) => c.trim())
   );
+
+  return isExactMatch
+    ? needles.some((v) => searchVals.includes(v))
+    : needles.some((v) => searchObj.includes(v));
 }
 
 function getSortValueForXform(c: SdImageTransform) {
