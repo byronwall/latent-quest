@@ -1,4 +1,4 @@
-import {
+import type {
   PromptPart,
   PromptSelection,
   SdImage,
@@ -25,10 +25,14 @@ export function getSelectionFromPromptPart(part: PromptPart) {
 export type SdSubLookup = Record<string, string[]>;
 
 export function getSelectionAsLookup(
-  image: SdImage | SdImagePlaceHolder,
+  image: SdImage | SdImagePlaceHolder | undefined,
   shouldSplitParts = true
 ) {
   const lookup: SdSubLookup = {};
+
+  if (image === undefined) {
+    return lookup;
+  }
 
   image.promptBreakdown?.parts.forEach((part) => {
     const selections = getSelectionFromPromptPart(part);

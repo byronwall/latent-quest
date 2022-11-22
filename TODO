@@ -50,6 +50,7 @@ Card viewer:
 
 Sub Chooser related:
     ☐ Allow a choice to use either the modal selections or all active items in group
+    ☐ Add a context which is able to tell if a given placeholder has a matching image in the existing group - use this to prevent sub chooser from running dupes
 
 Random:
     ☐ allow deleting single images
@@ -69,19 +70,3 @@ Prompt editor:
 Specific problems:
     ☐ http://localhost:3000/group/06236dd2-d7a5-4bc7-8129-38fe28fd5343
         ☐ Figure out why the `castle + drawbridge` image is generated multiple times
-
-Archive:
-  ✔ For large image studies, allow the user to choose the specific options to display @done(22-11-20 15:21) @project(Image Grid)
-  ✔ Then allow linking to those specific views @done(22-11-20 15:21) @project(Image Grid)
-  ✔ This would back creating subsets of large views @done(22-11-20 15:21) @project(Image Grid)
-  ✔ Default = render a subset; instead of rendering everything everytime @done(22-11-20 15:21) @project(Image Grid)
-  ✔ Look into context filters for image mods - https://stackoverflow.com/a/67392978/4288101 @done(22-11-20 15:20) @project(Image editor)
-  ✔ Or use sharp and send back and forth to the client @done(22-11-20 15:20) @project(Image editor)
-  ✔ Allow for mutliply or other operations that add color without overdoing things @done(22-11-20 15:20) @project(Image editor)
-  ✔ Add a color picker to match colors in images @done(22-11-20 15:20) @project(Image editor)
-  ✔ Probably need to disable the study button for image prompt results for now - will eventually force these to be prompts as well? @done(22-11-20 15:19) @project(Image studies)
-  ✔ Some sort of issue when opening in a new tab before save? @done(22-11-20 15:19) @project(Image studies)
-  ✔ Creating a new study does not show in the list until reload? @done(22-11-20 15:19) @project(Image studies)
-  ✔ tighten the table visuals to reduce white space @done(22-11-17 23:30) @project(Image Grid)
-  ✔ main image is being lost when the grid reloads -- find some way to not lose this @critical @done(22-11-17 23:30) @project(Image Grid)
-  ✔ Add an explicit popup to create a study based on a main image -- take the current interface pieces and move them into a modal -- does a popup work better for most operations? -- before/after @done(22-11-17 23:30) @project(Image Grid)

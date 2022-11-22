@@ -2,6 +2,7 @@ import { MultiSelect } from "@mantine/core";
 import { orderBy, uniq } from "lodash-es";
 
 import { Switch } from "./MantineWrappers";
+import { SdImageSubPopover } from "./SdImageSubPopover";
 
 import type { CommonPickerProps } from "./CfgPicker";
 
@@ -17,6 +18,7 @@ export function SubPicker(props: SubPickerProps) {
     rowColVar,
     settings,
     onSetSettings,
+    mainImage,
   } = props;
 
   const { isExactMatch } = settings;
@@ -38,6 +40,12 @@ export function SubPicker(props: SubPickerProps) {
       <span>
         <b>{rowColVar}</b>
       </span>
+
+      <SdImageSubPopover
+        initialSelections={sortedChoices}
+        image={mainImage}
+        availableCategories={rowColVar}
+      />
 
       <span>exclusions</span>
       <MultiSelect

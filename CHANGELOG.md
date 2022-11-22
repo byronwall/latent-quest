@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-11-21 22:13:38
+
+- Add support to the `SubPicker` to show the chooser menu and active options
+
 ## 2022-11-20 23:17:13
 
 - Consolidate the various `Picker` calls into a single common factory

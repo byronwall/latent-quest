@@ -1,8 +1,13 @@
 import { Button, MultiSelect } from "@mantine/core";
 
-import type { SdImageStudyDefSettings } from "../libs/shared-types/src";
+import type {
+  SdImage,
+  SdImageStudyDefSettings,
+} from "../libs/shared-types/src";
 
 export interface CommonPickerProps<T> {
+  mainImage: SdImage;
+
   rowColVar: string;
 
   choices: T[];

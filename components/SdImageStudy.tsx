@@ -461,6 +461,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
               onSetSettings={(newSettings) =>
                 setStudySettings(varName, newSettings)
               }
+              mainImage={mainImage}
             />
           );
         })}

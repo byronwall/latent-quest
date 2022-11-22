@@ -1,6 +1,7 @@
 import {
   Button,
   Loader,
+  Menu,
   Modal,
   NumberInput,
   Radio,
@@ -8,27 +9,29 @@ import {
 } from "@mantine/core";
 import { Combination, Permutation, PowerSet } from "js-combinatorics";
 import { orderBy } from "lodash-es";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
+import { useUpdateEffect } from "react-use";
 
-import { generatePlaceholderForTransform } from "../libs/helpers";
-import {
-  getTextForBreakdown,
-  SdImage,
-  SdImageTransformTextSub,
-} from "../libs/shared-types/src";
-import { api_generateImage } from "../model/api";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
 import { SdSubChooser } from "./SdSubChooser";
 
+import { generatePlaceholderForTransform } from "../libs/helpers";
+import { getTextForBreakdown } from "../libs/shared-types/src";
+import { api_generateImage } from "../model/api";
+
+import type {
+  SdImage,
+  SdImageTransformTextSub,
+} from "../libs/shared-types/src";
+
 interface SdImageSubPopoverProps {
-  activeCategory: string;
+  availableCategories: string | string[];
 
-  image: SdImage;
+  initialSelections?: string[];
 
-  isOpen: boolean;
-  onClose(): void;
+  image?: SdImage;
 }
 
 const methods = [
@@ -39,10 +42,13 @@ const methods = [
   "peel_off",
 ] as const;
 
-type SdSubMethod = typeof methods[number];
-
 export function SdImageSubPopover(props: SdImageSubPopoverProps) {
-  const { activeCategory, image, isOpen, onClose } = props;
+  const { image, availableCategories, initialSelections } = props;
+
+  const isArrayOfCategories = Array.isArray(availableCategories);
+  const selKeys = isArrayOfCategories
+    ? availableCategories
+    : [availableCategories];
 
   const [active, setActive] = useState(0);
 
@@ -51,13 +57,15 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
     [image]
   );
 
+  const [activeCategory, setActiveCategory] = useState(selKeys[0]);
+
   const choicesForActiveCategory = choicesInActivePrompt[activeCategory];
 
   const [activeChoices, setActiveChoices] = useState<string[]>(
-    choicesForActiveCategory ?? []
+    initialSelections ?? choicesForActiveCategory ?? []
   );
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     setActiveChoices(choicesForActiveCategory ?? []);
   }, [choicesForActiveCategory]);
 
@@ -68,6 +76,8 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
   );
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [method, setMethod] = useState<string>("combination");
 
@@ -80,20 +90,23 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
 
   const itemsToKeep = totalGenerations;
 
-  const placeholders = groupsToRun.slice(0, itemsToKeep).map((group) => {
-    const subXForm: SdImageTransformTextSub = {
-      type: "text",
-      action: "substitute",
-      field: "unknown",
-      subKey: activeCategory,
-      value: group,
-    };
+  const placeholders =
+    image === undefined
+      ? []
+      : groupsToRun.slice(0, itemsToKeep).map((group) => {
+          const subXForm: SdImageTransformTextSub = {
+            type: "text",
+            action: "substitute",
+            field: "unknown",
+            subKey: activeCategory,
+            value: group,
+          };
 
-    const placeHolder = generatePlaceholderForTransform(image, subXForm);
-    placeHolder.prevImageId = image.id;
+          const placeHolder = generatePlaceholderForTransform(image, subXForm);
+          placeHolder.prevImageId = image.id;
 
-    return placeHolder;
-  });
+          return placeHolder;
+        });
 
   const qc = useQueryClient();
 
@@ -118,106 +131,154 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
     setActiveChoices(uniqueActiveChoices);
   };
 
+  const actionComp = isArrayOfCategories ? (
+    selKeys.length > 0 && (
+      <Menu shadow="md" width={200}>
+        <Menu.Target>
+          <Button compact color="green">
+            subs...
+          </Button>
+        </Menu.Target>
+
+        <Menu.Dropdown>
+          <Menu.Label>pick category...</Menu.Label>
+          {selKeys.map((key) => (
+            <Menu.Item
+              key={key}
+              onClick={() => {
+                setActiveCategory(key);
+                setIsModalOpen(true);
+              }}
+            >
+              {key}
+            </Menu.Item>
+          ))}
+        </Menu.Dropdown>
+      </Menu>
+    )
+  ) : (
+    <Button color="lime" onClick={() => setIsModalOpen(true)} compact>
+      chooser
+    </Button>
+  );
+
   return (
-    <Modal opened={isOpen} onClose={onClose} size="auto">
-      <div
-        style={{
-          width: 600,
-          maxHeight: "80vh",
-          overflowY: "auto",
-        }}
+    <>
+      {actionComp}
+
+      <Modal
+        opened={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        size="auto"
       >
-        <Stepper active={active} onStepClick={setActive} breakpoint="sm">
-          <Stepper.Step label={`Choose subs (${activeChoices.length})`}>
-            <div>
-              {choicesForActiveCategory?.length > 0 && (
+        <div
+          style={{
+            width: 600,
+            maxHeight: "80vh",
+            overflowY: "auto",
+          }}
+        >
+          <Stepper active={active} onStepClick={setActive} breakpoint="sm">
+            {initialSelections && (
+              <Stepper.Step label={`Review subs (${initialSelections.length})`}>
                 <div>
-                  <b>Items list in active prompt were already chosen.</b>
-                </div>
-              )}
-              <Button
-                onClick={() => {
-                  setActiveChoices([]);
-                }}
-              >
-                clear list
-              </Button>
-              <SdSubChooser
-                activeCategory={activeCategory}
-                shouldExcludeModal
-                onNewChoices={handleNewChoices}
-              />
-            </div>
-          </Stepper.Step>
-          <Stepper.Step label="Choice options">
-            <div>
-              <p>
-                <b>prompt: </b>
-                {getTextForBreakdown(image.promptBreakdown)}
-              </p>
-
-              <div>
-                <Radio.Group
-                  label="choose your method"
-                  onChange={setMethod}
-                  value={method}
-                >
-                  {methods.map((method) => (
-                    <Radio key={method} value={method} label={method} />
+                  {initialSelections.map((choice) => (
+                    <div key={choice}>{choice}</div>
                   ))}
-                </Radio.Group>
+                </div>
+              </Stepper.Step>
+            )}
+            <Stepper.Step label={`Add new subs (${activeChoices.length})`}>
+              <div>
+                {choicesForActiveCategory?.length > 0 && (
+                  <div>
+                    <b>Items list in active prompt were already chosen.</b>
+                  </div>
+                )}
+                <Button
+                  onClick={() => {
+                    setActiveChoices([]);
+                  }}
+                >
+                  clear list
+                </Button>
+                <SdSubChooser
+                  activeCategory={activeCategory}
+                  shouldExcludeModal
+                  onNewChoices={handleNewChoices}
+                />
               </div>
+            </Stepper.Step>
+            <Stepper.Step label="Choice options">
+              <div>
+                <p>
+                  <b>prompt: </b>
+                  {getTextForBreakdown(image?.promptBreakdown)}
+                </p>
 
-              <NumberInput
-                value={subCountPerItem}
-                onChange={setSubCountPerItem}
-                style={{ width: 200 }}
-                label="Number of subs to include per generation"
-              />
+                <div>
+                  <Radio.Group
+                    label="choose your method"
+                    onChange={setMethod}
+                    value={method}
+                  >
+                    {methods.map((method) => (
+                      <Radio key={method} value={method} label={method} />
+                    ))}
+                  </Radio.Group>
+                </div>
 
-              <NumberInput
-                value={totalGenerations}
-                onChange={setTotalGenerations}
-                style={{ width: 200 }}
-                label="Total images to generate"
-              />
+                <NumberInput
+                  value={subCountPerItem}
+                  onChange={setSubCountPerItem}
+                  style={{ width: 200 }}
+                  label="Number of subs to include per generation"
+                />
 
-              <p>
-                <b>total possible items: </b>
-                {Number(totalPossible)}
-              </p>
-            </div>
-          </Stepper.Step>
-          <Stepper.Step label="Review and run">
-            <div>
-              <p>Following groups will be processed:</p>
-              <ol>
-                {groupsToRun.map((group, i) => (
-                  <li key={i}>{group.join(", ")}</li>
-                ))}
-              </ol>
-              {isLoading ? (
-                <Loader />
-              ) : (
-                <Button onClick={handleGenAll}>generate all</Button>
-              )}
-              <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {placeholders.map((placeholder, i) => (
-                  <SdImagePlaceHolderComp
-                    key={i}
-                    placeholder={placeholder}
-                    size={200}
-                  />
-                ))}
+                <NumberInput
+                  value={totalGenerations}
+                  onChange={setTotalGenerations}
+                  style={{ width: 200 }}
+                  label="Total images to generate"
+                />
+
+                <p>
+                  <b>total possible items: </b>
+                  {Number(totalPossible)}
+                </p>
               </div>
-            </div>
-          </Stepper.Step>
-          <Stepper.Completed>
-            Completed, click back button to get to previous step
-          </Stepper.Completed>
-        </Stepper>
-      </div>
-    </Modal>
+            </Stepper.Step>
+            <Stepper.Step label="Review and run">
+              <div>
+                <p>Following groups will be processed:</p>
+                <ol>
+                  {groupsToRun.map((group, i) => (
+                    <li key={i}>{group.join(", ")}</li>
+                  ))}
+                </ol>
+                {isLoading ? (
+                  <Loader />
+                ) : (
+                  <Button onClick={handleGenAll}>generate all</Button>
+                )}
+                <div style={{ display: "flex", flexWrap: "wrap" }}>
+                  {placeholders.map((placeholder, i) => (
+                    <SdImagePlaceHolderComp
+                      key={i}
+                      placeholder={placeholder}
+                      size={200}
+                    />
+                  ))}
+                </div>
+              </div>
+            </Stepper.Step>
+            <Stepper.Completed>
+              Completed, click back button to get to previous step
+            </Stepper.Completed>
+          </Stepper>
+        </div>
+      </Modal>
+    </>
   );
 }
 

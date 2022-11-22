@@ -1,4 +1,4 @@
-import { Button, Menu, Modal, Stack } from "@mantine/core";
+import { Button, Modal, Stack } from "@mantine/core";
 import { IconZoomIn } from "@tabler/icons";
 import Image from "next/image";
 import { useState } from "react";
@@ -50,10 +50,6 @@ export function SdImageComp(props: SdImageCompProps) {
   const selParts = getSelectionAsLookup(image);
   const selKeys = Object.keys(selParts);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [activeCategory, setActiveCategory] = useState(selKeys[0]);
-
   const [shouldShowSources, setShouldShowSources] = useState(false);
 
   if (image === undefined) {
@@ -88,31 +84,6 @@ export function SdImageComp(props: SdImageCompProps) {
 
                 <SdImageEditorPopover image={image} />
 
-                {selKeys.length > 0 && (
-                  <Menu shadow="md" width={200}>
-                    <Menu.Target>
-                      <Button compact color="green">
-                        subs...
-                      </Button>
-                    </Menu.Target>
-
-                    <Menu.Dropdown>
-                      <Menu.Label>pick category...</Menu.Label>
-                      {selKeys.map((key) => (
-                        <Menu.Item
-                          key={key}
-                          onClick={() => {
-                            setActiveCategory(key);
-                            setIsModalOpen(true);
-                          }}
-                        >
-                          {key}
-                        </Menu.Item>
-                      ))}
-                    </Menu.Dropdown>
-                  </Menu>
-                )}
-
                 <SdImageStudyPopover
                   mainImageId={image.id}
                   imageGroupData={imageGroupData ?? []}
@@ -123,14 +94,9 @@ export function SdImageComp(props: SdImageCompProps) {
           </div>
         )}
 
-        <SdImageSubPopover
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-          }}
-          activeCategory={activeCategory}
-          image={image}
-        />
+        {shouldShowDetails && (
+          <SdImageSubPopover availableCategories={selKeys} image={image} />
+        )}
 
         <div
           style={{
