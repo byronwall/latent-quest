@@ -23,20 +23,22 @@ export function convertStringToType(
   return values;
 }
 
+type primitive = string | number;
+
 interface DataType {
   seed?: number[];
   cfg?: number[];
   steps?: number[];
   engine?: string[];
 
-  [key: string]: (number | string)[] | undefined;
+  [key: string]: primitive[] | undefined;
 }
 
 export function useCustomChoiceMap(initialState = {}) {
   const [customChoices, setCustomChoices] = useState<DataType>(initialState);
 
   const addChoice = useCallback(
-    <K extends keyof DataType>(varName: K, choice: string | number) => {
+    <K extends keyof DataType>(varName: K, choice: primitive | primitive[]) => {
       if (choice === undefined) {
         return;
       }
@@ -46,7 +48,8 @@ export function useCustomChoiceMap(initialState = {}) {
           if (draft[varName] === undefined) {
             draft[varName] = [];
           }
-          draft[varName]!.push(choice);
+          const choices = Array.isArray(choice) ? choice : [choice];
+          draft[varName]!.push(...choices);
         })
       );
     },

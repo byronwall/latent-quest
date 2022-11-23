@@ -11,8 +11,8 @@ export interface CommonPickerProps<T> {
   rowColVar: string;
 
   choices: T[];
-
-  onAddItem: (cfg: T) => void;
+  onAddItem: (cfg: T | T[]) => void;
+  onResetChoices: () => void;
 
   forcedChoices?: T[];
   onSetForcedChoice: (cfg: T[]) => void;

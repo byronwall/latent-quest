@@ -32,6 +32,8 @@ interface SdImageSubPopoverProps {
   initialSelections?: string[];
 
   image?: SdImage;
+
+  onReceiveSubs?: (subs: string[]) => void;
 }
 
 const methods = [
@@ -202,6 +204,16 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
                 >
                   clear list
                 </Button>
+                {props.onReceiveSubs && (
+                  <Button
+                    onClick={() => {
+                      props.onReceiveSubs?.(activeChoices);
+                      setIsModalOpen(false);
+                    }}
+                  >
+                    send choices back to parent
+                  </Button>
+                )}
                 <SdSubChooser
                   activeCategory={activeCategory}
                   shouldExcludeModal
@@ -250,6 +262,16 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
             </Stepper.Step>
             <Stepper.Step label="Review and run">
               <div>
+                <Button
+                  color="pink"
+                  onClick={() => {
+                    props.onReceiveSubs?.(
+                      groupsToRun.map((c) => c.join(" | "))
+                    );
+                  }}
+                >
+                  add items to parent
+                </Button>
                 <p>Following groups will be processed:</p>
                 <ol>
                   {groupsToRun.map((group, i) => (

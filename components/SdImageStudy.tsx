@@ -10,7 +10,7 @@ import {
 import { IconEyeOff, IconWand } from "@tabler/icons";
 import produce from "immer";
 import { orderBy, uniq } from "lodash-es";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useMap } from "react-use";
 
@@ -184,14 +184,23 @@ export function SdImageStudy(props: SdImageStudyProps) {
     }, {} as { [key: string]: string[] });
   }, [imageGroupData, availableSubNames]);
 
+  const resetCustomChoices = useCallback(
+    (specificKey?: string) => {
+      console.log("resetCustomChoices", specificKey, allSpecialValues);
+      Object.entries(allSpecialValues).forEach(([key, values]) => {
+        if (specificKey && key !== specificKey) {
+          return;
+        }
+        setChoice(key, values);
+      });
+    },
+    [allSpecialValues, setChoice]
+  );
+
   useEffect(() => {
     // add all the special values to the customChoices
-    Object.entries(allSpecialValues).forEach(([key, values]) => {
-      values.forEach((value) => {
-        addChoice(key, value);
-      });
-    });
-  }, [allSpecialValues, addChoice]);
+    resetCustomChoices();
+  }, [resetCustomChoices]);
 
   function getExtraChoice(key: string) {
     return customChoices[key] ?? [];
@@ -462,6 +471,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
                 setStudySettings(varName, newSettings)
               }
               mainImage={mainImage}
+              onResetChoices={() => resetCustomChoices(varName)}
             />
           );
         })}

@@ -53,14 +53,28 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
 
   return (
     <>
-      <Button
-        onClick={() => {
-          setIsModalOpen(true);
-        }}
-        compact
-      >
-        study...
-      </Button>
+      <div style={{ display: "flex", width: 300 }}>
+        <Button
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
+          compact
+        >
+          study...
+        </Button>
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={`/study/${initialStudyDef.id}`}
+          style={{
+            padding: 10,
+            background: "white",
+            border: "1px solid black",
+          }}
+        >
+          open in new tab
+        </a>
+      </div>
       <Modal
         opened={isModalOpen}
         onClose={() => setIsModalOpen(false)}

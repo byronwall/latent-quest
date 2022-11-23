@@ -1,4 +1,4 @@
-import { MultiSelect } from "@mantine/core";
+import { Button, MultiSelect } from "@mantine/core";
 import { orderBy, uniq } from "lodash-es";
 
 import { Switch } from "./MantineWrappers";
@@ -19,6 +19,7 @@ export function SubPicker(props: SubPickerProps) {
     settings,
     onSetSettings,
     mainImage,
+    onAddItem,
   } = props;
 
   const { isExactMatch } = settings;
@@ -45,7 +46,12 @@ export function SubPicker(props: SubPickerProps) {
         initialSelections={sortedChoices}
         image={mainImage}
         availableCategories={rowColVar}
+        onReceiveSubs={onAddItem}
       />
+
+      <Button color="pink" onClick={props.onResetChoices} compact>
+        clear extras
+      </Button>
 
       <span>exclusions</span>
       <MultiSelect
