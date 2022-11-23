@@ -1,6 +1,5 @@
 import create from "zustand";
 
-import { isPlaceholder } from "../components/isPlaceholder";
 import { getUniversalIdFromImage } from "../libs/helpers";
 
 import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";

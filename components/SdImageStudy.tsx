@@ -10,7 +10,7 @@ import {
 import { IconEyeOff, IconWand } from "@tabler/icons";
 import produce from "immer";
 import { orderBy, uniq } from "lodash-es";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useMap } from "react-use";
 
@@ -38,9 +38,14 @@ import {
 } from "./transform_helpers";
 import { convertStringToType, useCustomChoiceMap } from "./useCustomChoiceMap";
 import { useGetImageGroup } from "./useGetImageGroup";
+import { SdGroupContext } from "./SdGroupContext";
+import { useGroupImageMap } from "./useGroupImageMap";
 
 import { api_generateImage, api_upsertStudy } from "../model/api";
-import { getImageDiffAsTransforms } from "../libs/helpers";
+import {
+  getImageDiffAsTransforms,
+  getUniversalIdFromImage,
+} from "../libs/helpers";
 import { getUuid } from "../libs/shared-types/src";
 
 import type { CommonPickerProps } from "./CfgPicker";
@@ -326,8 +331,14 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
   const qc = useQueryClient();
 
+  const { groupImages } = useContext(SdGroupContext);
+
   const handleGenAll = async () => {
-    const placeholders = tableData.flat().filter(isPlaceholder);
+    // only run those images which are new
+    const placeholders = tableData
+      .flat()
+      .filter(isPlaceholder)
+      .filter((c) => groupImages[getUniversalIdFromImage(c)] === undefined);
 
     setIsBulkLoading(true);
 
@@ -418,175 +429,187 @@ export function SdImageStudy(props: SdImageStudyProps) {
     varNameComp[varName] = SubPicker;
   });
 
+  const groupDataMap = useGroupImageMap(imageGroupData);
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <Title order={2}>image study</Title>
-      <div>
-        {isSaving ? (
-          <Loader />
-        ) : (
-          <Button onClick={handleSaveStudy}>save study</Button>
-        )}
-      </div>
-
-      <Group>
-        {rowVarSelect}
-
-        {!isSingleVar && <> {colVarSelect} </>}
-        {!isSingleVar && <Button onClick={handleFlipRowCol}>flip</Button>}
-
-        <Switch
-          label="row var only (will wrap)"
-          checked={isSingleVar}
-          onChange={(newVal) => {
-            if (newVal) {
-              setColVar("none");
-            } else {
-              setColVar("seed");
-            }
-          }}
-        />
-      </Group>
-
-      <Stack>
-        {Object.keys(varNameComp).map((varName) => {
-          // iterates through all picker options and renders those that are needed
-          if (!isFieldVisible(varName)) {
-            return null;
-          }
-
-          const Comp = varNameComp[varName] as React.FC<CommonPickerProps<any>>;
-          return (
-            <Comp
-              key={varName}
-              rowColVar={varName}
-              choices={getAllUniqueValuesForChoice(varName, allPossibleXForms)}
-              onAddItem={(item) => addChoice(varName, item)}
-              forcedChoices={forcedChoices[varName] ?? []}
-              onSetForcedChoice={(item) => setForcedChoices(varName, item)}
-              exclusions={hiddenChoices[varName] ?? []}
-              onSetExclusion={(item) => setHiddenChoice(varName, item)}
-              settings={studySettings[varName] ?? {}}
-              onSetSettings={(newSettings) =>
-                setStudySettings(varName, newSettings)
-              }
-              mainImage={mainImage}
-              onResetChoices={() => resetCustomChoices(varName)}
-            />
-          );
-        })}
-      </Stack>
-
-      {isSingleVar ? (
+    <SdGroupContext.Provider value={{ groupImages: groupDataMap }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <Title order={2}>image study</Title>
         <div>
-          <div>{btnGenAll}</div>
-          <div
+          {isSaving ? (
+            <Loader />
+          ) : (
+            <Button onClick={handleSaveStudy}>save study</Button>
+          )}
+        </div>
+
+        <Group>
+          {rowVarSelect}
+
+          {!isSingleVar && <> {colVarSelect} </>}
+          {!isSingleVar && <Button onClick={handleFlipRowCol}>flip</Button>}
+
+          <Switch
+            label="row var only (will wrap)"
+            checked={isSingleVar}
+            onChange={(newVal) => {
+              if (newVal) {
+                setColVar("none");
+              } else {
+                setColVar("seed");
+              }
+            }}
+          />
+        </Group>
+
+        <Stack>
+          {Object.keys(varNameComp).map((varName) => {
+            // iterates through all picker options and renders those that are needed
+            if (!isFieldVisible(varName)) {
+              return null;
+            }
+
+            const Comp = varNameComp[varName] as React.FC<
+              CommonPickerProps<any>
+            >;
+            return (
+              <Comp
+                key={varName}
+                rowColVar={varName}
+                choices={getAllUniqueValuesForChoice(
+                  varName,
+                  allPossibleXForms
+                )}
+                onAddItem={(item) => addChoice(varName, item)}
+                forcedChoices={forcedChoices[varName] ?? []}
+                onSetForcedChoice={(item) => setForcedChoices(varName, item)}
+                exclusions={hiddenChoices[varName] ?? []}
+                onSetExclusion={(item) => setHiddenChoice(varName, item)}
+                settings={studySettings[varName] ?? {}}
+                onSetSettings={(newSettings) =>
+                  setStudySettings(varName, newSettings)
+                }
+                mainImage={mainImage}
+                onResetChoices={() => resetCustomChoices(varName)}
+              />
+            );
+          })}
+        </Stack>
+
+        {isSingleVar ? (
+          <div>
+            <div>{btnGenAll}</div>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                maxWidth: "90vw",
+                margin: "auto",
+                gap: 5,
+              }}
+            >
+              {tableData.map((row, rowIdx) => {
+                const rowXForm = rowTransformHolder.transforms[rowIdx];
+                return (
+                  <div
+                    key={rowIdx}
+                    style={{
+                      width: imageSize,
+                    }}
+                  >
+                    <p
+                      className="prompt-clip"
+                      style={{
+                        height: 54,
+                        textOverflow: "ellipsis",
+                        paddingLeft: 8,
+                        background: "#E7F5FF",
+                        WebkitLineClamp: 2,
+                        borderTopRightRadius: 8,
+                        borderTopLeftRadius: 8,
+                      }}
+                    >
+                      {getRowColHeaderText(rowXForm, rowVar, mainImage)}
+                    </p>
+
+                    <SdCardOrTableCell cell={row[0]} imageSize={imageSize} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <Table
             style={{
-              display: "flex",
-              flexWrap: "wrap",
-              maxWidth: "90vw",
-              margin: "auto",
-              gap: 5,
+              tableLayout: "fixed",
             }}
           >
-            {tableData.map((row, rowIdx) => {
-              const rowXForm = rowTransformHolder.transforms[rowIdx];
-              return (
-                <div
-                  key={rowIdx}
-                  style={{
-                    width: imageSize,
-                  }}
-                >
-                  <p
-                    className="prompt-clip"
-                    style={{
-                      height: 54,
-                      textOverflow: "ellipsis",
-                      paddingLeft: 8,
-                      background: "#E7F5FF",
-                      WebkitLineClamp: 2,
-                      borderTopRightRadius: 8,
-                      borderTopLeftRadius: 8,
-                    }}
-                  >
-                    {getRowColHeaderText(rowXForm, rowVar, mainImage)}
-                  </p>
-
-                  <SdCardOrTableCell cell={row[0]} imageSize={imageSize} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ) : (
-        <Table
-          style={{
-            tableLayout: "fixed",
-          }}
-        >
-          <thead>
-            <tr>
-              <th>{btnGenAll}</th>
-              {colTransformHolder.transforms.map((col, idx) => (
-                <th key={idx}>
-                  <div
-                    className="prompt-clip"
-                    style={{
-                      maxHeight: 300,
-                      position: "relative",
-                    }}
-                  >
-                    {getRowColHeaderText(col, colVar, mainImage)}
-                    <Button
-                      style={{ position: "absolute", top: 0, right: 0 }}
-                      compact
-                      variant="subtle"
-                      onClick={() => handleHideItem(colVar, col)}
+            <thead>
+              <tr>
+                <th>{btnGenAll}</th>
+                {colTransformHolder.transforms.map((col, idx) => (
+                  <th key={idx}>
+                    <div
+                      className="prompt-clip"
+                      style={{
+                        maxHeight: 300,
+                        position: "relative",
+                      }}
                     >
-                      <IconEyeOff />
-                    </Button>
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tableData.map((row, rowIndex) => {
-              const rowXForm = rowTransformHolder.transforms[rowIndex];
-              return (
-                <tr key={rowIndex}>
-                  <>
-                    <td>
-                      <div
-                        className="prompt-clip"
-                        style={{ position: "relative" }}
+                      {getRowColHeaderText(col, colVar, mainImage)}
+                      <Button
+                        style={{ position: "absolute", top: 0, right: 0 }}
+                        compact
+                        variant="subtle"
+                        onClick={() => handleHideItem(colVar, col)}
                       >
-                        {getRowColHeaderText(rowXForm, rowVar, mainImage)}
-                        <Button
-                          style={{ position: "absolute", top: 0, right: 0 }}
-                          compact
-                          variant="subtle"
-                          onClick={() => handleHideItem(rowVar, rowXForm)}
+                        <IconEyeOff />
+                      </Button>
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.map((row, rowIndex) => {
+                const rowXForm = rowTransformHolder.transforms[rowIndex];
+                return (
+                  <tr key={rowIndex}>
+                    <>
+                      <td>
+                        <div
+                          className="prompt-clip"
+                          style={{ position: "relative" }}
                         >
-                          <IconEyeOff />
-                        </Button>
-                      </div>
-                    </td>
-
-                    {row.map((cell, colIndex) => (
-                      <td key={colIndex}>
-                        <SdCardOrTableCell cell={cell} imageSize={imageSize} />
+                          {getRowColHeaderText(rowXForm, rowVar, mainImage)}
+                          <Button
+                            style={{ position: "absolute", top: 0, right: 0 }}
+                            compact
+                            variant="subtle"
+                            onClick={() => handleHideItem(rowVar, rowXForm)}
+                          >
+                            <IconEyeOff />
+                          </Button>
+                        </div>
                       </td>
-                    ))}
-                  </>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-      )}
-    </div>
+
+                      {row.map((cell, colIndex) => (
+                        <td key={colIndex}>
+                          <SdCardOrTableCell
+                            cell={cell}
+                            imageSize={imageSize}
+                          />
+                        </td>
+                      ))}
+                    </>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        )}
+      </div>
+    </SdGroupContext.Provider>
   );
 }
 

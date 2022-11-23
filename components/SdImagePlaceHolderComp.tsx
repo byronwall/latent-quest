@@ -1,13 +1,16 @@
 import { Button, Loader } from "@mantine/core";
 import { IconWand } from "@tabler/icons";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useQueryClient } from "react-query";
 
 import { TooltipCommon } from "./MantineWrappers";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
+import { SdGroupContext } from "./SdGroupContext";
+import { SdImageComp } from "./SdImageComp";
 
 import { getTextForBreakdown } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
+import { getUniversalIdFromImage } from "../libs/helpers";
 
 import type { SdImagePlaceHolder } from "../libs/shared-types/src";
 
@@ -17,7 +20,6 @@ type SdImagePlaceHolderCompProps = {
 };
 
 export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
-  // des props
   const { placeholder, size } = props;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +33,14 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
 
     queryClient.invalidateQueries();
   };
+
+  const groupDataContext = useContext(SdGroupContext);
+  const existingImage =
+    groupDataContext.groupImages[getUniversalIdFromImage(placeholder)];
+
+  if (existingImage) {
+    return <SdImageComp image={existingImage} size={size} />;
+  }
 
   const promptText = getTextForBreakdown(placeholder.promptBreakdown);
   return (

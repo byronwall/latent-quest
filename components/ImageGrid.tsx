@@ -6,6 +6,8 @@ import { SdGroupTable } from "./SdGroupTable";
 import { useGetImageGroup } from "./useGetImageGroup";
 import { useGetImageGroupStudies } from "./useGetImageGroupStudies";
 import { SdImageStudyPopover } from "./SdImageStudyPopover";
+import { SdGroupContext } from "./SdGroupContext";
+import { useGroupImageMap } from "./useGroupImageMap";
 
 import { api_generateImage } from "../model/api";
 
@@ -67,33 +69,37 @@ export function ImageGrid(props: ImageGridProps) {
     qc.invalidateQueries();
   };
 
-  return (
-    <div>
-      <div className="container">
-        <GroupNameViewEdit groupData={groupData} />
-      </div>
+  const groupImageMap = useGroupImageMap(imageGroupData);
 
-      <div className="container">
-        <Title order={3}>Studies for Group</Title>
-        <Stack>
-          {imageGroupStudies.map((study) => (
-            <SdImageStudyPopover
-              key={study.id}
-              groupId={groupId}
-              imageGroupData={imageGroupData}
-              initialStudyDef={study}
-            />
-          ))}
+  return (
+    <SdGroupContext.Provider value={{ groupImages: groupImageMap }}>
+      <div>
+        <div className="container">
+          <GroupNameViewEdit groupData={groupData} />
+        </div>
+
+        <div className="container">
+          <Title order={3}>Studies for Group</Title>
+          <Stack>
+            {imageGroupStudies.map((study) => (
+              <SdImageStudyPopover
+                key={study.id}
+                groupId={groupId}
+                imageGroupData={imageGroupData}
+                initialStudyDef={study}
+              />
+            ))}
+          </Stack>
+        </div>
+
+        <Stack style={{ width: "90vw", margin: "auto" }}>
+          <Title order={1}>all images in group</Title>
+          <SdGroupTable
+            data={imageGroupData}
+            onCreateVariant={handleCreateVariant}
+          />
         </Stack>
       </div>
-
-      <Stack style={{ width: "90vw", margin: "auto" }}>
-        <Title order={1}>all images in group</Title>
-        <SdGroupTable
-          data={imageGroupData}
-          onCreateVariant={handleCreateVariant}
-        />
-      </Stack>
-    </div>
+    </SdGroupContext.Provider>
   );
 }

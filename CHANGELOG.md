@@ -4,6 +4,7 @@
 
 - Improve the SubPicker by allowing extra choices to be sent back to the main page
 - Add support for selecting images and showing side by side
+- Add support for global layer that checks if an image exists -- this will replace placeholder with actual image
 
 ## 2022-11-21 22:13:38
 

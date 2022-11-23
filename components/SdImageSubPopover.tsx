@@ -9,15 +9,19 @@ import {
 } from "@mantine/core";
 import { Combination, Permutation, PowerSet } from "js-combinatorics";
 import { orderBy } from "lodash-es";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useUpdateEffect } from "react-use";
 
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
 import { SdSubChooser } from "./SdSubChooser";
+import { SdGroupContext } from "./SdGroupContext";
 
-import { generatePlaceholderForTransform } from "../libs/helpers";
+import {
+  generatePlaceholderForTransform,
+  getUniversalIdFromImage,
+} from "../libs/helpers";
 import { getTextForBreakdown } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 
@@ -112,12 +116,16 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
 
   const qc = useQueryClient();
 
+  const { groupImages } = useContext(SdGroupContext);
+
   const handleGenAll = async () => {
     setIsLoading(true);
 
-    /// do the thing
+    const nonExistingPlaceholders = placeholders.filter(
+      (c) => groupImages[getUniversalIdFromImage(c)] === undefined
+    );
 
-    await api_generateImage(placeholders);
+    await api_generateImage(nonExistingPlaceholders);
 
     setIsLoading(false);
     qc.invalidateQueries();
