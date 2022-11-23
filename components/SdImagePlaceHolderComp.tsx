@@ -1,9 +1,8 @@
-import { Button, Group, Loader, Tooltip } from "@mantine/core";
+import { Button, Loader } from "@mantine/core";
 import { IconWand } from "@tabler/icons";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 
-import { getTextOnlyFromPromptPartWithLabel } from "./getTextOnlyFromPromptPartWithLabel";
 import { TooltipCommon } from "./MantineWrappers";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 

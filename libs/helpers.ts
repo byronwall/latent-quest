@@ -1,12 +1,16 @@
 import * as cloneDeep from "clone-deep";
 import { isEqual, uniqBy } from "lodash-es";
 
-import { selRegex } from "../components/getSelectionFromPromptPart";
-import { getTextOnlyFromPromptPartWithLabel } from "../components/getTextOnlyFromPromptPartWithLabel";
 import {
   getTextForBreakdown,
-  PromptBreakdown,
   PromptBreakdownSortOrder,
+} from "./shared-types/src";
+
+import { selRegex } from "../components/getSelectionFromPromptPart";
+import { getTextOnlyFromPromptPartWithLabel } from "../components/getTextOnlyFromPromptPartWithLabel";
+
+import type {
+  PromptBreakdown,
   SdImage,
   SdImagePlaceHolder,
   SdImageTransform,
@@ -14,9 +18,23 @@ import {
   SdImageTransformText,
 } from "./shared-types/src";
 
+export function getUniversalIdFromImage(
+  image: SdImage | SdImagePlaceHolder
+): string {
+  return [
+    image.cfg,
+    image.engine,
+    image.seed,
+    image.steps,
+    image.urlImageSource,
+    image.urlMaskSource,
+    getTextForBreakdown(image.promptBreakdown),
+  ].join("-");
+}
+
 export function isImageSameAsPlaceHolder(
-  item: SdImage,
-  placeholder: SdImagePlaceHolder
+  item: SdImage | SdImagePlaceHolder,
+  placeholder: SdImage | SdImagePlaceHolder
 ): unknown {
   // force the prompt to true text for comparison
   const sortedItem = getTextOnlyFromPromptPartWithLabel(

@@ -1,13 +1,39 @@
 import create from "zustand";
-import { SdImageTransformHolder } from "../libs/shared-types/src";
 
-import { transforms } from "./transformers";
+import { isPlaceholder } from "../components/isPlaceholder";
+import { getUniversalIdFromImage } from "../libs/helpers";
+
+import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 
 interface AppStore {
-  transformHolders: SdImageTransformHolder[];
-  // updateTransformHolders: (newTransformHolders: ImageTransformHolder[]) => void;
+  selectedImages: Record<string, SdImage | SdImagePlaceHolder>;
+
+  toggleSelectedImage: (image: SdImage | SdImagePlaceHolder) => void;
+  clearSelectedImages: () => void;
 }
 
 export const useAppStore = create<AppStore>((set) => ({
-  transformHolders: transforms,
+  selectedImages: {},
+
+  toggleSelectedImage: (image: SdImage | SdImagePlaceHolder) => {
+    set((state) => {
+      const { selectedImages } = state;
+
+      const newSelectedImages = { ...selectedImages };
+
+      const id = getUniversalIdFromImage(image);
+
+      if (newSelectedImages[id]) {
+        delete newSelectedImages[id];
+      } else {
+        newSelectedImages[id] = image;
+      }
+
+      return { selectedImages: newSelectedImages };
+    });
+  },
+
+  clearSelectedImages: () => {
+    set({ selectedImages: {} });
+  },
 }));

@@ -51,6 +51,21 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           settings: {},
         };
 
+  const newTabLink = initialStudyDef.id && (
+    <a
+      target="_blank"
+      rel="noreferrer"
+      href={`/study/${initialStudyDef.id}`}
+      style={{
+        padding: 10,
+        background: "white",
+        border: "1px solid black",
+      }}
+    >
+      open in new tab
+    </a>
+  );
+
   return (
     <>
       <div style={{ display: "flex", width: 300 }}>
@@ -62,18 +77,7 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
         >
           study...
         </Button>
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href={`/study/${initialStudyDef.id}`}
-          style={{
-            padding: 10,
-            background: "white",
-            border: "1px solid black",
-          }}
-        >
-          open in new tab
-        </a>
+        {newTabLink}
       </div>
       <Modal
         opened={isModalOpen}
@@ -92,23 +96,9 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
             imageGroupData={imageGroupData}
             initialStudyDef={initialStudyDef}
           />
-          {initialStudyDef.id && (
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href={`/study/${initialStudyDef.id}`}
-              style={{
-                position: "absolute",
-                top: 0,
-                right: 0,
-                padding: 10,
-                background: "white",
-                border: "1px solid black",
-              }}
-            >
-              open in new tab
-            </a>
-          )}
+          <div style={{ position: "absolute", top: 10, right: 0 }}>
+            {newTabLink}
+          </div>
         </div>
       </Modal>
     </>

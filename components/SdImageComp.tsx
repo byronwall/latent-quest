@@ -1,5 +1,5 @@
 import { Button, Modal, Stack } from "@mantine/core";
-import { IconZoomIn } from "@tabler/icons";
+import { IconCircleCheck, IconCircleDashed, IconZoomIn } from "@tabler/icons";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -13,6 +13,8 @@ import { SdImageSubPopover } from "./SdImageSubPopover";
 import { SdVariantMenu } from "./SdVariantMenu";
 
 import { getTextForBreakdown } from "../libs/shared-types/src";
+import { useAppStore } from "../model/store";
+import { getUniversalIdFromImage } from "../libs/helpers";
 
 import type { SdVariantHandler } from "./SdCardOrTableCell";
 import type { SdImage } from "../libs/shared-types/src";
@@ -51,6 +53,12 @@ export function SdImageComp(props: SdImageCompProps) {
   const selKeys = Object.keys(selParts);
 
   const [shouldShowSources, setShouldShowSources] = useState(false);
+
+  const selectedImages = useAppStore((s) => s.selectedImages);
+  const toggleSelectedImage = useAppStore((s) => s.toggleSelectedImage);
+
+  const isSelected =
+    selectedImages[getUniversalIdFromImage(image)] !== undefined;
 
   if (image === undefined) {
     return null;
@@ -112,8 +120,29 @@ export function SdImageComp(props: SdImageCompProps) {
               setModalOpened(true);
             }}
             variant="subtle"
+            compact
           >
             <IconZoomIn />
+          </Button>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+          }}
+        >
+          <Button
+            onClick={(evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              toggleSelectedImage(image);
+            }}
+            variant={isSelected ? "filled" : "subtle"}
+            color={isSelected ? "blue" : "gray"}
+            compact
+          >
+            {isSelected ? <IconCircleCheck /> : <IconCircleDashed />}
           </Button>
         </div>
       </div>

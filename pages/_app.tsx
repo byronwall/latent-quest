@@ -1,10 +1,13 @@
 import "./styles.css";
 
 import { MantineProvider } from "@mantine/core";
-import { AppProps } from "next/app";
 import Head from "next/head";
 import { QueryClient, QueryClientProvider } from "react-query";
+
 import { Navigation } from "../components/Navigation";
+import { SdSelectedImages } from "../components/SdSelectedImages";
+
+import type { AppProps } from "next/app";
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
@@ -41,6 +44,8 @@ export default function App(props: AppProps) {
           <Navigation />
         </div>
         <Component {...pageProps} />
+
+        <SdSelectedImages />
       </MantineProvider>
     </QueryClientProvider>
   );

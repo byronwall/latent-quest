@@ -1,4 +1,4 @@
-import { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
+import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 
 export function isPlaceholder(
   item: SdImage | SdImagePlaceHolder

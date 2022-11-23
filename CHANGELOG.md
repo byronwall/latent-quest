@@ -3,6 +3,7 @@
 ## 2022-11-22 22:09:26
 
 - Improve the SubPicker by allowing extra choices to be sent back to the main page
+- Add support for selecting images and showing side by side
 
 ## 2022-11-21 22:13:38
 
