@@ -26,6 +26,7 @@ import type {
   SdImageTransformTextBasic,
   SdImageTransformTextSub,
   SdImageStudyDefSettings,
+  SdImageTransformImagePromptVariant,
 } from "../libs/shared-types/src";
 
 export function generateTableFromXform(
@@ -58,52 +59,62 @@ export function generateTableFromXform(
   return tableData;
 }
 
-export function genSimpleXFormList(rowVar: string, uniqValues: any[]) {
-  return uniqValues.map((rowHeader) =>
-    generateTransformFromSimplerHeader(rowVar, rowHeader)
-  );
-}
+export function genSimpleXFormList(
+  rowVar: string,
+  uniqValues: any[],
+  mainImage: SdImage
+) {
+  return uniqValues.map((rowHeader) => {
+    if (PromptBreakdownSortOrder.includes(rowVar as any)) {
+      const rowTransformTemp: SdImageTransformText = {
+        type: "text",
+        action: "set",
+        field: rowVar as any,
+        value: rowHeader,
+      };
+      return rowTransformTemp;
+    }
 
-function generateTransformFromSimplerHeader(rowVar: string, rowHeader: any) {
-  if (PromptBreakdownSortOrder.includes(rowVar as any)) {
-    const rowTransformTemp: SdImageTransformText = {
+    if (rowVar === "cfg" || rowVar === "steps" || rowVar === "seed") {
+      const rowTransformTemp: SdImageTransformNumberRaw = {
+        type: "num-raw",
+        field: rowVar as any,
+        value: rowHeader,
+      };
+      return rowTransformTemp;
+    }
+
+    if (rowVar === "engine") {
+      const rowTransformTemp: SdImageTransformSetTextProp = {
+        type: "set-text-prop",
+        field: rowVar as any,
+        value: rowHeader,
+      };
+
+      return rowTransformTemp;
+    }
+
+    if (rowVar === "variantStrength") {
+      const rowTransformTemp: SdImageTransformImagePromptVariant = {
+        type: "image-prompt-variant",
+        field: rowVar as any,
+        value: rowHeader,
+        variantSourceId: mainImage.url,
+      };
+      return rowTransformTemp;
+    }
+
+    // this is a substitution
+    const rowTransformTemp: SdImageTransformTextSub = {
       type: "text",
-      action: "set",
-      field: rowVar as any,
-      value: rowHeader,
-    };
-    return rowTransformTemp;
-  }
-
-  if (rowVar === "cfg" || rowVar === "steps" || rowVar === "seed") {
-    const rowTransformTemp: SdImageTransformNumberRaw = {
-      type: "num-raw",
-      field: rowVar as any,
-      value: rowHeader,
-    };
-    return rowTransformTemp;
-  }
-
-  if (rowVar === "engine") {
-    const rowTransformTemp: SdImageTransformSetTextProp = {
-      type: "set-text-prop",
-      field: rowVar as any,
-      value: rowHeader,
+      action: "substitute",
+      field: "unknown",
+      subKey: rowVar,
+      value: [rowHeader],
     };
 
     return rowTransformTemp;
-  }
-
-  // this is a substitution
-  const rowTransformTemp: SdImageTransformTextSub = {
-    type: "text",
-    action: "substitute",
-    field: "unknown",
-    subKey: rowVar,
-    value: [rowHeader],
-  };
-
-  return rowTransformTemp;
+  });
 }
 
 export type SdImageGrid = Array<Array<SdImage | SdImagePlaceHolder>>;
@@ -201,7 +212,8 @@ export function getValueForXForm(xform: SdImageTransform) {
   if (
     xform.field === "seed" ||
     xform.field === "cfg" ||
-    xform.field === "steps"
+    xform.field === "steps" ||
+    xform.field === "variantStrength"
   ) {
     return xform.value;
   }
@@ -299,6 +311,9 @@ export function itemOrArrayContains(
 
 function getSortValueForXform(c: SdImageTransform) {
   switch (c.type) {
+    case "image-prompt-variant":
+      return c.value;
+
     case "text":
       if (c.action === "substitute") {
         return c.value;
@@ -346,6 +361,10 @@ export function getRowColHeaderText(
     lhs = "";
   }
 
+  if (rowColVar === "variantStrength") {
+    lhs = "strength = ";
+  }
+
   return `${lhs}${value}`;
 }
 
@@ -371,7 +390,20 @@ export function getDescForTransform(transform: SdImageTransform): string {
 
     case "multi":
       return `${transform.transforms.map((t) => getDescForTransform(t))}`;
+
+    case "image-prompt-variant":
+      return getVariantStrengthDisplayValue(transform.value);
   }
 
   return "";
+}
+
+export function getVariantStrengthDisplayValue(
+  variantStrength: number | undefined
+): string {
+  if (variantStrength === undefined) {
+    return "";
+  }
+
+  return `${Math.floor(100 - 100 * variantStrength)}%`;
 }

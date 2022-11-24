@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { getRandomSeed } from "../libs/shared-types/src";
 
-import type { CommonPickerProps } from "./CfgPicker";
+import type { CommonPickerProps } from "./CommonPickerProps";
 
 type SeedPickerProps = CommonPickerProps<number>;
 

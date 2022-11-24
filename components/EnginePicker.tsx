@@ -1,6 +1,6 @@
 import { Button, MultiSelect } from "@mantine/core";
 
-import type { CommonPickerProps } from "./CfgPicker";
+import type { CommonPickerProps } from "./CommonPickerProps";
 
 type EnginePickerProps = CommonPickerProps<string>;
 

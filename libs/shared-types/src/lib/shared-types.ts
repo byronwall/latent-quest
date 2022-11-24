@@ -174,12 +174,23 @@ export interface SdImageTransformHolder {
 
 type COMMON_FIELDS = "seed" | "cfg" | "steps";
 
+type IMAGE_PROMPT_FIELDS = "variantStrength";
+
 type TEXT_PROP_FIELDS = "engine";
 
 export interface SdImageTransformNumberRaw {
   type: "num-raw";
   field: COMMON_FIELDS;
   value: number;
+}
+
+export interface SdImageTransformImagePromptVariant {
+  type: "image-prompt-variant";
+  field: "variantStrength";
+
+  variantSourceId: string; // will hold the main/source image
+
+  value: number; // will hold the strength param
 }
 
 export interface SdImageTransformSetTextProp {
@@ -218,7 +229,13 @@ export interface SdImageTransformTextSub {
 export interface SdImageTransformMulti {
   type: "multi";
   transforms: SdImageTransform[];
-  field: BreakdownType | "various" | COMMON_FIELDS | "none" | TEXT_PROP_FIELDS;
+  field:
+    | BreakdownType
+    | "various"
+    | COMMON_FIELDS
+    | "none"
+    | TEXT_PROP_FIELDS
+    | IMAGE_PROMPT_FIELDS;
 }
 export interface SdImageTransformNone {
   type: "none";
@@ -234,7 +251,8 @@ export type SdImageTransformNonMulti =
   | SdImageTransformNumberRaw
   | SdImageTransformText
   | SdImageTransformNone
-  | SdImageTransformSetTextProp;
+  | SdImageTransformSetTextProp
+  | SdImageTransformImagePromptVariant;
 
 export type SdImageTransform = SdImageTransformNonMulti | SdImageTransformMulti;
 

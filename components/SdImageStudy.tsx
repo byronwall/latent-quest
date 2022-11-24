@@ -40,6 +40,7 @@ import { convertStringToType, useCustomChoiceMap } from "./useCustomChoiceMap";
 import { useGetImageGroup } from "./useGetImageGroup";
 import { SdGroupContext } from "./SdGroupContext";
 import { useGroupImageMap } from "./useGroupImageMap";
+import { VariantStrengthPicker } from "./VariantStrengthPicker";
 
 import { api_generateImage, api_upsertStudy } from "../model/api";
 import {
@@ -48,7 +49,7 @@ import {
 } from "../libs/helpers";
 import { getUuid } from "../libs/shared-types/src";
 
-import type { CommonPickerProps } from "./CfgPicker";
+import type { CommonPickerProps } from "./CommonPickerProps";
 import type {
   SdImage,
   SdImageStudyDef,
@@ -60,6 +61,15 @@ export interface SdImageStudyProps {
   initialStudyDef: SdImageStudyDef;
   imageGroupData: SdImage[];
 }
+
+const fixedVariableChoices = [
+  "cfg",
+  "seed",
+  "steps",
+  "unknown",
+  "engine",
+  "variantStrength",
+] as const;
 
 export function SdImageStudy(props: SdImageStudyProps) {
   const { initialStudyDef, imageGroupData: xxx } = props;
@@ -169,14 +179,6 @@ export function SdImageStudy(props: SdImageStudyProps) {
     [imageGroupData]
   );
 
-  const fixedVariableChoices = [
-    "cfg",
-    "seed",
-    "steps",
-    "unknown",
-    "engine",
-  ] as const;
-
   const variableChoices = [...fixedVariableChoices, ...availableSubNames];
 
   const allSpecialValues = useMemo(() => {
@@ -233,10 +235,14 @@ export function SdImageStudy(props: SdImageStudyProps) {
       acc[x.field] += 1;
       return acc;
     },
-    { cfg: 1, seed: 1, steps: 1, unknown: 1, engine: 1 }
+    { cfg: 1, seed: 1, steps: 1, unknown: 1, engine: 1, variantStrength: 1 }
   );
 
-  const rowExtras = genSimpleXFormList(rowVar, getExtraChoice(rowVar));
+  const rowExtras = genSimpleXFormList(
+    rowVar,
+    getExtraChoice(rowVar),
+    mainImage
+  );
 
   const rowXFormsToMap = getFinalXFormList(
     rowVar,
@@ -261,7 +267,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
   const colExtras =
     colVarToUse === "none"
       ? []
-      : genSimpleXFormList(colVarToUse, getExtraChoice(colVarToUse));
+      : genSimpleXFormList(colVarToUse, getExtraChoice(colVarToUse), mainImage);
 
   const colXFormsToMap = getFinalXFormList(
     colVarToUse,
@@ -418,6 +424,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
     seed: SeedPicker,
     steps: StepsPicker,
     engine: EnginePicker,
+    variantStrength: VariantStrengthPicker,
   };
 
   const isRowColSubVar = (field: string) => {
@@ -527,9 +534,19 @@ export function SdImageStudy(props: SdImageStudyProps) {
                         WebkitLineClamp: 2,
                         borderTopRightRadius: 8,
                         borderTopLeftRadius: 8,
+                        position: "relative",
                       }}
                     >
                       {getRowColHeaderText(rowXForm, rowVar, mainImage)}
+                      <Button
+                        style={{ position: "absolute", top: 0, right: 0 }}
+                        compact
+                        size="xs"
+                        variant="subtle"
+                        onClick={() => handleHideItem(rowVar, rowXForm)}
+                      >
+                        <IconEyeOff />
+                      </Button>
                     </p>
 
                     <SdCardOrTableCell cell={row[0]} imageSize={imageSize} />
@@ -598,6 +615,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
                           <SdCardOrTableCell
                             cell={cell}
                             imageSize={imageSize}
+                            mainImage={mainImage}
                           />
                         </td>
                       ))}
@@ -631,6 +649,7 @@ function getTextForChoice(
     case "steps":
     case "engine":
     case "unknown":
+    case "variantStrength":
       const labelText = `${_labelText} (${diffCounts[choice]})`;
       return labelText;
 

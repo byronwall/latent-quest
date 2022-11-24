@@ -36,8 +36,14 @@ export function SdCardOrTableCell(props: {
       />
     );
 
+  const isMainImage = mainImage && "id" in cell && mainImage.id === cell.id;
+
   return (
-    <div>
+    <div
+      style={{
+        border: isMainImage ? "4px solid red" : undefined,
+      }}
+    >
       {content}
       <div style={{ display: "flex" }}>
         {"id" in cell && mainImage && setMainImage && (

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2022-11-23 21:30:53
+
+- Planned
+  - Add support for doing image prompt variations in the grid:
+    - Main image + variant strength
+    - Main image + color overlay
+  - Add support for name and description on study
+  - Add sort and other visual controls on the study view
+
 ## 2022-11-22 22:09:26
 
 - Improve the SubPicker by allowing extra choices to be sent back to the main page

@@ -4,7 +4,7 @@ import { orderBy, uniq } from "lodash-es";
 import { Switch } from "./MantineWrappers";
 import { SdImageSubPopover } from "./SdImageSubPopover";
 
-import type { CommonPickerProps } from "./CfgPicker";
+import type { CommonPickerProps } from "./CommonPickerProps";
 
 type SubPickerProps = CommonPickerProps<string>;
 

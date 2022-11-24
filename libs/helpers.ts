@@ -8,6 +8,7 @@ import {
 
 import { selRegex } from "../components/getSelectionFromPromptPart";
 import { getTextOnlyFromPromptPartWithLabel } from "../components/getTextOnlyFromPromptPartWithLabel";
+import { isFullImage } from "../components/isPlaceholder";
 
 import type {
   PromptBreakdown,
@@ -28,6 +29,8 @@ export function getUniversalIdFromImage(
     image.steps,
     image.urlImageSource,
     image.urlMaskSource,
+    image.variantSourceId,
+    image.variantStrength,
     getTextForBreakdown(image.promptBreakdown),
   ].join("-");
 }
@@ -55,8 +58,15 @@ export function isImageSameAsPlaceHolder(
   const sameVariantStrength =
     item.variantStrength === placeholder.variantStrength;
 
+  const sameSimpleVariant = sameVariant && sameVariantStrength;
+
   const sameImageUrl = item.urlImageSource === placeholder.urlImageSource;
   const sameMaskUrl = item.urlMaskSource === placeholder.urlMaskSource;
+
+  const sameFromImagePrompt =
+    sameVariantStrength && sameImageUrl && sameMaskUrl;
+
+  const isSameVariant = sameSimpleVariant || sameFromImagePrompt;
 
   return (
     promptSame &&
@@ -64,10 +74,7 @@ export function isImageSameAsPlaceHolder(
     sameSeed &&
     sameSteps &&
     sameEngine &&
-    sameVariant &&
-    sameVariantStrength &&
-    sameImageUrl &&
-    sameMaskUrl
+    isSameVariant
   );
 }
 
@@ -213,6 +220,29 @@ export function findImageDifferences(
     }
   }
 
+  const variantStrengthChecks = ["variantStrength"] as const;
+
+  for (const variantStrengthCheck of variantStrengthChecks) {
+    if (!isFullImage(base)) {
+      continue;
+    }
+
+    // the base will be main image -- check for when it is the source
+    const haveSameSourceId = base.url === comp.variantSourceId;
+
+    if (
+      base[variantStrengthCheck] !== comp[variantStrengthCheck] &&
+      haveSameSourceId
+    ) {
+      results.push({
+        field: variantStrengthCheck,
+        type: "image-prompt-variant",
+        value: comp[variantStrengthCheck] ?? 1,
+        variantSourceId: comp.variantSourceId ?? "",
+      });
+    }
+  }
+
   // find the differences in the prompt breakdown
   const breakdownDeltas = getBreakdownDelta(
     base.promptBreakdown,
@@ -327,6 +357,12 @@ export function generatePlaceholderForTransform(
 
     case "set-text-prop":
       placeholder[transform.field] = transform.value;
+      break;
+
+    case "image-prompt-variant":
+      placeholder.variantSourceId = transform.variantSourceId;
+      placeholder.variantStrength = transform.value;
+      placeholder.prevImageId = baseImage.id;
       break;
 
     case "text": {

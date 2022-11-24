@@ -1,7 +1,7 @@
 import { Button, Menu } from "@mantine/core";
 
-import { SdImage } from "../libs/shared-types/src";
-import { SdVariantHandler } from "./SdCardOrTableCell";
+import type { SdVariantHandler } from "./SdCardOrTableCell";
+import type { SdImage } from "../libs/shared-types/src";
 
 interface SdVariantMenuProps {
   onCreateVariant: SdVariantHandler;
@@ -9,7 +9,7 @@ interface SdVariantMenuProps {
 }
 
 // percentage is 1 - this number
-const fixedStrength = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.3, 0.1];
+export const fixedStrength = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.3, 0.1];
 
 export function SdVariantMenu(props: SdVariantMenuProps) {
   const { onCreateVariant, image } = props;

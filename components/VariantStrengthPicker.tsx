@@ -1,42 +1,46 @@
 import { Button, MultiSelect } from "@mantine/core";
 
+import { fixedStrength } from "./SdVariantMenu";
+import { getVariantStrengthDisplayValue } from "./transform_helpers";
+
 import type { CommonPickerProps } from "./CommonPickerProps";
 
-type StepsPickerProps = CommonPickerProps<number>;
+type VariantStrengthPickerProps = CommonPickerProps<number>;
 
-const stepsFixedChoices = [10, 20, 30, 40, 50, 80];
-
-export function StepsPicker(props: StepsPickerProps) {
+export function VariantStrengthPicker(props: VariantStrengthPickerProps) {
   const {
-    onAddItem,
     exclusions,
     onSetExclusion,
     choices,
     forcedChoices = [],
     onSetForcedChoice,
+    onAddItem,
   } = props;
 
   const handleExclusionChange = (newExclusions: string[]) => {
-    const newExclusionsNum = newExclusions.map((s) => parseInt(s, 10));
+    const newExclusionsNum = newExclusions.map((s) => parseFloat(s));
     onSetExclusion(newExclusionsNum);
   };
 
   const handleForcedChange = (newForced: string[]) => {
-    const newForcedNum = newForced.map((s) => parseInt(s, 10));
+    const newForcedNum = newForced.map((s) => parseFloat(s));
     onSetForcedChoice(newForcedNum);
   };
 
   return (
     <div style={{ display: "flex", gap: 5 }}>
-      <span>steps picker</span>
-      {stepsFixedChoices.map((steps) => (
-        <Button key={steps} onClick={() => onAddItem(steps)}>
-          {steps}
+      <span>variant strength picker</span>
+      {fixedStrength.map((variantStrength) => (
+        <Button
+          key={variantStrength}
+          onClick={() => onAddItem(variantStrength)}
+        >
+          {getVariantStrengthDisplayValue(variantStrength)}
         </Button>
       ))}
       <span>exclusions</span>
       <MultiSelect
-        data={exclusions.map((s) => s.toString())}
+        data={choices.map((s) => s.toString())}
         value={exclusions.map((s) => s.toString())}
         onChange={handleExclusionChange}
         clearable

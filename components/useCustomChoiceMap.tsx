@@ -13,8 +13,10 @@ export function convertStringToType(
     case "seed":
     case "cfg":
     case "steps":
-      // parse int
       return values.map((value) => parseInt(value));
+
+    case "variantStrength":
+      return values.map((value) => parseFloat(value ?? 1));
 
     case "engine":
       return values;
@@ -30,6 +32,7 @@ interface DataType {
   cfg?: number[];
   steps?: number[];
   engine?: string[];
+  variantStrength?: number[];
 
   [key: string]: primitive[] | undefined;
 }
