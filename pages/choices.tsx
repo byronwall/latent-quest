@@ -29,7 +29,7 @@ export default function Choices() {
 
     const res = await axios.post("/api/choices/group-add", newValues);
 
-    qc.invalidateQueries();
+    await qc.invalidateQueries();
   };
 
   // groupTitle in state

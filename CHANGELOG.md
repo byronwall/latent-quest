@@ -2,10 +2,12 @@
 
 ## 2022-11-23 21:30:53
 
+- Add support for doing image prompt variations in the grid:
+  - Main image + variant strength
+- Figure out why grid does not update after running variants
+  - Needed to `await` all `invalidateQueries` calls
 - Planned
-  - Add support for doing image prompt variations in the grid:
-    - Main image + variant strength
-    - Main image + color overlay
+  - Extend variation to support raw image prompts - Main image + color overlay
   - Add support for name and description on study
   - Add sort and other visual controls on the study view
 

@@ -31,7 +31,9 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
     await api_generateImage(placeholder);
     setIsLoading(false);
 
-    queryClient.invalidateQueries();
+    console.log("invalidate queries");
+
+    await queryClient.invalidateQueries();
   };
 
   const groupDataContext = useContext(SdGroupContext);

@@ -4,10 +4,11 @@ import { result } from "lodash-es";
 import Link from "next/link";
 import { useQueryClient } from "react-query";
 
-import { SdImage, SdImageGroup } from "../libs/shared-types/src";
-import { ImageListProps } from "../pages";
 import { SdImageComp } from "./SdImageComp";
 import { useGetAllGroups } from "./useGetAllGroups";
+
+import type { SdImage, SdImageGroup } from "../libs/shared-types/src";
+import type { ImageListProps } from "../pages";
 
 export function getImageUrl(imageUrl: string): string {
   return `/api/images/s3/${imageUrl}`;
@@ -37,7 +38,7 @@ export function ImageList(props: ImageListProps) {
     const res = await axios.delete(`/api/group/${groupId}`);
 
     // invalidate the query
-    qc.invalidateQueries();
+    await qc.invalidateQueries();
   };
 
   return (

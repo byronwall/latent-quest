@@ -11,16 +11,20 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 
+import { PromptEditor } from "./PromptEditor";
+
 import {
   getBreakdownForText,
   getRandomSeed,
   getValidEngine,
+} from "../libs/shared-types/src";
+import { api_generateImage } from "../model/api";
+
+import type {
   PromptBreakdown,
   SdImage,
   SdImagePlaceHolder,
 } from "../libs/shared-types/src";
-import { api_generateImage } from "../model/api";
-import { PromptEditor } from "./PromptEditor";
 
 const starterPrompt =
   "dump truck, poster art by Tomokazu Matsuyama, featured on pixiv, space art, 2d game art, cosmic horror, official art";
@@ -89,7 +93,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
 
     const img = await api_generateImage(newImgReq);
     setIsLoading(false);
-    queryClient.invalidateQueries();
+    await queryClient.invalidateQueries();
 
     if (isPartOfExistingGroup) {
       // just be done

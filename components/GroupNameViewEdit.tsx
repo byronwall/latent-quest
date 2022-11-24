@@ -4,8 +4,9 @@ import produce from "immer";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 
-import { SdImageGroup } from "../libs/shared-types/src";
 import { api_updateGroupData } from "../model/api";
+
+import type { SdImageGroup } from "../libs/shared-types/src";
 
 interface GroupNameViewEditProps {
   groupData: SdImageGroup | undefined;
@@ -37,7 +38,7 @@ export function GroupNameViewEdit(props: GroupNameViewEditProps) {
 
     // invalidate queries on return
 
-    qc.invalidateQueries();
+    await qc.invalidateQueries();
   };
 
   return (

@@ -15,6 +15,7 @@ export function useGetImageGroup(groupId: string, initialData?: SdImage[]) {
 }
 
 export async function queryFnGetImageGroup({ queryKey }: { queryKey: any[] }) {
+  console.log("queryFnGetImageGroup", queryKey);
   const url = getAbsUrl(`/api/images/group/${queryKey[0]}`);
 
   const res = await fetch(url);

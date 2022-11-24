@@ -66,7 +66,7 @@ export function ImageGrid(props: ImageGridProps) {
       variantStrength: strength,
     });
 
-    qc.invalidateQueries();
+    await qc.invalidateQueries();
   };
 
   const groupImageMap = useGroupImageMap(imageGroupData);

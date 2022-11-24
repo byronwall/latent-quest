@@ -27,10 +27,9 @@ export function getUniversalIdFromImage(
     image.engine,
     image.seed,
     image.steps,
-    image.urlImageSource,
-    image.urlMaskSource,
-    image.variantSourceId,
     image.variantStrength,
+    image.variantSourceId ?? image.urlImageSource,
+    image.urlMaskSource,
     getTextForBreakdown(image.promptBreakdown),
   ].join("-");
 }

@@ -128,7 +128,7 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
     await api_generateImage(nonExistingPlaceholders);
 
     setIsLoading(false);
-    qc.invalidateQueries();
+    await qc.invalidateQueries();
   };
 
   const handleNewChoices = (newChoices: string[]) => {

@@ -72,14 +72,14 @@ const fixedVariableChoices = [
 ] as const;
 
 export function SdImageStudy(props: SdImageStudyProps) {
-  const { initialStudyDef, imageGroupData: xxx } = props;
+  const { initialStudyDef, imageGroupData: initialImageGroupData } = props;
 
   const [studyDefState, setStudyDefState] = useState(initialStudyDef);
 
   // use the hook which ensures updates pass through when loaded as a bare comp
   const { imageGroup: imageGroupData } = useGetImageGroup(
     studyDefState.groupId,
-    xxx
+    initialImageGroupData
   );
 
   const { rowVar = "none", colVar = "none" } = studyDefState;
@@ -352,7 +352,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
     setIsBulkLoading(false);
 
-    qc.invalidateQueries();
+    await qc.invalidateQueries();
   };
 
   const btnGenAll = isBulkLoading ? (
@@ -410,7 +410,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
     await api_upsertStudy(saveData);
     setStudyDefState(saveData);
 
-    qc.invalidateQueries();
+    await qc.invalidateQueries();
 
     setIsSaving(false);
   };

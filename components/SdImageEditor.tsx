@@ -379,7 +379,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
     const res = await api_generateImage(imageReqData);
     callback();
 
-    qc.invalidateQueries();
+    await qc.invalidateQueries();
 
     console.log("res", res);
   };
