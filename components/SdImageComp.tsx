@@ -149,6 +149,11 @@ export function SdImageComp(props: SdImageCompProps) {
       {!disablePopover && (
         <Modal opened={modalOpened} onClose={() => setModalOpened(false)}>
           <Stack>
+            <SdImageBadgeBar
+              image={image}
+              onSetMainImage={onSetMainImage}
+              isMainImage={isMainImage}
+            />
             {(image.urlMaskSource || image.urlImageSource) && (
               <Switch
                 checked={shouldShowSources}

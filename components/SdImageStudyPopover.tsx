@@ -49,7 +49,6 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           dateCreated: new Date().toISOString(),
           id: "",
           settings: {},
-          title: "image study",
         };
 
   const newTabLink = initialStudyDef.id && (
@@ -76,7 +75,7 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           }}
           compact
         >
-          {initialStudyDef.title ?? "image study"}...
+          {initialStudyDef.title ?? "study"}...
         </Button>
         {newTabLink}
       </div>

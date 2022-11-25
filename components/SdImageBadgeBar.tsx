@@ -1,12 +1,11 @@
 import { Badge, Tooltip } from "@mantine/core";
 import { IconTextRecognition } from "@tabler/icons";
 
-import {
-  getTextForBreakdown,
-  SdImage,
-  SdImagePlaceHolder,
-} from "../libs/shared-types/src";
 import { getFinalPromptText } from "./getTextOnlyFromPromptPartWithLabel";
+
+import { getTextForBreakdown } from "../libs/shared-types/src";
+
+import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 
 type SdImageBadgeBarProps = {
   image: SdImage | SdImagePlaceHolder;
@@ -24,7 +23,6 @@ export function SdImageBadgeBar(props: SdImageBadgeBarProps) {
       style={{
         display: "flex",
         flexWrap: "wrap",
-        maxWidth: 200,
       }}
     >
       <Tooltip label="seed">

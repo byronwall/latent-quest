@@ -73,7 +73,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
   const [studyDefState, setStudyDefState] = useState(studyData);
 
   const isStateDirty = useMemo(() => {
-    return !isEqual(studyData, studyDefState);
+    return !isEqual(studyData, studyDefState) || studyDefState.id === "";
   }, [studyData, studyDefState]);
 
   // use the hook which ensures updates pass through when loaded as a bare comp
