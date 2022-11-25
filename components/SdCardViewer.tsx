@@ -70,7 +70,7 @@ export function SdCardViewer(props: SdCardViewerProps) {
 
   const rowGroupLabels = Object.keys(rowGroups);
 
-  const [imageSize, setImageSize] = useState(256);
+  const [imageSize, setImageSize] = useState(280);
 
   return (
     <div>

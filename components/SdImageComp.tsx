@@ -70,7 +70,7 @@ export function SdImageComp(props: SdImageCompProps) {
         <Image src={getImageUrl(image.url)} width={size} height={size} />
 
         {shouldShowDetails && (
-          <div>
+          <div style={{ width: size }}>
             <SdImageBadgeBar
               image={image}
               onSetMainImage={onSetMainImage}
@@ -81,7 +81,6 @@ export function SdImageComp(props: SdImageCompProps) {
                 style={{
                   display: "flex",
                   flexWrap: "wrap",
-                  maxWidth: 200,
                   gap: 5,
                 }}
               >
@@ -97,13 +96,16 @@ export function SdImageComp(props: SdImageCompProps) {
                   imageGroupData={imageGroupData ?? []}
                   groupId={image.groupId}
                 />
+
+                {shouldShowDetails && (
+                  <SdImageSubPopover
+                    availableCategories={selKeys}
+                    image={image}
+                  />
+                )}
               </div>
             )}
           </div>
-        )}
-
-        {shouldShowDetails && (
-          <SdImageSubPopover availableCategories={selKeys} image={image} />
         )}
 
         <div

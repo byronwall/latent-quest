@@ -49,7 +49,7 @@ export function ViewOrEdit(props: ViewOrEditProps) {
             style={{ flex: 1 }}
           />
           <Button onClick={handleAccept} rightIcon={<IconDeviceFloppy />}>
-            Save
+            update
           </Button>
           <Button onClick={handleCancel}>
             <IconX />
