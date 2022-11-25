@@ -49,6 +49,7 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           dateCreated: new Date().toISOString(),
           id: "",
           settings: {},
+          title: "image study",
         };
 
   const newTabLink = initialStudyDef.id && (
@@ -68,14 +69,14 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
 
   return (
     <>
-      <div style={{ display: "flex", width: 300 }}>
+      <div style={{ display: "flex" }}>
         <Button
           onClick={() => {
             setIsModalOpen(true);
           }}
           compact
         >
-          study...
+          {initialStudyDef.title ?? "image study"}...
         </Button>
         {newTabLink}
       </div>

@@ -1,15 +1,18 @@
 # Changelog
 
+## 2022-11-24 22:04:38
+
+- Add a `sticky` position to the source image in the card view
+  - Makes it much easier to see the source with long lists
+- Add support for studies to have a title
+  - Also wires up better handling of data via react-query
+
 ## 2022-11-23 21:30:53
 
 - Add support for doing image prompt variations in the grid:
   - Main image + variant strength
 - Figure out why grid does not update after running variants
   - Needed to `await` all `invalidateQueries` calls
-- Planned
-  - Extend variation to support raw image prompts - Main image + color overlay
-  - Add support for name and description on study
-  - Add sort and other visual controls on the study view
 
 ## 2022-11-22 22:09:26
 

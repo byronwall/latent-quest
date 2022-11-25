@@ -19,6 +19,7 @@
           "type"
         ]
       }
-    ]
+    ],
+    "import/newline-after-import": "warn"
   }
 }

@@ -2,11 +2,12 @@ import { Select, Slider } from "@mantine/core";
 import { groupBy, orderBy, uniq } from "lodash-es";
 import { useState } from "react";
 
-import { SdImage } from "../libs/shared-types/src";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { getFinalPromptText } from "./getTextOnlyFromPromptPartWithLabel";
-import { SdVariantHandler } from "./SdCardOrTableCell";
 import { SdImageComp } from "./SdImageComp";
+
+import type { SdVariantHandler } from "./SdCardOrTableCell";
+import type { SdImage } from "../libs/shared-types/src";
 
 type SdCardViewerProps = {
   imageGroupData: SdImage[];
@@ -145,6 +146,9 @@ export function SdCardViewer(props: SdCardViewerProps) {
                     padding: 10,
                     flexShrink: 0,
                     borderRadius: 5,
+                    position: "sticky",
+                    top: 100,
+                    bottom: 100,
                   }}
                 >
                   <p>source</p>

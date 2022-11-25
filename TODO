@@ -23,7 +23,6 @@ Group viewer:
     ☐ Allow studies to be shown on the main ImageList view
 
 Image Grid:
-    ☐ add ability to compare images side by side
     ☐ show active prompt for main image (and other details too?)
     ☐ add `imageSize` back into the settings - control with a slider in ticks of 50px this time
 
@@ -35,7 +34,6 @@ Image Grid:
     ☐ Allow choosing the preview image(s) for the social graph image
     
     ☐ Need to exclude images generate with variants and image prompts from inclusion in the grid choices
-    ☐ Sort out the best way to include/exclude specific items: http://localhost:3000/group/6f3e7f57-bc1c-4e55-8d5f-1a636d3f5483
     ☐ Add a `gen all` button for each row/col of the grid?
 
 Image studies:
@@ -44,6 +42,9 @@ Image studies:
     ☐ Give options around multi-value subs -- filter any or exact match
     ☐ allow for a user defined note to be the grid variable - useful for image prompts where the user can describe what they were doing
     ☐ Forced choices should include the values for the main image
+    ☐ Ability to edit an image in the grid
+    ☐ Ability to compare images when the study modal is open (button is behind backdrop)
+    ☐ Consider setting prevImageId = main image when the grid is run
 
 Card viewer:
     ☐ Find some way to mark "study" images as part of a grid instead of as previous images
@@ -70,3 +71,6 @@ Prompt editor:
 Specific problems:
     ☐ http://localhost:3000/group/06236dd2-d7a5-4bc7-8129-38fe28fd5343
         ☐ Figure out why the `castle + drawbridge` image is generated multiple times
+
+Archive:
+  ✔ add ability to compare images side by side @done(22-11-24 00:13) @project(Image Grid)

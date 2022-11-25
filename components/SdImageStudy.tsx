@@ -1,15 +1,7 @@
-import {
-  Button,
-  Group,
-  Loader,
-  Select,
-  Stack,
-  Table,
-  Title,
-} from "@mantine/core";
+import { Button, Group, Loader, Select, Stack, Table } from "@mantine/core";
 import { IconEyeOff, IconWand } from "@tabler/icons";
 import produce from "immer";
-import { orderBy, uniq } from "lodash-es";
+import { isEqual, orderBy, uniq } from "lodash-es";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useMap } from "react-use";
@@ -23,6 +15,7 @@ import {
 import { isPlaceholder } from "./isPlaceholder";
 import { Switch } from "./MantineWrappers";
 import { SdCardOrTableCell } from "./SdCardOrTableCell";
+import { SdGroupContext } from "./SdGroupContext";
 import { SeedPicker } from "./SeedPicker";
 import { StepsPicker } from "./StepsPicker";
 import { SubPicker } from "./SubPicker";
@@ -38,16 +31,17 @@ import {
 } from "./transform_helpers";
 import { convertStringToType, useCustomChoiceMap } from "./useCustomChoiceMap";
 import { useGetImageGroup } from "./useGetImageGroup";
-import { SdGroupContext } from "./SdGroupContext";
 import { useGroupImageMap } from "./useGroupImageMap";
 import { VariantStrengthPicker } from "./VariantStrengthPicker";
+import { ViewOrEdit } from "./ViewOrEdit";
+import { useGetStudy } from "./useGetStudy";
 
 import { api_generateImage, api_upsertStudy } from "../model/api";
+import { getUuid } from "../libs/shared-types/src";
 import {
   getImageDiffAsTransforms,
   getUniversalIdFromImage,
 } from "../libs/helpers";
-import { getUuid } from "../libs/shared-types/src";
 
 import type { CommonPickerProps } from "./CommonPickerProps";
 import type {
@@ -74,13 +68,24 @@ const fixedVariableChoices = [
 export function SdImageStudy(props: SdImageStudyProps) {
   const { initialStudyDef, imageGroupData: initialImageGroupData } = props;
 
-  const [studyDefState, setStudyDefState] = useState(initialStudyDef);
+  const { studyData } = useGetStudy(initialStudyDef.id, initialStudyDef);
+
+  const [studyDefState, setStudyDefState] = useState(studyData);
+
+  const isStateDirty = useMemo(() => {
+    return !isEqual(studyData, studyDefState);
+  }, [studyData, studyDefState]);
 
   // use the hook which ensures updates pass through when loaded as a bare comp
   const { imageGroup: imageGroupData } = useGetImageGroup(
     studyDefState.groupId,
     initialImageGroupData
   );
+
+  useEffect(() => {
+    // push prop changes into state
+    setStudyDefState(studyData);
+  }, [studyData]);
 
   const { rowVar = "none", colVar = "none" } = studyDefState;
 
@@ -123,7 +128,11 @@ export function SdImageStudy(props: SdImageStudyProps) {
       );
     }
 
-    return { hiddenChoices, forcedChoices, settings: initialStudyDef.settings };
+    return {
+      hiddenChoices,
+      forcedChoices,
+      settings: initialStudyDef.settings ?? {},
+    };
   }, [initialStudyDef]);
 
   // this list will track those items which should not be visible
@@ -438,16 +447,31 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
   const groupDataMap = useGroupImageMap(imageGroupData);
 
+  const handleTitleChange = (newTitle: string) => {
+    setStudyDefState(
+      produce((draft) => {
+        draft.title = newTitle;
+      })
+    );
+  };
+
   return (
     <SdGroupContext.Provider value={{ groupImages: groupDataMap }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <Title order={2}>image study</Title>
-        <div>
-          {isSaving ? (
-            <Loader />
-          ) : (
-            <Button onClick={handleSaveStudy}>save study</Button>
-          )}
+        <div style={{ display: "flex" }}>
+          <ViewOrEdit
+            value={studyDefState.title ?? "image study"}
+            onChange={handleTitleChange}
+          />
+          <div>
+            {isSaving ? (
+              <Loader />
+            ) : (
+              isStateDirty && (
+                <Button onClick={handleSaveStudy}>save study</Button>
+              )
+            )}
+          </div>
         </div>
 
         <Group>

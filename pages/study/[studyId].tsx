@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { SdImageStudy } from "../../components/SdImageStudy";
 import { queryFnGetImageGroup } from "../../components/useGetImageGroup";
-import { api_getStudy } from "../../model/api";
+import { queryFnGetStudy } from "../../components/useGetStudy";
 
 import type { SdImageStudyProps } from "../../components/SdImageStudy";
 import type { GetServerSideProps } from "next";
@@ -10,7 +10,7 @@ import type { GetServerSideProps } from "next";
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const studyId = params?.studyId as string;
 
-  const initialStudyDef = await api_getStudy(studyId);
+  const initialStudyDef = await queryFnGetStudy({ queryKey: [studyId] });
 
   const groupId = initialStudyDef.groupId;
 
