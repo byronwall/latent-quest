@@ -95,10 +95,8 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           <SdImageStudy
             imageGroupData={imageGroupData}
             initialStudyDef={initialStudyDef}
+            newTabLink={newTabLink}
           />
-          <div style={{ position: "absolute", top: 10, right: 0 }}>
-            {newTabLink}
-          </div>
         </div>
       </Modal>
     </>

@@ -54,6 +54,8 @@ import type {
 export interface SdImageStudyProps {
   initialStudyDef: SdImageStudyDef;
   imageGroupData: SdImage[];
+
+  newTabLink?: React.ReactNode;
 }
 
 const fixedVariableChoices = [
@@ -71,10 +73,6 @@ export function SdImageStudy(props: SdImageStudyProps) {
   const { studyData } = useGetStudy(initialStudyDef.id, initialStudyDef);
 
   const [studyDefState, setStudyDefState] = useState(studyData);
-
-  const isStateDirty = useMemo(() => {
-    return !isEqual(studyData, studyDefState) || studyDefState.id === "";
-  }, [studyData, studyDefState]);
 
   // use the hook which ensures updates pass through when loaded as a bare comp
   const { imageGroup: imageGroupData } = useGetImageGroup(
@@ -393,31 +391,8 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
     // do some logic here to convert the internal state to the saved include/force fields
 
-    const saveData = produce(studyDefState, (draft) => {
-      draft.rowValuesForced =
-        (draft.rowVar ? forcedChoices[draft.rowVar]?.map(String) : []) ?? [];
-
-      draft.rowValuesExcluded =
-        (draft.rowVar ? hiddenChoices[draft.rowVar]?.map(String) : []) ?? [];
-
-      draft.colValuesForced =
-        (draft.colVar ? forcedChoices[draft.colVar]?.map(String) : []) ?? [];
-
-      draft.colValuesExcluded =
-        (draft.colVar ? hiddenChoices[draft.colVar]?.map(String) : []) ?? [];
-
-      draft.settings = studySettings;
-
-      if (draft.id === "") {
-        draft.id = getUuid();
-      }
-    });
-
-    console.log("saveData", saveData);
-
     // push save state into current - should give bumpless return
     await api_upsertStudy(saveData);
-    setStudyDefState(saveData);
 
     await qc.invalidateQueries();
 
@@ -455,6 +430,34 @@ export function SdImageStudy(props: SdImageStudyProps) {
     );
   };
 
+  const saveData = useMemo(
+    () =>
+      produce(studyDefState, (draft) => {
+        draft.rowValuesForced =
+          (draft.rowVar ? forcedChoices[draft.rowVar]?.map(String) : []) ?? [];
+
+        draft.rowValuesExcluded =
+          (draft.rowVar ? hiddenChoices[draft.rowVar]?.map(String) : []) ?? [];
+
+        draft.colValuesForced =
+          (draft.colVar ? forcedChoices[draft.colVar]?.map(String) : []) ?? [];
+
+        draft.colValuesExcluded =
+          (draft.colVar ? hiddenChoices[draft.colVar]?.map(String) : []) ?? [];
+
+        draft.settings = studySettings;
+
+        if (draft.id === "") {
+          draft.id = getUuid();
+        }
+      }),
+    [studyDefState, forcedChoices, hiddenChoices, studySettings]
+  );
+
+  const isStateDirty = useMemo(() => {
+    return !isEqual(studyData, saveData) || studyDefState.id === "";
+  }, [studyData, saveData, studyDefState.id]);
+
   return (
     <SdGroupContext.Provider value={{ groupImages: groupDataMap }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -472,6 +475,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
               )
             )}
           </div>
+          {props.newTabLink}
         </div>
 
         <Group>
