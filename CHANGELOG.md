@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-11-25 22:49:19
+
+- Prevent `undefined` from getting into a set of choices for the `SubPicker`
+
 ## 2022-11-25 22:04:12
 
 - Add a `show full prompt` setting when using the prompt in a study

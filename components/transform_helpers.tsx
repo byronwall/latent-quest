@@ -201,7 +201,8 @@ export function getAllUniqueValuesForChoice(
     .filter(
       (c) => c.field === rowColVar || ("subKey" in c && c.subKey === rowColVar)
     )
-    .map(getValueForXForm);
+    .map(getValueForXForm)
+    .filter((c) => c !== undefined);
 
   return orderBy(uniq(allValues));
 }
