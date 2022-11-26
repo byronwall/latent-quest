@@ -45,11 +45,12 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
   }
 
   const promptText = getTextForBreakdown(placeholder.promptBreakdown);
+
   return (
     <div
       style={{
-        width: size,
-        height: size,
+        maxWidth: size,
+        minHeight: size,
         backgroundColor: "lightgray",
       }}
     >

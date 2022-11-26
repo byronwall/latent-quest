@@ -11,6 +11,7 @@ import {
 } from "../libs/helpers";
 import {
   getTextForBreakdown,
+  isSdImageTransformNone,
   PromptBreakdownSortOrder,
   TransformNone,
 } from "../libs/shared-types/src";
@@ -27,6 +28,7 @@ import type {
   SdImageTransformTextSub,
   SdImageStudyDefSettings,
   SdImageTransformImagePromptVariant,
+  SdImageStudyDefSettingsSub,
 } from "../libs/shared-types/src";
 
 export function generateTableFromXform(
@@ -236,21 +238,25 @@ export function getValueForXForm(xform: SdImageTransform) {
 
 export function getFinalXFormList(
   rowColVar: string,
-  allPossibleXForms: any[],
+  allPossibleXForms: SdImageTransform[],
   _exclusions: any[] | undefined,
   _forcedChoices: any[] | undefined,
   settings: SdImageStudyDefSettings
 ) {
-  const { isExactMatch = true } = settings ?? {};
+  const { isExactMatch = false } =
+    (settings as SdImageStudyDefSettingsSub) ?? {};
 
   const finalColTransforms = allPossibleXForms
     .filter(
       (x) =>
-        x.type !== "none" &&
+        !isSdImageTransformNone(x) &&
         (x.field === rowColVar || (x as any).subKey === rowColVar)
     )
     .filter(
-      (c) => "value" in c && (c.value !== undefined || c.value[0] !== undefined)
+      (c) =>
+        c.type === "multi" ||
+        c.value !== undefined ||
+        c.value?.[0] !== undefined
     );
 
   // otherwise, apply the exclusions

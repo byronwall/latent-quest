@@ -1,6 +1,7 @@
 import type {
   SdImage,
   SdImageStudyDefSettings,
+  SdImageStudyDefSettingsPrompt,
 } from "../libs/shared-types/src";
 
 export interface CommonPickerProps<T> {
@@ -18,6 +19,9 @@ export interface CommonPickerProps<T> {
   exclusions: T[];
   onSetExclusion: (cfg: T[]) => void;
 
-  settings: SdImageStudyDefSettings;
-  onSetSettings: (settings: SdImageStudyDefSettings) => void;
+  // TODO: these types are rough... dial in
+  settings: SdImageStudyDefSettings | SdImageStudyDefSettingsPrompt;
+  onSetSettings: (
+    settings: SdImageStudyDefSettings | SdImageStudyDefSettingsPrompt
+  ) => void;
 }

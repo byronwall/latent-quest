@@ -14,6 +14,7 @@ import {
 } from "./getSelectionFromPromptPart";
 import { isPlaceholder } from "./isPlaceholder";
 import { Switch } from "./MantineWrappers";
+import { PromptPicker } from "./PromptPicker";
 import { SdCardOrTableCell } from "./SdCardOrTableCell";
 import { SdGroupContext } from "./SdGroupContext";
 import { SeedPicker } from "./SeedPicker";
@@ -31,10 +32,10 @@ import {
 } from "./transform_helpers";
 import { convertStringToType, useCustomChoiceMap } from "./useCustomChoiceMap";
 import { useGetImageGroup } from "./useGetImageGroup";
+import { useGetStudy } from "./useGetStudy";
 import { useGroupImageMap } from "./useGroupImageMap";
 import { VariantStrengthPicker } from "./VariantStrengthPicker";
 import { ViewOrEdit } from "./ViewOrEdit";
-import { useGetStudy } from "./useGetStudy";
 
 import { api_generateImage, api_upsertStudy } from "../model/api";
 import { getUuid } from "../libs/shared-types/src";
@@ -49,6 +50,7 @@ import type {
   SdImageStudyDef,
   SdImageTransform,
   SdImageStudyDefSettings,
+  SdImageStudyDefSettingsPrompt,
 } from "../libs/shared-types/src";
 
 export interface SdImageStudyProps {
@@ -80,10 +82,10 @@ export function SdImageStudy(props: SdImageStudyProps) {
     initialImageGroupData
   );
 
-  useEffect(() => {
-    // push prop changes into state
-    setStudyDefState(studyData);
-  }, [studyData]);
+  // useEffect(() => {
+  //   // push prop changes into state
+  //   setStudyDefState(studyData);
+  // }, [studyData]);
 
   const { rowVar = "none", colVar = "none" } = studyDefState;
 
@@ -232,7 +234,10 @@ export function SdImageStudy(props: SdImageStudyProps) {
     return mainImage;
   }, [imageGroupData, initialStudyDef.mainImageId]);
 
-  const diffXForm = getImageDiffAsTransforms(mainImage, imageGroupData);
+  const diffXForm = getImageDiffAsTransforms(mainImage, imageGroupData, {
+    ...studySettings[rowVar],
+    ...studySettings[colVar],
+  });
 
   // extra choices to transform
 
@@ -409,6 +414,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
     steps: StepsPicker,
     engine: EnginePicker,
     variantStrength: VariantStrengthPicker,
+    unknown: PromptPicker,
   };
 
   const isRowColSubVar = (field: string) => {

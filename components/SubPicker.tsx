@@ -4,9 +4,12 @@ import { orderBy, uniq } from "lodash-es";
 import { Switch } from "./MantineWrappers";
 import { SdImageSubPopover } from "./SdImageSubPopover";
 
+import type { SdImageStudyDefSettingsSub } from "../libs/shared-types/src";
 import type { CommonPickerProps } from "./CommonPickerProps";
 
-type SubPickerProps = CommonPickerProps<string>;
+type SubPickerProps = CommonPickerProps<string> & {
+  settings: SdImageStudyDefSettingsSub;
+};
 
 export function SubPicker(props: SubPickerProps) {
   const {
@@ -22,7 +25,7 @@ export function SubPicker(props: SubPickerProps) {
     onAddItem,
   } = props;
 
-  const { isExactMatch } = settings;
+  const { isExactMatch = false } = settings;
 
   const allValues = isExactMatch
     ? choices

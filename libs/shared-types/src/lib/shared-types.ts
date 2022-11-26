@@ -62,8 +62,16 @@ export interface SdImageStudyDef extends ContainsGroupId, CommonDbFields {
   settings: Record<string, SdImageStudyDefSettings>;
 }
 
-export interface SdImageStudyDefSettings {
+export type SdImageStudyDefSettings =
+  | SdImageStudyDefSettingsSub
+  | SdImageStudyDefSettingsPrompt;
+
+export interface SdImageStudyDefSettingsSub {
   isExactMatch: boolean;
+}
+
+export interface SdImageStudyDefSettingsPrompt {
+  shouldShowFullPrompt?: boolean;
 }
 
 export function getValidEngine(engine: string): SdImageEngines {
@@ -240,11 +248,19 @@ export interface SdImageTransformMulti {
 export interface SdImageTransformNone {
   type: "none";
   field: "none";
+  value: undefined;
+}
+
+export function isSdImageTransformNone(
+  transform: SdImageTransform
+): transform is SdImageTransformNone {
+  return transform.type === "none";
 }
 
 export const TransformNone: SdImageTransformNone = {
   type: "none",
   field: "none",
+  value: undefined,
 } as const;
 
 export type SdImageTransformNonMulti =

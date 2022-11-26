@@ -1,5 +1,11 @@
 # Changelog
 
+## 2022-11-25 22:04:12
+
+- Add a `show full prompt` setting when using the prompt in a study
+  - This toggles whether to display the full prompt or to only show the diff/delta
+- Resolve errors in transform filtering that prevented prompt studies from working
+
 ## 2022-11-24 22:04:38
 
 - Add a `sticky` position to the source image in the card view

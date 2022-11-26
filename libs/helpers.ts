@@ -17,6 +17,8 @@ import type {
   SdImageTransform,
   SdImageTransformNonMulti,
   SdImageTransformText,
+  SdImageStudyDefSettings,
+  SdImageStudyDefSettingsPrompt,
 } from "./shared-types/src";
 
 export function getUniversalIdFromImage(
@@ -79,9 +81,13 @@ export function isImageSameAsPlaceHolder(
 
 export function getImageDiffAsTransforms(
   base: SdImage,
-  allImages: (SdImage | SdImagePlaceHolder)[]
+  allImages: (SdImage | SdImagePlaceHolder)[],
+  settings: SdImageStudyDefSettings
 ) {
   const results: SdImageTransform[] = [];
+
+  const { shouldShowFullPrompt = true } =
+    settings as SdImageStudyDefSettingsPrompt;
 
   if (base === undefined || allImages === undefined || allImages.length === 0) {
     return results;
@@ -89,7 +95,7 @@ export function getImageDiffAsTransforms(
 
   for (const image of allImages) {
     const diffs = findImageDifferences(base, image, {
-      shouldReportAddRemove: true,
+      shouldReportAddRemove: !shouldShowFullPrompt,
     });
 
     // group by diff type -- allows text changes to be grouped together
