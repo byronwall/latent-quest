@@ -4,7 +4,10 @@ import { getBufferFromImageUrl } from "./images/s3/[key]";
 import { pathToImg } from "./img_gen";
 import { saveImageToS3AndDb } from "./saveImageToS3AndDb";
 
-import type { SdImgGenParams } from "../../libs/shared-types/src";
+import type {
+  SdImageEngines,
+  SdImgGenParams,
+} from "../../libs/shared-types/src";
 
 type SdParams = Parameters<typeof generateAsync>[0];
 
@@ -19,8 +22,17 @@ export function getBufferFromBase64(base64: string) {
   return Buffer.from(base64Data, "base64");
 }
 
+const engineLabelMap: Partial<Record<SdImageEngines, string>> = {
+  "SD 1.4": "stable-diffusion-v1",
+  "SD 1.5": "stable-diffusion-v1-5",
+  "SD 2.0 512px": "stable-diffusion-512-v2-0",
+  "SD 2.0 768px": "stable-diffusion-768-v2-0",
+};
+
+const defaultEngine = engineLabelMap["SD 1.5"];
+
 export async function generateSdImage(sdImage: SdImgGenParams) {
-  const { seed, cfg, steps, groupId, promptForSd } = sdImage;
+  const { seed, cfg, steps, groupId, promptForSd, engine } = sdImage;
 
   if (promptForSd === undefined) {
     throw new Error("promptForSd is required");
@@ -38,6 +50,7 @@ export async function generateSdImage(sdImage: SdImgGenParams) {
     outDir: pathToImg,
     debug: false,
     noStore: false,
+    engine: engineLabelMap[engine] ?? defaultEngine,
   };
 
   // if placeholder has a variant, download that image and add to json
@@ -119,7 +132,7 @@ export async function generateSdImage(sdImage: SdImgGenParams) {
     return await saveImageToS3AndDb(
       {
         ...sdImage,
-        engine: "SD 1.5",
+        engine: sdImage.engine ?? "SD 1.5",
       },
       { pathToReadOnDisk: result.filePath, s3Key: fileKey }
     );

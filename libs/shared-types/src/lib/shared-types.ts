@@ -4,7 +4,12 @@ export function sharedTypes(): string {
   return "shared-types";
 }
 
-export type SdImageEngines = "DALL-E" | "SD 1.5";
+export type SdImageEngines =
+  | "DALL-E"
+  | "SD 1.4"
+  | "SD 1.5"
+  | "SD 2.0 512px"
+  | "SD 2.0 768px";
 
 interface CommonDbFields {
   id: string;

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2022-11-30 23:01:43
+
+- Add support for more SD engines
+  - New default is actually `SD 1.5`, turns out I was doing `SD 1.4` before... oops
+  - Also adds support for 2 of the new SD 2.0 models
+
 ## 2022-11-25 22:49:19
 
 - Prevent `undefined` from getting into a set of choices for the `SubPicker`

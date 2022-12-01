@@ -24,12 +24,19 @@ import type {
   PromptBreakdown,
   SdImage,
   SdImagePlaceHolder,
+  SdImageEngines,
 } from "../libs/shared-types/src";
 
 const starterPrompt =
   "dump truck, poster art by Tomokazu Matsuyama, featured on pixiv, space art, 2d game art, cosmic horror, official art";
 
-export const engine_choices = ["DALL-E", "SD 1.5"];
+export const engine_choices: SdImageEngines[] = [
+  "DALL-E",
+  "SD 1.4",
+  "SD 1.5",
+  "SD 2.0 512px",
+  "SD 2.0 768px",
+];
 
 interface SdNewImagePromptProps {
   defaultImage?: SdImage;
@@ -146,7 +153,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
             data={engine_choices}
             value={engine}
             onChange={(val: any) => setEngine(val ?? "SD 1.5")}
-            style={{ width: 100 }}
+            style={{ width: 130 }}
           />
           {isLoading ? (
             <Loader />

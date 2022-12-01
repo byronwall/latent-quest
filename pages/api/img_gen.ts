@@ -1,14 +1,18 @@
+import { generateSdImage } from "./generateSdImage";
+
 import { getTextOnlyFromPromptPartWithLabel } from "../../components/getTextOnlyFromPromptPartWithLabel";
 import { generateDalleImage } from "../../libs/openai";
 import {
   getRandomSeed,
   getTextForBreakdown,
   getUuid,
+} from "../../libs/shared-types/src";
+
+import type {
   ImageGenRequest,
   SdImage,
   SdImgGenParams,
 } from "../../libs/shared-types/src";
-import { generateSdImage } from "./generateSdImage";
 
 export const pathToImg = "/tmp";
 console.log("pathToImg", pathToImg);
@@ -59,13 +63,14 @@ async function processSingleImgGenReq(
   };
 
   try {
-    switch (imgGenReq.engine) {
-      case "DALL-E":
-        const result = await generateDalleImage(finalImgReq);
-        return result;
-      case "SD 1.5":
-        const imgResult = await generateSdImage(finalImgReq);
-        return imgResult;
+    if (imgGenReq.engine === "DALL-E") {
+      const result = await generateDalleImage(finalImgReq);
+      return result;
+    }
+
+    if (imgGenReq.engine.startsWith("SD")) {
+      const imgResult = await generateSdImage(finalImgReq);
+      return imgResult;
     }
   } catch (e: any) {
     console.log("error", e);

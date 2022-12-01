@@ -50,7 +50,6 @@ import type {
   SdImageStudyDef,
   SdImageTransform,
   SdImageStudyDefSettings,
-  SdImageStudyDefSettingsPrompt,
 } from "../libs/shared-types/src";
 
 export interface SdImageStudyProps {

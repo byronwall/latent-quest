@@ -1,10 +1,10 @@
 import { Button, MultiSelect } from "@mantine/core";
 
+import { engine_choices } from "./SdNewImagePrompt";
+
 import type { CommonPickerProps } from "./CommonPickerProps";
 
 type EnginePickerProps = CommonPickerProps<string>;
-
-const engineFixedChoices = ["SD 1.5", "DALL-E"];
 
 export function EnginePicker(props: EnginePickerProps) {
   const {
@@ -27,7 +27,7 @@ export function EnginePicker(props: EnginePickerProps) {
   return (
     <div style={{ display: "flex", gap: 5 }}>
       <span>engine picker</span>
-      {engineFixedChoices.map((engine) => (
+      {engine_choices.map((engine) => (
         <Button key={engine} onClick={() => onAddItem(engine)}>
           {engine}
         </Button>

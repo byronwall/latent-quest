@@ -36,9 +36,10 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
     await queryClient.invalidateQueries();
   };
 
+  const placeholderId = getUniversalIdFromImage(placeholder);
+
   const groupDataContext = useContext(SdGroupContext);
-  const existingImage =
-    groupDataContext.groupImages[getUniversalIdFromImage(placeholder)];
+  const existingImage = groupDataContext.groupImages[placeholderId];
 
   if (existingImage) {
     return <SdImageComp image={existingImage} size={size} />;
