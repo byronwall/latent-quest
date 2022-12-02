@@ -21,6 +21,24 @@ export async function db_upsertStudy(study: SdImageStudyDef) {
   return data;
 }
 
+// method to delete a study
+export async function db_deleteStudy(studyId: string) {
+  console.log("db_deleteStudy: studyId=", studyId);
+
+  // insert into supabase
+  const { error, data } = await supabase
+    .from(STUDY_TABLE)
+    .delete()
+    .eq("id", studyId);
+
+  if (error) {
+    console.log("db_deleteStudy: error=", error);
+    throw error;
+  }
+
+  return data;
+}
+
 export async function db_getStudiesForGroupId(groupId: string) {
   const { data, error } = await supabase
     .from(STUDY_TABLE)

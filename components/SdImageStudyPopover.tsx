@@ -33,18 +33,19 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
 
   const mainImage = imageGroupData.find((i) => i.id === mainImageId);
 
-  const initialStudyDef: SdImageStudyDef =
-    "initialStudyDef" in props
-      ? props.initialStudyDef
-      : {
-          mainImageId,
-          rowVar: "cfg",
-          colVar: "seed",
-          groupId,
-          dateCreated: new Date().toISOString(),
-          id: "",
-          settings: {},
-        };
+  const isSavedInDb = "initialStudyDef" in props;
+
+  const initialStudyDef: SdImageStudyDef = isSavedInDb
+    ? props.initialStudyDef
+    : {
+        mainImageId,
+        rowVar: "cfg",
+        colVar: "seed",
+        groupId,
+        dateCreated: new Date().toISOString(),
+        id: "",
+        settings: {},
+      };
 
   const [activeStudyDef, setActiveStudyDef] =
     useState<SdImageStudyDef>(initialStudyDef);
@@ -100,6 +101,8 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
             initialStudyDef={activeStudyDef}
             newTabLink={newTabLink}
             onUpdateParentStudyDef={setActiveStudyDef}
+            isSavedInDb={isSavedInDb}
+            onClose={() => setIsModalOpen(false)}
           />
         </div>
       </Modal>

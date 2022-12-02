@@ -37,7 +37,11 @@ import { useGroupImageMap } from "./useGroupImageMap";
 import { VariantStrengthPicker } from "./VariantStrengthPicker";
 import { ViewOrEdit } from "./ViewOrEdit";
 
-import { api_generateImage, api_upsertStudy } from "../model/api";
+import {
+  api_deleteStudy,
+  api_generateImage,
+  api_upsertStudy,
+} from "../model/api";
 import { getUuid } from "../libs/shared-types/src";
 import {
   getImageDiffAsTransforms,
@@ -58,8 +62,10 @@ export interface SdImageStudyProps {
   imageGroupData: SdImage[];
 
   newTabLink?: React.ReactNode;
+  isSavedInDb?: boolean;
 
   onUpdateParentStudyDef?(studyDef: SdImageStudyDef): void;
+  onClose?(): void;
 }
 
 const fixedVariableChoices = [
@@ -402,7 +408,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
     const savedDef = await api_upsertStudy(saveData);
 
     setIsSaving(false);
-    props.onUpdateParentStudyDef?.(savedDef.data[0]);
+    props.onUpdateParentStudyDef?.(savedDef[0]);
 
     await qc.invalidateQueries();
   };
@@ -468,7 +474,28 @@ export function SdImageStudy(props: SdImageStudyProps) {
   }, [studyData, saveData, studyDefState.id]);
 
   const [shouldShowControls, setShouldShowControls] = useState(false);
-  tableData;
+
+  const handleDeleteStudy = async () => {
+    if (studyDefState.id === "") {
+      return;
+    }
+
+    const shouldDelete = confirm("Are you sure you want to delete this study?");
+    if (!shouldDelete) {
+      return;
+    }
+
+    setIsSaving(true);
+
+    await api_deleteStudy(studyDefState);
+
+    setIsSaving(false);
+
+    await qc.invalidateQueries();
+
+    props.onClose?.();
+  };
+
   const SdImgOrCellGen = (cell: SdImage | SdImagePlaceHolder) => (
     <SdCardOrTableCell
       cell={cell}
@@ -495,6 +522,11 @@ export function SdImageStudy(props: SdImageStudyProps) {
             )}
           </div>
           {props.newTabLink}
+          {props.isSavedInDb && (
+            <Button color="red" variant="subtle" onClick={handleDeleteStudy}>
+              delete study...
+            </Button>
+          )}
         </div>
 
         <Group>

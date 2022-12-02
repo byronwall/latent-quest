@@ -4,6 +4,7 @@
 
 - Add more controls to the study view to explore other images
 - Improve handling of image studies and how they are saved/updated in place
+- Add support for deleting image studies
 
 ## 2022-11-30 23:01:43
 
