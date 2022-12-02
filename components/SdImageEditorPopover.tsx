@@ -1,6 +1,9 @@
 import { Button, Modal } from "@mantine/core";
 import { useState } from "react";
-import { SdImageEditorPopoverProps, SdImageEditor } from "./SdImageEditor";
+
+import { SdImageEditor } from "./SdImageEditor";
+
+import type { SdImageEditorPopoverProps } from "./SdImageEditor";
 
 export function SdImageEditorPopover(props: SdImageEditorPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);

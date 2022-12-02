@@ -1,10 +1,10 @@
 import { Button, Menu } from "@mantine/core";
 
-import type { SdVariantHandler } from "./SdCardOrTableCell";
+import { handleCreateVariant } from "./handleCreateVariant";
+
 import type { SdImage } from "../libs/shared-types/src";
 
 interface SdVariantMenuProps {
-  onCreateVariant: SdVariantHandler;
   image: SdImage;
 }
 
@@ -12,7 +12,7 @@ interface SdVariantMenuProps {
 export const fixedStrength = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.3, 0.1];
 
 export function SdVariantMenu(props: SdVariantMenuProps) {
-  const { onCreateVariant, image } = props;
+  const { image } = props;
 
   const handleCustomClick = () => {
     const strength = prompt(
@@ -28,7 +28,7 @@ export function SdVariantMenu(props: SdVariantMenuProps) {
 
     const sdStrength = 1 - clampedStrength;
 
-    onCreateVariant(image, "SD 1.5", sdStrength);
+    handleCreateVariant(image, "SD 1.5", sdStrength);
   };
 
   return (
@@ -43,7 +43,7 @@ export function SdVariantMenu(props: SdVariantMenuProps) {
         <Menu.Label>SD variants (0% = brand new image)</Menu.Label>
         {fixedStrength.map((strength) => (
           <Menu.Item
-            onClick={() => onCreateVariant(image, "SD 1.5", strength)}
+            onClick={() => handleCreateVariant(image, "SD 1.5", strength)}
             key={strength}
           >
             {Math.round(100 * (1 - strength))}%
@@ -55,7 +55,7 @@ export function SdVariantMenu(props: SdVariantMenuProps) {
         <Menu.Divider />
         <Menu.Label>DALL-E</Menu.Label>
         <Menu.Item
-          onClick={() => props.onCreateVariant?.(image, "DALL-E")}
+          onClick={() => handleCreateVariant(image, "DALL-E")}
           color="indigo"
         >
           DALL-E

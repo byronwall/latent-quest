@@ -2,16 +2,13 @@ import { Stack, Title } from "@mantine/core";
 import { useQuery, useQueryClient } from "react-query";
 
 import { GroupNameViewEdit } from "./GroupNameViewEdit";
+import { SdGroupContext } from "./SdGroupContext";
 import { SdGroupTable } from "./SdGroupTable";
+import { SdImageStudyPopover } from "./SdImageStudyPopover";
 import { useGetImageGroup } from "./useGetImageGroup";
 import { useGetImageGroupStudies } from "./useGetImageGroupStudies";
-import { SdImageStudyPopover } from "./SdImageStudyPopover";
-import { SdGroupContext } from "./SdGroupContext";
 import { useGroupImageMap } from "./useGroupImageMap";
 
-import { api_generateImage } from "../model/api";
-
-import type { SdVariantHandler } from "./SdCardOrTableCell";
 import type {
   SdImage,
   SdImageGroup,
@@ -53,22 +50,6 @@ export function ImageGrid(props: ImageGridProps) {
 
   const qc = useQueryClient();
 
-  const handleCreateVariant: SdVariantHandler = async (
-    item,
-    engine,
-    strength
-  ) => {
-    await api_generateImage({
-      ...item,
-      variantSourceId: item.url,
-      prevImageId: item.id,
-      engine,
-      variantStrength: strength,
-    });
-
-    await qc.invalidateQueries();
-  };
-
   const groupImageMap = useGroupImageMap(imageGroupData);
 
   return (
@@ -94,10 +75,7 @@ export function ImageGrid(props: ImageGridProps) {
 
         <Stack style={{ width: "90vw", margin: "auto" }}>
           <Title order={1}>all images in group</Title>
-          <SdGroupTable
-            data={imageGroupData}
-            onCreateVariant={handleCreateVariant}
-          />
+          <SdGroupTable data={imageGroupData} />
         </Stack>
       </div>
     </SdGroupContext.Provider>

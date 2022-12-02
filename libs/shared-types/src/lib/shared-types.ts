@@ -79,10 +79,6 @@ export interface SdImageStudyDefSettingsPrompt {
   shouldShowFullPrompt?: boolean;
 }
 
-export function getValidEngine(engine: string): SdImageEngines {
-  return engine === "DALL-E" ? "DALL-E" : "SD 1.5";
-}
-
 export interface SdImageGroup {
   id: string;
   created_at: any;

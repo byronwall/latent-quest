@@ -13,11 +13,7 @@ import { useQueryClient } from "react-query";
 
 import { PromptEditor } from "./PromptEditor";
 
-import {
-  getBreakdownForText,
-  getRandomSeed,
-  getValidEngine,
-} from "../libs/shared-types/src";
+import { getBreakdownForText, getRandomSeed } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 
 import type {
@@ -83,7 +79,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
       cfg: cfg,
       steps: steps,
       seed: seed,
-      engine: getValidEngine(engine),
+      engine: engine,
       prevImageId: defaultImage?.id,
       groupId: defaultImage?.groupId,
     };

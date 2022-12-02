@@ -2,26 +2,16 @@ import "./styles.css";
 
 import { MantineProvider } from "@mantine/core";
 import Head from "next/head";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClientProvider } from "react-query";
 
 import { Navigation } from "../components/Navigation";
+import { queryClient } from "../components/queryClient";
 import { SdSelectedImages } from "../components/SdSelectedImages";
 
 import type { AppProps } from "next/app";
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
-
-  // disable the refresh when returning to the page
-  // consider adding back in for prod only?
-  // https://tanstack.com/query/v4/docs/guides/window-focus-refetching
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        refetchOnWindowFocus: false,
-      },
-    },
-  });
 
   return (
     <QueryClientProvider client={queryClient}>

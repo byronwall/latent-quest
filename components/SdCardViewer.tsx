@@ -6,17 +6,14 @@ import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { getFinalPromptText } from "./getTextOnlyFromPromptPartWithLabel";
 import { SdImageComp } from "./SdImageComp";
 
-import type { SdVariantHandler } from "./SdCardOrTableCell";
 import type { SdImage } from "../libs/shared-types/src";
 
 type SdCardViewerProps = {
   imageGroupData: SdImage[];
-
-  onCreateVariant: SdVariantHandler | undefined;
 };
 
 export function SdCardViewer(props: SdCardViewerProps) {
-  const { imageGroupData, onCreateVariant } = props;
+  const { imageGroupData } = props;
 
   // mapping is sub name -> unique choices
   const allSubValues: Record<string, Set<string>> = {};
@@ -155,7 +152,6 @@ export function SdCardViewer(props: SdCardViewerProps) {
                   <SdImageComp
                     image={sourceImage}
                     size={imageSize}
-                    onCreateVariant={onCreateVariant}
                     imageGroupData={imageGroupData}
                     shouldShowDetails
                   />
@@ -170,7 +166,6 @@ export function SdCardViewer(props: SdCardViewerProps) {
                     <SdImageComp
                       image={item}
                       size={imageSize}
-                      onCreateVariant={onCreateVariant}
                       imageGroupData={imageGroupData}
                       shouldShowDetails
                     />

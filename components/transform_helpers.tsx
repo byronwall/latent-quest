@@ -305,15 +305,18 @@ export function itemOrArrayContains(
     ? haystack.value
     : [haystack.value];
 
+  // this will force search terms to be strings
   const searchObj = searchVals.flatMap((c) =>
     String(c)
       .split("|")
       .map((c) => c.trim())
   );
 
+  const stringNeedles = needles.map(String);
+
   return isExactMatch
-    ? needles.some((v) => searchVals.includes(v))
-    : needles.some((v) => searchObj.includes(v));
+    ? stringNeedles.some((v) => searchVals.includes(v))
+    : stringNeedles.some((v) => searchObj.includes(v));
 }
 
 function getSortValueForXform(c: SdImageTransform) {

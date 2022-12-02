@@ -4,6 +4,11 @@ import { isPlaceholder } from "./isPlaceholder";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
 
+import type {
+  SdImageCompProps,
+  SdImageOrPlaceholderCommonProps,
+} from "./SdImageComp";
+import type { SdImagePlaceHolderCompProps } from "./SdImagePlaceHolderComp";
 import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 
 export type SdVariantHandler = (
@@ -12,28 +17,25 @@ export type SdVariantHandler = (
   strength?: number
 ) => void;
 
-export function SdCardOrTableCell(props: {
-  cell: SdImage | SdImagePlaceHolder;
-  imageSize: number;
+type SdCardOrTableCellProps = Partial<SdImagePlaceHolderCompProps> &
+  Partial<SdImageCompProps> &
+  SdImageOrPlaceholderCommonProps & {
+    cell: SdImage | SdImagePlaceHolder;
 
-  mainImage?: SdImage;
-  setMainImage?: (image: SdImage) => void;
-  onCreateVariant?: SdVariantHandler;
-}) {
-  const { cell, imageSize, mainImage, setMainImage } = props;
+    mainImage?: SdImage;
+    setMainImage?: (image: SdImage) => void;
+  };
+
+export function SdCardOrTableCell(props: SdCardOrTableCellProps) {
+  const { cell, mainImage, setMainImage } = props;
 
   const content =
     cell === undefined ? (
       <div />
     ) : isPlaceholder(cell) ? (
-      <SdImagePlaceHolderComp size={imageSize} placeholder={cell} />
+      <SdImagePlaceHolderComp {...props} placeholder={cell} />
     ) : (
-      <SdImageComp
-        image={cell}
-        size={imageSize}
-        onCreateVariant={props.onCreateVariant}
-        onSetMainImage={setMainImage ? () => setMainImage(cell) : undefined}
-      />
+      <SdImageComp {...props} image={cell} />
     );
 
   const isMainImage = mainImage && "id" in cell && mainImage.id === cell.id;

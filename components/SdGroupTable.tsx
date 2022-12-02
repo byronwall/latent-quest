@@ -8,13 +8,10 @@ import { SdImageComp } from "./SdImageComp";
 
 import { getTextForBreakdown } from "../libs/shared-types/src";
 
-import type { SdVariantHandler } from "./SdCardOrTableCell";
 import type { SdImage } from "../libs/shared-types/src";
 
 type SdGroupTableProps = {
   data: SdImage[];
-
-  onCreateVariant: SdVariantHandler;
 };
 
 export function SdGroupTable(props: SdGroupTableProps) {
@@ -111,14 +108,7 @@ export function SdGroupTable(props: SdGroupTableProps) {
   return (
     <div>
       <Switch label="Card View" checked={isCardView} onChange={setIsCardView} />
-      {isCardView ? (
-        <SdCardViewer
-          imageGroupData={data}
-          onCreateVariant={props.onCreateVariant}
-        />
-      ) : (
-        tableView
-      )}
+      {isCardView ? <SdCardViewer imageGroupData={data} /> : tableView}
     </div>
   );
 }

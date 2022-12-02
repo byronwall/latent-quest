@@ -50,6 +50,7 @@ import type {
   SdImageStudyDef,
   SdImageTransform,
   SdImageStudyDefSettings,
+  SdImagePlaceHolder,
 } from "../libs/shared-types/src";
 
 export interface SdImageStudyProps {
@@ -57,6 +58,8 @@ export interface SdImageStudyProps {
   imageGroupData: SdImage[];
 
   newTabLink?: React.ReactNode;
+
+  onUpdateParentStudyDef?(studyDef: SdImageStudyDef): void;
 }
 
 const fixedVariableChoices = [
@@ -396,11 +399,12 @@ export function SdImageStudy(props: SdImageStudyProps) {
     // do some logic here to convert the internal state to the saved include/force fields
 
     // push save state into current - should give bumpless return
-    await api_upsertStudy(saveData);
-
-    await qc.invalidateQueries();
+    const savedDef = await api_upsertStudy(saveData);
 
     setIsSaving(false);
+    props.onUpdateParentStudyDef?.(savedDef.data[0]);
+
+    await qc.invalidateQueries();
   };
 
   const isFieldVisible = (field: string) => {
@@ -463,6 +467,16 @@ export function SdImageStudy(props: SdImageStudyProps) {
     return !isEqual(studyData, saveData) || studyDefState.id === "";
   }, [studyData, saveData, studyDefState.id]);
 
+  const [shouldShowControls, setShouldShowControls] = useState(false);
+  tableData;
+  const SdImgOrCellGen = (cell: SdImage | SdImagePlaceHolder) => (
+    <SdCardOrTableCell
+      cell={cell}
+      size={imageSize}
+      mainImage={mainImage}
+      shouldShowDetails={shouldShowControls}
+    />
+  );
   return (
     <SdGroupContext.Provider value={{ groupImages: groupDataMap }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -499,6 +513,12 @@ export function SdImageStudy(props: SdImageStudyProps) {
                 setColVar("seed");
               }
             }}
+          />
+
+          <Switch
+            label="show controls"
+            checked={shouldShowControls}
+            onChange={setShouldShowControls}
           />
         </Group>
 
@@ -582,7 +602,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
                       </Button>
                     </p>
 
-                    <SdCardOrTableCell cell={row[0]} imageSize={imageSize} />
+                    {SdImgOrCellGen(row[0])}
                   </div>
                 );
               })}
@@ -644,13 +664,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
                       </td>
 
                       {row.map((cell, colIndex) => (
-                        <td key={colIndex}>
-                          <SdCardOrTableCell
-                            cell={cell}
-                            imageSize={imageSize}
-                            mainImage={mainImage}
-                          />
-                        </td>
+                        <td key={colIndex}>{SdImgOrCellGen(cell)}</td>
                       ))}
                     </>
                   </tr>

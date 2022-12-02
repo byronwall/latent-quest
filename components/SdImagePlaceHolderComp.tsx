@@ -12,10 +12,10 @@ import { getTextForBreakdown } from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 import { getUniversalIdFromImage } from "../libs/helpers";
 
+import type { SdImageOrPlaceholderCommonProps } from "./SdImageComp";
 import type { SdImagePlaceHolder } from "../libs/shared-types/src";
 
-type SdImagePlaceHolderCompProps = {
-  size: number;
+export type SdImagePlaceHolderCompProps = SdImageOrPlaceholderCommonProps & {
   placeholder: SdImagePlaceHolder;
 };
 

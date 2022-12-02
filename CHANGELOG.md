@@ -1,5 +1,10 @@
 # Changelog
 
+## 2022-12-01 21:01:44
+
+- Add more controls to the study view to explore other images
+- Improve handling of image studies and how they are saved/updated in place
+
 ## 2022-11-30 23:01:43
 
 - Add support for more SD engines

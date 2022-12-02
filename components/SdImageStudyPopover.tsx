@@ -33,11 +33,6 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
 
   const mainImage = imageGroupData.find((i) => i.id === mainImageId);
 
-  if (mainImage?.variantSourceId || mainImage?.urlImageSource) {
-    // do not allow studies on image that were generated from image prompts -- for now
-    return null;
-  }
-
   const initialStudyDef: SdImageStudyDef =
     "initialStudyDef" in props
       ? props.initialStudyDef
@@ -51,11 +46,19 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           settings: {},
         };
 
-  const newTabLink = initialStudyDef.id && (
+  const [activeStudyDef, setActiveStudyDef] =
+    useState<SdImageStudyDef>(initialStudyDef);
+
+  if (mainImage?.variantSourceId || mainImage?.urlImageSource) {
+    // do not allow studies on image that were generated from image prompts -- for now
+    return null;
+  }
+
+  const newTabLink = activeStudyDef.id && (
     <a
       target="_blank"
       rel="noreferrer"
-      href={`/study/${initialStudyDef.id}`}
+      href={`/study/${activeStudyDef.id}`}
       style={{
         padding: 10,
         background: "white",
@@ -75,7 +78,7 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           }}
           compact
         >
-          {initialStudyDef.title ?? "study"}...
+          {activeStudyDef.title ?? "study"}...
         </Button>
         {newTabLink}
       </div>
@@ -94,8 +97,9 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
         >
           <SdImageStudy
             imageGroupData={imageGroupData}
-            initialStudyDef={initialStudyDef}
+            initialStudyDef={activeStudyDef}
             newTabLink={newTabLink}
+            onUpdateParentStudyDef={setActiveStudyDef}
           />
         </div>
       </Modal>

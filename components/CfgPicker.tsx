@@ -36,7 +36,7 @@ export function CfgPicker(props: CfgPickerProps) {
       ))}
       <span>exclusions</span>
       <MultiSelect
-        data={exclusions.map((s) => s.toString())}
+        data={choices.map((s) => s.toString())}
         value={exclusions.map((s) => s.toString())}
         onChange={handleExclusionChange}
         clearable

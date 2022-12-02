@@ -12,16 +12,18 @@ import { SdImageStudyPopover } from "./SdImageStudyPopover";
 import { SdImageSubPopover } from "./SdImageSubPopover";
 import { SdVariantMenu } from "./SdVariantMenu";
 
-import { getTextForBreakdown } from "../libs/shared-types/src";
 import { useAppStore } from "../model/store";
+import { getTextForBreakdown } from "../libs/shared-types/src";
 import { getUniversalIdFromImage } from "../libs/helpers";
 
-import type { SdVariantHandler } from "./SdCardOrTableCell";
 import type { SdImage } from "../libs/shared-types/src";
 
-type SdImageCompProps = {
-  image: SdImage;
+export type SdImageOrPlaceholderCommonProps = {
   size: number;
+};
+
+export type SdImageCompProps = SdImageOrPlaceholderCommonProps & {
+  image: SdImage;
 
   disablePopover?: boolean;
 
@@ -30,7 +32,6 @@ type SdImageCompProps = {
   isMainImage?: boolean;
 
   onSetMainImage?(): void;
-  onCreateVariant?: SdVariantHandler;
 
   imageGroupData?: SdImage[];
 };
@@ -76,35 +77,31 @@ export function SdImageComp(props: SdImageCompProps) {
               onSetMainImage={onSetMainImage}
               isMainImage={isMainImage}
             />
-            {props.onCreateVariant && (
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 5,
-                }}
-              >
-                <SdVariantMenu
+
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 5,
+              }}
+            >
+              <SdVariantMenu image={image} />
+
+              <SdImageEditorPopover image={image} />
+
+              <SdImageStudyPopover
+                mainImageId={image.id}
+                imageGroupData={imageGroupData ?? []}
+                groupId={image.groupId}
+              />
+
+              {shouldShowDetails && (
+                <SdImageSubPopover
+                  availableCategories={selKeys}
                   image={image}
-                  onCreateVariant={props.onCreateVariant}
                 />
-
-                <SdImageEditorPopover image={image} />
-
-                <SdImageStudyPopover
-                  mainImageId={image.id}
-                  imageGroupData={imageGroupData ?? []}
-                  groupId={image.groupId}
-                />
-
-                {shouldShowDetails && (
-                  <SdImageSubPopover
-                    availableCategories={selKeys}
-                    image={image}
-                  />
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
 
