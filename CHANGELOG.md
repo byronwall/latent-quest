@@ -1,5 +1,23 @@
 # Changelog
 
+## 2022-12-03 09:12:28
+
+- Add suport for `collections` which allow arbitrary groups of images to be shown in one place
+  - New database tables to contain the info
+    - `collections` hold the main meta data
+    - `collections_images` contains the mapping of what images belong
+  - New route for `/collections/[id]`
+  - New APIs to manage the CRUD operations
+    - Create collection
+    - Get collect info (including images)
+    - Update collection info (name, display options)
+    - Delete collection
+    - Add image(s) to collection
+    - Remove images(s) from collection
+    - Provide a list of collection names to an `add to collection` dropdown
+  - New interface to `add to collection` from selected images
+  - Ability to `add to collection` from existing image comp
+
 ## 2022-12-01 21:01:44
 
 - Add more controls to the study view to explore other images
