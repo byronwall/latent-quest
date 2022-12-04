@@ -15,9 +15,6 @@ Dream Studio:
 DALL-E related:
     ☐ Figure out how to handle the grid when using DALL-E since seed is not real - maybe use `seed` even though it's not real?
 
-Variants and related:
-    ☐ Allow the variant strength to be part of the image grid
-
 Group viewer:
     ☐ Add a proper modal to the preview button for the main ImageList view -- maybe limit the number of images
     ☐ Allow studies to be shown on the main ImageList view
@@ -28,8 +25,6 @@ Image Grid:
 
     ☐ ability to change sort order of grid -- default appears to be descending
     ☐ sort by date within the groups so new images are first
-    ☐ Use a sticky or something for the previous image so it's always in frame
-    ☐ Show the total number of `gen all` options that will be generated for a study (avoid massive requests)
 
     ☐ Allow choosing the preview image(s) for the social graph image
     
@@ -37,12 +32,9 @@ Image Grid:
     ☐ Add a `gen all` button for each row/col of the grid?
 
 Image studies:
-    ☐ Figure out how to get the "open in new tab" link available for a just saved study
     ☐ Choose whether or not to show the main image in the grid when other forces/excludes are in place
-    ☐ Give options around multi-value subs -- filter any or exact match
     ☐ allow for a user defined note to be the grid variable - useful for image prompts where the user can describe what they were doing
     ☐ Forced choices should include the values for the main image
-    ☐ Ability to edit an image in the grid
     ☐ Ability to compare images when the study modal is open (button is behind backdrop)
     ☐ Consider setting prevImageId = main image when the grid is run
 
@@ -66,6 +58,9 @@ Random:
     ☐ Swap over to the REST API for DreamStudio: https://api.stability.ai/docs#tag/v1alphageneration/operation/v1alpha/generation#imageToImage
     ☐ Some issue with image selection where related images are selected
 
+Collections:
+    ☐ Add support for removing images from collections
+
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces
     ☐ Quick feature to remove `!` and other stuff from Lexica
@@ -75,4 +70,8 @@ Specific problems:
         ☐ Figure out why the `castle + drawbridge` image is generated multiple times
 
 Archive:
-  ✔ add ability to compare images side by side @done(22-11-24 00:13) @project(Image Grid)
+  ✔ Ability to edit an image in the grid @done(22-12-03 22:33) @project(Image studies)
+  ✔ Give options around multi-value subs -- filter any or exact match @done(22-12-03 22:33) @project(Image studies)
+  ✔ Figure out how to get the "open in new tab" link available for a just saved study @done(22-12-03 22:33) @project(Image studies)
+  ✔ Show the total number of `gen all` options that will be generated for a study (avoid massive requests) @done(22-12-03 22:33) @project(Image Grid)
+  ✔ Use a sticky or something for the previous image so it's always in frame @done(22-12-03 22:33) @project(Image Grid)
