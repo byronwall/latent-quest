@@ -2,7 +2,7 @@ import { supabase } from "./supabase";
 
 import { getUuid } from "../shared-types/src";
 
-import type { LqDbCollection } from "../../model/collections";
+import type { LqCollection, LqDbCollection } from "../../model/collections";
 
 export async function db_upsertCollection(collection: LqDbCollection) {
   // ensure the id is added if not present
@@ -20,12 +20,10 @@ export async function db_upsertCollection(collection: LqDbCollection) {
 }
 
 export async function db_getCollection(collectionId: string) {
-  // this also needs to grab the images and build the full object
-  // or build a view in the db that does this
-
+  // the images(*) relies on a composite primary key
   const { data, error } = await supabase
     .from("collections")
-    .select("*")
+    .select("*, images(*)")
     .eq("id", collectionId)
     .single();
 
@@ -33,7 +31,16 @@ export async function db_getCollection(collectionId: string) {
     throw error;
   }
 
-  return data;
+  const result = data as LqCollection;
+
+  // need to parse the JSONB fields since they're returned as strings
+  result.images.forEach((image) => {
+    if (typeof image.promptBreakdown === "string") {
+      image.promptBreakdown = JSON.parse(image.promptBreakdown);
+    }
+  });
+
+  return result;
 }
 
 export async function db_deleteCollection(collectionId: string) {
@@ -51,11 +58,19 @@ export async function db_deleteCollection(collectionId: string) {
 
 export async function db_addImageToCollection(
   collectionId: string,
-  sdImageId: string
+  sdImageId: string | string[]
 ) {
+  // force to array
+  const imageIds = Array.isArray(sdImageId) ? sdImageId : [sdImageId];
+
+  const entries = imageIds.map((imageId) => ({
+    collectionId,
+    imageId,
+  }));
+
   const { data, error } = await supabase
     .from("collection_images")
-    .insert({ collectionId, sdImageId });
+    .insert(entries);
 
   if (error) {
     throw error;
@@ -66,13 +81,15 @@ export async function db_addImageToCollection(
 
 export async function db_removeImageFromCollection(
   collectionId: string,
-  sdImageId: string
+  sdImageId: string | string[]
 ) {
+  const imageIds = Array.isArray(sdImageId) ? sdImageId : [sdImageId];
+
   const { data, error } = await supabase
     .from("collection_images")
     .delete()
     .eq("collectionId", collectionId)
-    .eq("sdImageId", sdImageId);
+    .in("imageId", imageIds);
 
   if (error) {
     throw error;

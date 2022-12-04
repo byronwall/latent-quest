@@ -39,9 +39,6 @@ export function api_updateGroupData(postData: SdImageGroup) {
 export const api_upsertStudy = (postData) =>
   simplePost<SdImageStudyDef, SdImageStudyDef[]>(`/api/studies`, postData);
 
-export const api_deleteStudy = (studyDef) =>
-  simpleDelete<SdImageStudyDef, any>(`/api/studies`, studyDef);
-
 export async function api_getStudy(id: string) {
   const url = getAbsUrl(`/api/studies/${id}`);
 
@@ -89,3 +86,7 @@ export const simpleGet =
 
     return res.data;
   };
+
+export const api_deleteStudy = simpleDelete<SdImageStudyDef, any>(
+  `/api/studies`
+);

@@ -1,12 +1,14 @@
 import type { SdImage } from "../libs/shared-types/src";
 
-export interface LqDbCollection {
+export interface LqDbCollectionInput {
   // optional fields will be supplied by the server (if needed)
   id?: string;
   dateCreated?: string;
 
   name: string;
 }
+
+export type LqDbCollection = Required<LqDbCollectionInput>;
 
 export interface LqDbCollectionImage {
   // optional field will be supplied by the server (if needed)
@@ -17,6 +19,6 @@ export interface LqDbCollectionImage {
   imageId: string;
 }
 
-export interface LqCollection extends Required<LqDbCollection> {
-  images: SdImage;
+export interface LqCollection extends LqDbCollection {
+  images: SdImage[];
 }

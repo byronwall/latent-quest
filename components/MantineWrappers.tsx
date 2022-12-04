@@ -1,13 +1,11 @@
-import {
-  Button,
-  Popover,
+import { Button, Popover, Switch as MSwitch, Tooltip } from "@mantine/core";
+import { useCallback } from "react";
+
+import type {
   PopoverProps,
-  Switch as MSwitch,
   SwitchProps as mSwitchProps,
-  Tooltip,
   TooltipProps,
 } from "@mantine/core";
-import { useCallback } from "react";
 
 type SwitchProps = Omit<mSwitchProps, "onChange"> & {
   onChange: (value: boolean) => void;

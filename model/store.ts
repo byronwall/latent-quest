@@ -2,19 +2,19 @@ import create from "zustand";
 
 import { getUniversalIdFromImage } from "../libs/helpers";
 
-import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
+import type { SdImage } from "../libs/shared-types/src";
 
 interface AppStore {
-  selectedImages: Record<string, SdImage | SdImagePlaceHolder>;
+  selectedImages: Record<string, SdImage>;
 
-  toggleSelectedImage: (image: SdImage | SdImagePlaceHolder) => void;
+  toggleSelectedImage: (image: SdImage) => void;
   clearSelectedImages: () => void;
 }
 
 export const useAppStore = create<AppStore>((set) => ({
   selectedImages: {},
 
-  toggleSelectedImage: (image: SdImage | SdImagePlaceHolder) => {
+  toggleSelectedImage: (image: SdImage) => {
     set((state) => {
       const { selectedImages } = state;
 

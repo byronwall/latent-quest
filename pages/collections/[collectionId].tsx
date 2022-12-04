@@ -1,41 +1,44 @@
-import Link from "next/link";
+import { Title } from "@mantine/core";
 
-import { SdImageStudy } from "../../components/SdImageStudy";
-import { queryFnGetImageGroup } from "../../components/useGetImageGroup";
-import { queryFnGetStudy } from "../../components/useGetStudy";
+import { queryFnGetSingleCollection } from "../../model/api_collections";
+import { SdImageComp } from "../../components/SdImageComp";
 
-import type { SdImageStudyProps } from "../../components/SdImageStudy";
+import type { LqCollection } from "../../model/collections";
 import type { GetServerSideProps } from "next";
 
-// TODO: this page is the study one -- convert to collection
+interface CollectionPageProps {
+  collection: LqCollection;
+}
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const studyId = params?.studyId as string;
+export const getServerSideProps: GetServerSideProps<
+  CollectionPageProps
+> = async ({ params }) => {
+  const collectionId = params?.collectionId as string;
 
-  const initialStudyDef = await queryFnGetStudy({ queryKey: [studyId] });
-
-  const groupId = initialStudyDef.groupId;
-
-  const imageGroupData = await queryFnGetImageGroup({ queryKey: [groupId] });
-
-  const props: SdImageStudyProps = {
-    imageGroupData,
-    initialStudyDef,
-  };
+  const collection = await queryFnGetSingleCollection({
+    queryKey: ["collection", collectionId],
+  });
 
   return {
-    props,
+    props: {
+      collection,
+    },
   };
 };
 
-export default function GroupPage(props: SdImageStudyProps) {
+export default function CollectionPage(props: CollectionPageProps) {
+  const { collection } = props;
+
+  const { images } = collection;
+
   return (
     <div style={{ width: "90vw", margin: "auto" }}>
-      <Link href={`/group/${props.initialStudyDef.groupId}`}>
-        Back to Group
-      </Link>
-
-      <SdImageStudy {...props} />
+      <Title order={1}>{collection.name}</Title>
+      <div style={{ display: "flex", flexWrap: "wrap" }}>
+        {images.map((image) => (
+          <SdImageComp key={image.id} image={image} size={256} />
+        ))}
+      </div>
     </div>
   );
 }

@@ -64,6 +64,7 @@ Random:
     ☐ Ensure that exisitng image data is loaded if a known image+mask URL are submitted
     ☐ For the prevImageId view, give some sort of summary or indication for what was changed
     ☐ Swap over to the REST API for DreamStudio: https://api.stability.ai/docs#tag/v1alphageneration/operation/v1alpha/generation#imageToImage
+    ☐ Some issue with image selection where related images are selected
 
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces

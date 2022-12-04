@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { SdSubChoice } from "../libs/shared-types/src";
+
+import type { SdSubChoice } from "../libs/shared-types/src";
 
 export function useChoices(activeCategory: string) {
   const queryFn = () =>

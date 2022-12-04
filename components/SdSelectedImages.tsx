@@ -1,12 +1,14 @@
 import { Button, Modal } from "@mantine/core";
+import { IconX } from "@tabler/icons";
 import { useState } from "react";
-import { IconClearAll, IconX } from "@tabler/icons";
 
 import { isPlaceholder } from "./isPlaceholder";
+import { MenuAddToCollection } from "./MenuAddToCollection";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
 
 import { useAppStore } from "../model/store";
+import { api_addImageToCollection } from "../model/api_collections";
 
 export function SdSelectedImages() {
   const selectedImages = useAppStore((s) => s.selectedImages);
@@ -20,12 +22,22 @@ export function SdSelectedImages() {
     return null;
   }
 
+  const handleAddToCollection = async (collectionId: string) => {
+    await api_addImageToCollection(
+      collectionId,
+      Object.values(selectedImages).map((i) => i.id)
+    );
+  };
+
   return (
     <>
       <div style={{ position: "fixed", bottom: 5, right: 5, display: "flex" }}>
         <Button onClick={() => setModalOpened(true)}>
           Selected Images {selKeys.length}
         </Button>
+
+        <MenuAddToCollection onAddToCollection={handleAddToCollection} />
+
         <Button onClick={clearSelectedImages} color="red" variant="subtle">
           <IconX />
         </Button>
