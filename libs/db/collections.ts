@@ -1,11 +1,15 @@
-// - New APIs to manage the CRUD operations
-// - Create collection and save to supabase
-
 import { supabase } from "./supabase";
+
+import { getUuid } from "../shared-types/src";
 
 import type { LqDbCollection } from "../../model/collections";
 
 export async function db_upsertCollection(collection: LqDbCollection) {
+  // ensure the id is added if not present
+  if ("id" in collection === false || collection.id === undefined) {
+    collection.id = getUuid();
+  }
+
   const { data, error } = await supabase.from("collections").upsert(collection);
 
   if (error) {
@@ -15,9 +19,10 @@ export async function db_upsertCollection(collection: LqDbCollection) {
   return data;
 }
 
-// - Get collection info (including images)
-
 export async function db_getCollection(collectionId: string) {
+  // this also needs to grab the images and build the full object
+  // or build a view in the db that does this
+
   const { data, error } = await supabase
     .from("collections")
     .select("*")
@@ -31,8 +36,6 @@ export async function db_getCollection(collectionId: string) {
   return data;
 }
 
-// - Delete collection
-
 export async function db_deleteCollection(collectionId: string) {
   const { data, error } = await supabase
     .from("collections")
@@ -45,8 +48,6 @@ export async function db_deleteCollection(collectionId: string) {
 
   return data;
 }
-
-// - Add images to collection
 
 export async function db_addImageToCollection(
   collectionId: string,
@@ -62,8 +63,6 @@ export async function db_addImageToCollection(
 
   return data;
 }
-
-// - Remove images from collection
 
 export async function db_removeImageFromCollection(
   collectionId: string,
@@ -81,8 +80,6 @@ export async function db_removeImageFromCollection(
 
   return data;
 }
-
-// - Get all collections
 
 export async function db_getAllCollections() {
   const { data, error } = await supabase.from("collections").select("*");

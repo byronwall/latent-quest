@@ -60,11 +60,32 @@ async function simplePost<TPostData, TResData>(url: string, data: any) {
   return res.data;
 }
 
-async function simpleDelete<TDelData, TResData = any>(
-  url: string,
-  data: TDelData
-) {
-  const res = await axios.delete<TResData>(url, { data });
+export const simpleDelete =
+  <TDelData, TResData = any>(relativeUrl: string) =>
+  async (data: TDelData) => {
+    const absoluteUrl = getAbsUrl(relativeUrl);
+    const res = await axios.delete<TResData>(absoluteUrl, { data });
 
-  return res.data;
-}
+    return res.data;
+  };
+
+export const simplePut =
+  <TPutData, TResData = any>(relativeUrl: string) =>
+  async (data: TPutData) => {
+    const absoluteUrl = getAbsUrl(relativeUrl);
+    const res = await axios.put<TResData, AxiosResponse<TResData>, TPutData>(
+      absoluteUrl,
+      data as any
+    );
+
+    return res.data;
+  };
+
+export const simpleGet =
+  <TResData = any>(relativeUrl: string) =>
+  async () => {
+    const absoluteUrl = getAbsUrl(relativeUrl);
+    const res = await axios.get<TResData, AxiosResponse<TResData>>(absoluteUrl);
+
+    return res.data;
+  };

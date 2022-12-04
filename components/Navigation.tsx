@@ -19,6 +19,13 @@ export function Navigation() {
       <Link href="/create" passHref>
         <NavLink component="a" label="create" active={pathname === "/create"} />
       </Link>
+      <Link href="/collections" passHref>
+        <NavLink
+          component="a"
+          label="collections"
+          active={pathname === "/collections"}
+        />
+      </Link>
       <Link href="/choices" passHref>
         <NavLink
           component="a"
