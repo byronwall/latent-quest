@@ -27,6 +27,7 @@ const engineLabelMap: Partial<Record<SdImageEngines, string>> = {
   "SD 1.5": "stable-diffusion-v1-5",
   "SD 2.0 512px": "stable-diffusion-512-v2-0",
   "SD 2.0 768px": "stable-diffusion-768-v2-0",
+  "SD 2.0 inpaint": "stable-inpainting-512-v2-0",
 };
 
 const defaultEngine = engineLabelMap["SD 1.5"];

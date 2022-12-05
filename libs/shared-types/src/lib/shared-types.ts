@@ -9,7 +9,8 @@ export type SdImageEngines =
   | "SD 1.4"
   | "SD 1.5"
   | "SD 2.0 512px"
-  | "SD 2.0 768px";
+  | "SD 2.0 768px"
+  | "SD 2.0 inpaint";
 
 interface CommonDbFields {
   id: string;

@@ -32,6 +32,7 @@ export const engine_choices: SdImageEngines[] = [
   "SD 1.5",
   "SD 2.0 512px",
   "SD 2.0 768px",
+  "SD 2.0 inpaint",
 ];
 
 interface SdNewImagePromptProps {

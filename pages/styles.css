@@ -437,3 +437,11 @@ table th + th {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.anchor-grid-item {
+  border: 1px solid #ccc;
+}
+
+.anchor-grid-item.active {
+  background-color: red;
+}

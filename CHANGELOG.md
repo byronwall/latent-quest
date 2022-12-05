@@ -1,5 +1,14 @@
 # Changelog
 
+## 2022-12-04 22:44:55
+
+- Add support for `SD 2.0 inpainting` model
+- Add controls to quickly out paint an image using an anchor and some size settings
+  - This will also randomly sample the starting noise based on current image colors
+- Revise the `collections_image` table to use a UUID for the ID
+  - Some sort of issue with Supabase generating multiple IDs on a bulk insert?
+- Add some error traps in the collection code
+
 ## 2022-12-03 09:12:28
 
 - Add suport for `collections` which allow arbitrary groups of images to be shown in one place

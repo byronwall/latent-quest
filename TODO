@@ -57,13 +57,17 @@ Random:
     ☐ For the prevImageId view, give some sort of summary or indication for what was changed
     ☐ Swap over to the REST API for DreamStudio: https://api.stability.ai/docs#tag/v1alphageneration/operation/v1alpha/generation#imageToImage
     ☐ Some issue with image selection where related images are selected
+    ☐ Considr a bin packing approach to laying out images: https://github.com/jakesgordon/bin-packing/blob/master/js/packer.js
 
 Collections:
     ☐ Add support for removing images from collections
+    ☐ Link to get to image group
+    ☐ Show controls to edit images
 
 Prompt editor:
     ☐ add a quick cleanup mode to change periods to spaces
     ☐ Quick feature to remove `!` and other stuff from Lexica
+    ☐ Add a text only mode that ignores the quick removal of stuff between commas (consider this default)
 
 Specific problems:
     ☐ http://localhost:3000/group/06236dd2-d7a5-4bc7-8129-38fe28fd5343

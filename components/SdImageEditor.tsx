@@ -5,9 +5,11 @@ import { useQueryClient } from "react-query";
 import { getImageUrl } from "./ImageList";
 import { Switch } from "./MantineWrappers";
 import { SdNewImagePrompt } from "./SdNewImagePrompt";
+import { LqOutPaintControls } from "./LqOutPaintControls";
 
 import { api_generateImage } from "../model/api";
 
+import type { OutPaintHandler } from "./LqOutPaintControls";
 import type { ImgObjWithExtras } from "../model/api";
 import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 
@@ -384,7 +386,12 @@ export function SdImageEditor(props: SdImageEditorProps) {
     console.log("res", res);
   };
 
-  const handleOutPaint = async () => {
+  const handleOutPaint: OutPaintHandler = async (
+    anchor,
+    topSize,
+    leftSize,
+    overlapPercent
+  ) => {
     const ctx = getCanvasCtx(canvasRef);
     if (ctx === undefined) {
       return;
@@ -392,18 +399,34 @@ export function SdImageEditor(props: SdImageEditorProps) {
     const url = getImageUrl(props.image.url);
     const img = await getImageForCtx(url);
 
-    ctx.clearRect(0, 0, img.width, img.height);
+    // determine the x/y coord to draw image based on anchor (top-left, top, top-right, left, center, right, bottom-left, bottom, bottom-right)
+    // and the size of the image
 
-    const outPaintSize = 80;
-    const maskOutPaintSize = outPaintSize * 1.5;
+    const {
+      x: destX,
+      y: destY,
+      newWidthLessBorder,
+      newHeightLessBorder,
+    } = getStartPosForAnchor(anchor, topSize, leftSize, img.width, img.height);
 
-    ctx.drawImage(
-      img,
-      outPaintSize,
-      outPaintSize,
-      512 - outPaintSize * 2,
-      512 - outPaintSize * 2
+    // same for mask, but using a top and left that are 20% larger
+    const {
+      x: destMaskX,
+      y: destMaskY,
+      newWidthLessBorder: newMaskWidthLessBorder,
+      newHeightLessBorder: newMaskHeightLessBorder,
+    } = getStartPosForAnchor(
+      anchor,
+      topSize * (1 + overlapPercent / 100),
+      leftSize * (1 + overlapPercent / 100),
+      img.width,
+      img.height
     );
+
+    fillCanvasWithRandomNoise(ctx);
+
+    // draw image starting at anchor and using new dims
+    ctx.drawImage(img, destX, destY, newWidthLessBorder, newHeightLessBorder);
 
     const { dataUrl } = await getDataUrls("SD 1.5");
     setInitImgData(dataUrl);
@@ -424,10 +447,10 @@ export function SdImageEditor(props: SdImageEditorProps) {
     // fill white region in middle where image is
     maskCtx.fillStyle = "white";
     maskCtx.fillRect(
-      maskOutPaintSize,
-      maskOutPaintSize,
-      512 - maskOutPaintSize * 2,
-      512 - maskOutPaintSize * 2
+      destMaskX,
+      destMaskY,
+      newMaskWidthLessBorder,
+      newMaskHeightLessBorder
     );
   };
 
@@ -490,7 +513,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
       <div style={{ display: "flex", gap: 5 }}>
         <div>
           <Button onClick={() => handleRedrawImage()}>redraw image</Button>
-          <Button onClick={handleOutPaint}>out paint</Button>
+
           <Button onClick={handleZoomIntoSelection}>zoom in</Button>
           <Button onClick={handleSdProcess}>download PNGs</Button>
           {(props.image.urlMaskSource || props.image.urlImageSource) && (
@@ -499,7 +522,9 @@ export function SdImageEditor(props: SdImageEditorProps) {
             </Button>
           )}
           <Button onClick={handleFilterGreyscale}>greyscale</Button>
+          <LqOutPaintControls onOutPaint={handleOutPaint} />
         </div>
+
         <div>
           <Button
             variant={activeTool === "clear_rect" ? "filled" : "outline"}
@@ -686,6 +711,51 @@ export interface SdImageEditorProps {
 
 export type SdImageEditorPopoverProps = SdImageEditorProps;
 
+function getStartPosForAnchor(
+  anchor: string,
+  topSize: number,
+  leftSize: number,
+  canvasWidth: number,
+  canvasHeight: number
+) {
+  let x = 0;
+  let y = 0;
+
+  if (anchor === "top-left") {
+    x = 0;
+    y = 0;
+  } else if (anchor === "top") {
+    x = topSize / 2;
+    y = 0;
+  } else if (anchor === "top-right") {
+    x = topSize;
+    y = 0;
+  } else if (anchor === "left") {
+    x = 0;
+    y = leftSize / 2;
+  } else if (anchor === "center") {
+    x = topSize / 2;
+    y = leftSize / 2;
+  } else if (anchor === "right") {
+    x = topSize;
+    y = leftSize / 2;
+  } else if (anchor === "bottom-left") {
+    x = 0;
+    y = leftSize;
+  } else if (anchor === "bottom") {
+    x = topSize / 2;
+    y = leftSize;
+  } else if (anchor === "bottom-right") {
+    x = topSize;
+    y = leftSize;
+  }
+
+  const newWidthLessBorder = canvasWidth - leftSize;
+  const newHeightLessBorder = canvasHeight - topSize;
+
+  return { x, y, newWidthLessBorder, newHeightLessBorder };
+}
+
 function downloadDataUri(dataUri: string, fileName: string) {
   const link = document.createElement("a");
   link.download = fileName;
@@ -712,4 +782,59 @@ async function getImageForCtx(url: string) {
   });
 
   return img;
+}
+
+function fillCanvasWithRandomNoise(ctx: CanvasRenderingContext2D) {
+  const height = ctx.canvas.height;
+  const width = ctx.canvas.width;
+
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+
+  // build a list of colors present in data -- store the count of each color
+  const colors = new Map<string, number>();
+  for (let i = 0; i < data.length; i += 4) {
+    // pull out the r g b channels
+    // quantize to 16 levels
+    const r = Math.floor(data[i] / 16) * 16;
+    const g = Math.floor(data[i + 1] / 16) * 16;
+    const b = Math.floor(data[i + 2] / 16) * 16;
+
+    // build a string key for the color
+    const colorKey = `${r},${g},${b}`;
+
+    // increment the count for this color
+    const count = colors.get(colorKey) || 0;
+    colors.set(colorKey, count + 1);
+  }
+
+  // keep the 16 most common color -- only need the key
+  const sortedColors = Array.from(colors.entries()).sort((a, b) => {
+    return b[1] - a[1];
+  });
+
+  const topColors = sortedColors.slice(0, 16).map((c) => c[0]);
+
+  // convert those top colors into arrays of r g b
+  const topColorsRgb = topColors.map((c) => {
+    const [r, g, b] = c.split(",");
+    return [parseInt(r), parseInt(g), parseInt(b)];
+  });
+
+  console.log("top colors source nad result", topColors, topColorsRgb);
+
+  for (let i = 0; i < data.length; i += 4) {
+    // pick a random color from the top 16
+    const randomColor = topColorsRgb[Math.floor(Math.random() * 16)];
+
+    const [r, g, b] = randomColor;
+
+    // set the r g b channels
+    data[i] = r;
+    data[i + 1] = g;
+    data[i + 2] = b;
+
+    data[i + 3] = 255;
+  }
+  ctx.putImageData(imageData, 0, 0);
 }

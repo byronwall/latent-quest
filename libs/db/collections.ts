@@ -38,6 +38,10 @@ export async function db_getCollection(collectionId: string) {
 
   const _result = data as result[];
 
+  if (_result.length === 0) {
+    return [];
+  }
+
   const result: LqCollection = {
     ..._result[0].collections,
     images: _result.map((r) => r.images),
@@ -74,6 +78,7 @@ export async function db_addImageToCollection(
   const imageIds = Array.isArray(sdImageId) ? sdImageId : [sdImageId];
 
   const entries = imageIds.map((imageId) => ({
+    id: getUuid(),
     collectionId,
     imageId,
   }));
