@@ -1,5 +1,10 @@
 # Changelog
 
+## 2022-12-19 22:03:53
+
+- Add support for TailwindCSS
+  - Start adding class names to remove Mantine and move over to Tailwind
+
 ## 2022-12-04 22:44:55
 
 - Add support for `SD 2.0 inpainting` model

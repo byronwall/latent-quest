@@ -1,6 +1,5 @@
 import { Button, Card } from "@mantine/core";
 import axios from "axios";
-import { result } from "lodash-es";
 import Link from "next/link";
 import { useQueryClient } from "react-query";
 
@@ -43,29 +42,29 @@ export function ImageList(props: ImageListProps) {
 
   return (
     <div>
-      <h1>image groups</h1>
       <div>
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
+        <div className="grid grid-cols-3  md:grid-cols-4 lg:grid-cols-5 gap-2">
+          <div className="p-3 flex flex-col gap-2">
+            <h1 className="text-3xl">image groups</h1>
+            <p>
+              This page provides a list of all image groups you have created.
+            </p>
+          </div>
           {groupList.map((group) => {
             const img = group.images[0];
             if (img === undefined) {
               return null;
             }
             return (
-              <Card key={group.id} style={{ border: "1px solid black" }}>
-                <p>{group.view_settings.name} </p>
+              <div key={group.id} className="p-3">
                 <Link href={`/group/${group.id}`}>
-                  <div>
-                    <SdImageComp image={img} size={200} disablePopover />
+                  <div className="cursor-pointer hover:ring-2">
+                    <SdImageComp image={img} size={256} disablePopover />
                     <p>total items: {group.images.length}</p>
                   </div>
                 </Link>
-                <div>
-                  <Button onClick={() => handleDelete(group.id)}>
-                    delete...
-                  </Button>
-                </div>
-              </Card>
+                <p>{group.view_settings.name} </p>
+              </div>
             );
           })}
         </div>

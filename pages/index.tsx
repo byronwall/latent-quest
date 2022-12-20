@@ -1,7 +1,8 @@
-import { GetServerSideProps } from "next";
-
-import { AllGroupResponse, ImageList } from "../components/ImageList";
+import { ImageList } from "../components/ImageList";
 import { queryFnGetAllGroups } from "../components/useGetAllGroups";
+
+import type { GetServerSideProps } from "next";
+import type { AllGroupResponse } from "../components/ImageList";
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const groupList = await queryFnGetAllGroups();
@@ -20,11 +21,5 @@ export interface ImageListProps {
 }
 
 export default function Index(props: ImageListProps) {
-  return (
-    <>
-      <div style={{ width: "90vw", margin: "auto" }}>
-        <ImageList {...props} />
-      </div>
-    </>
-  );
+  return <ImageList {...props} />;
 }
