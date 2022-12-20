@@ -11,6 +11,7 @@ Image editor:
 Dream Studio:
     ☐ Catch error related to bad prompt: `a highly detailed epic cinematic concept art, a thin man in a black coat and bowler hat talks with  young girl who is dressed in a red coat`
         ☐ "Young girl" is not allowed -- get error back to user
+    ☐ Add a default sampler like `DDIM`
 
 DALL-E related:
     ☐ Figure out how to handle the grid when using DALL-E since seed is not real - maybe use `seed` even though it's not real?
@@ -58,6 +59,8 @@ Random:
     ☐ Swap over to the REST API for DreamStudio: https://api.stability.ai/docs#tag/v1alphageneration/operation/v1alpha/generation#imageToImage
     ☐ Some issue with image selection where related images are selected
     ☐ Considr a bin packing approach to laying out images: https://github.com/jakesgordon/bin-packing/blob/master/js/packer.js
+    ☐ Consider switching over to fabric.js for canvas management - https://aprilescobar.medium.com/part-3-fabric-js-on-react-fabric-image-fromurl-4185e0d945d3
+    ☐ Get a good set of meta tags created - test at: https://metatags.io/
 
 Collections:
     ☐ Add support for removing images from collections

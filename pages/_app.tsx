@@ -1,4 +1,5 @@
-import "./styles.css";
+// import "./styles.css";
+import "../styles/globals.css";
 
 import { MantineProvider } from "@mantine/core";
 import Head from "next/head";
@@ -30,7 +31,7 @@ export default function App(props: AppProps) {
           colorScheme: "light",
         }}
       >
-        <div className="container">
+        <div>
           <Navigation />
         </div>
         <Component {...pageProps} />
