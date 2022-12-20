@@ -1,4 +1,3 @@
-import { Button, Card } from "@mantine/core";
 import axios from "axios";
 import Link from "next/link";
 import { useQueryClient } from "react-query";
@@ -43,8 +42,8 @@ export function ImageList(props: ImageListProps) {
   return (
     <div>
       <div>
-        <div className="grid grid-cols-2 sm:grid-cols-3  md:grid-cols-4 lg:grid-cols-5 gap-2">
-          <div className="p-3 flex flex-col gap-2">
+        <div className="grid grid-cols-2 gap-2  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="flex flex-col gap-2 p-3">
             <h1 className="text-3xl">image groups</h1>
             <p>
               This page provides a list of all image groups you have created.

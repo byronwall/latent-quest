@@ -1,5 +1,6 @@
-import { Button, MultiSelect } from "@mantine/core";
+import { MultiSelect } from "@mantine/core";
 
+import { Button } from "./Button";
 import { fixedStrength } from "./SdVariantMenu";
 import { getVariantStrengthDisplayValue } from "./transform_helpers";
 

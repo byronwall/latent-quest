@@ -1,4 +1,4 @@
-import { Button, Modal, Stack } from "@mantine/core";
+import { Modal, Stack } from "@mantine/core";
 import { IconCircleCheck, IconCircleDashed, IconZoomIn } from "@tabler/icons";
 import Image from "next/image";
 import { useState } from "react";
@@ -11,6 +11,7 @@ import { SdImageEditorPopover } from "./SdImageEditorPopover";
 import { SdImageStudyPopover } from "./SdImageStudyPopover";
 import { SdImageSubPopover } from "./SdImageSubPopover";
 import { SdVariantMenu } from "./SdVariantMenu";
+import { Button } from "./Button";
 
 import { useAppStore } from "../model/store";
 import { getTextForBreakdown } from "../libs/shared-types/src";

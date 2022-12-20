@@ -1,16 +1,10 @@
-import {
-  Button,
-  Group,
-  Loader,
-  NumberInput,
-  Select,
-  Stack,
-} from "@mantine/core";
+import { Group, Loader, NumberInput, Select, Stack } from "@mantine/core";
 import { IconArrowsShuffle } from "@tabler/icons";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 
+import { Button } from "./Button";
 import { PromptEditor } from "./PromptEditor";
 
 import { getBreakdownForText, getRandomSeed } from "../libs/shared-types/src";

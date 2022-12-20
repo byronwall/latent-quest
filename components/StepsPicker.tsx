@@ -1,4 +1,6 @@
-import { Button, MultiSelect } from "@mantine/core";
+import { MultiSelect } from "@mantine/core";
+
+import { Button } from "./Button";
 
 import type { CommonPickerProps } from "./CommonPickerProps";
 

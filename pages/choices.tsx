@@ -1,8 +1,9 @@
-import { Button, Select, Textarea, TextInput, Title } from "@mantine/core";
+import { Select, Textarea, TextInput, Title } from "@mantine/core";
 import axios from "axios";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 
+import { Button } from "../components/Button";
 import { SdSubChooser } from "../components/SdSubChooser";
 import { useChoiceCategories, useChoices } from "../model/api_hooks";
 

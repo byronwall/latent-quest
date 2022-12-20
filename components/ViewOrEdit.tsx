@@ -1,4 +1,4 @@
-import { Button, TextInput, Title } from "@mantine/core";
+import { TextInput, Title } from "@mantine/core";
 import {
   IconCaretDown,
   IconDeviceFloppy,
@@ -6,6 +6,8 @@ import {
   IconX,
 } from "@tabler/icons";
 import { useState } from "react";
+
+import { Button } from "./Button";
 
 interface ViewOrEditProps {
   value: string;

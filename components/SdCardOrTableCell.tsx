@@ -1,8 +1,7 @@
-import { Button } from "@mantine/core";
-
 import { isPlaceholder } from "./isPlaceholder";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
+import { Button } from "./Button";
 
 import type {
   SdImageCompProps,

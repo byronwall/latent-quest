@@ -1,7 +1,8 @@
-import { Button, Modal } from "@mantine/core";
+import { Modal } from "@mantine/core";
 import { IconX } from "@tabler/icons";
 import { useState } from "react";
 
+import { Button } from "./Button";
 import { isPlaceholder } from "./isPlaceholder";
 import { MenuAddToCollection } from "./MenuAddToCollection";
 import { SdImageComp } from "./SdImageComp";

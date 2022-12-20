@@ -1,7 +1,8 @@
-import { Button, Modal } from "@mantine/core";
+import { Modal } from "@mantine/core";
 import { useState } from "react";
 
 import { SdImageStudy } from "./SdImageStudy";
+import { Button } from "./Button";
 
 import type { SdImage, SdImageStudyDef } from "../libs/shared-types/src";
 

@@ -1,7 +1,7 @@
-import { Button, Loader, TextInput, Title } from "@mantine/core";
+import { Loader, TextInput, Title } from "@mantine/core";
+import Link from "next/link";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
-import Link from "next/link";
 
 import {
   api_createCollection,
@@ -9,7 +9,7 @@ import {
   queryFnGetCollections,
   useGetCollections,
 } from "../../model/api_collections";
-import { api_deleteStudy } from "../../model/api";
+import { Button } from "../../components/Button";
 
 import type { LqDbCollection } from "../../model/collections";
 import type { GetServerSideProps } from "next";

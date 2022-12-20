@@ -1,6 +1,7 @@
-import { Button, Modal } from "@mantine/core";
+import { Modal } from "@mantine/core";
 import { useState } from "react";
 
+import { Button } from "./Button";
 import { SdImageEditor } from "./SdImageEditor";
 
 import type { SdImageEditorPopoverProps } from "./SdImageEditor";

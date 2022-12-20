@@ -1,5 +1,6 @@
 Things to fix after styling:
     ☐ Add the group delete feature back in
+    ☐ Add color prop and compact back to Button styles
 
 Sub builder:
     ☐ Add a quick build to run X new seeds from the same image

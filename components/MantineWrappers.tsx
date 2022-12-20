@@ -1,4 +1,4 @@
-import { Button, Popover, Switch as MSwitch, Tooltip } from "@mantine/core";
+import { Popover, Switch as MSwitch, Tooltip } from "@mantine/core";
 import { useCallback } from "react";
 
 import type {
@@ -20,22 +20,6 @@ export function Switch(props: SwitchProps) {
   );
 
   return <MSwitch {...rest} onChange={handleChange} />;
-}
-
-export function JsonButton(props: { obj: any }) {
-  const { obj } = props;
-  return (
-    <Popover>
-      <Popover.Target>
-        <Button>JSON</Button>
-      </Popover.Target>
-      <Popover.Dropdown>
-        <div>
-          <pre>{JSON.stringify(obj, null, 2)}</pre>
-        </div>
-      </Popover.Dropdown>
-    </Popover>
-  );
 }
 
 export function TooltipCommon(props: TooltipProps) {

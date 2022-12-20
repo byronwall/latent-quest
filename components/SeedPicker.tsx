@@ -1,6 +1,8 @@
-import { Button, MultiSelect, NumberInput } from "@mantine/core";
+import { MultiSelect, NumberInput } from "@mantine/core";
 import { IconArrowsShuffle, IconPlus } from "@tabler/icons";
 import { useState } from "react";
+
+import { Button } from "./Button";
 
 import { getRandomSeed } from "../libs/shared-types/src";
 

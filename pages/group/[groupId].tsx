@@ -26,9 +26,5 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 };
 
 export default function GroupPage(props: ImageGridProps) {
-  return (
-    <div>
-      <ImageGrid {...props} />
-    </div>
-  );
+  return <ImageGrid {...props} />;
 }

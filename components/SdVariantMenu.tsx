@@ -1,5 +1,6 @@
-import { Button, Menu } from "@mantine/core";
+import { Menu } from "@mantine/core";
 
+import { Button } from "./Button";
 import { handleCreateVariant } from "./handleCreateVariant";
 
 import type { SdImage } from "../libs/shared-types/src";

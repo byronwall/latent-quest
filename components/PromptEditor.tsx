@@ -1,18 +1,20 @@
-import { Badge, Button, Menu, useMantineTheme } from "@mantine/core";
+import { Badge, Menu, useMantineTheme } from "@mantine/core";
 import { useTextSelection } from "@mantine/hooks";
 
-import {
-  getBreakdownForText,
-  getTextForBreakdown,
-  PromptBreakdown,
-  PromptPart,
-} from "../libs/shared-types/src";
-import { useChoiceCategories } from "../model/api_hooks";
+import { Button } from "./Button";
 import { getSelectionFromPromptPart } from "./getSelectionFromPromptPart";
 import { getTextOnlyFromPromptPartWithLabel } from "./getTextOnlyFromPromptPartWithLabel";
 import { pickTextColorBasedOnBgColorAdvanced } from "./pickTextColorBasedOnBgColorAdvanced";
 import { TextAreaWithButton } from "./TextAreaWithButton";
 import { useControlledUncontrolled } from "./useControlledUncontrolled";
+
+import {
+  getBreakdownForText,
+  getTextForBreakdown,
+} from "../libs/shared-types/src";
+import { useChoiceCategories } from "../model/api_hooks";
+
+import type { PromptBreakdown, PromptPart } from "../libs/shared-types/src";
 
 interface PromptEditorProps {
   onBreakdownChange: (newBreakdown: PromptBreakdown) => void;

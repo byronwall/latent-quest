@@ -1,4 +1,4 @@
-import { Button, Group, Loader, Select, Stack, Table } from "@mantine/core";
+import { Group, Loader, Select, Stack, Table } from "@mantine/core";
 import { IconEyeOff, IconWand } from "@tabler/icons";
 import produce from "immer";
 import { isEqual, orderBy, uniq } from "lodash-es";
@@ -6,6 +6,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useMap } from "react-use";
 
+import { Button } from "./Button";
 import { CfgPicker } from "./CfgPicker";
 import { EnginePicker } from "./EnginePicker";
 import {

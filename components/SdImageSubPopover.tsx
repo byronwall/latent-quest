@@ -1,5 +1,4 @@
 import {
-  Button,
   Loader,
   Menu,
   Modal,
@@ -13,6 +12,7 @@ import { useContext, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useUpdateEffect } from "react-use";
 
+import { Button } from "./Button";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
 import { SdSubChooser } from "./SdSubChooser";

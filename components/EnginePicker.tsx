@@ -1,6 +1,7 @@
-import { Button, MultiSelect } from "@mantine/core";
+import { MultiSelect } from "@mantine/core";
 
 import { engine_choices } from "./SdNewImagePrompt";
+import { Button } from "./Button";
 
 import type { CommonPickerProps } from "./CommonPickerProps";
 

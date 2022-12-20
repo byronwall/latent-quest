@@ -1,4 +1,4 @@
-import { Button, ColorPicker, Slider, Title } from "@mantine/core";
+import { ColorPicker, Slider, Title } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 
@@ -6,6 +6,7 @@ import { getImageUrl } from "./ImageList";
 import { Switch } from "./MantineWrappers";
 import { SdNewImagePrompt } from "./SdNewImagePrompt";
 import { LqOutPaintControls } from "./LqOutPaintControls";
+import { Button } from "./Button";
 
 import { api_generateImage } from "../model/api";
 

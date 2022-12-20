@@ -1,8 +1,9 @@
-import { Button, Loader } from "@mantine/core";
+import { Loader } from "@mantine/core";
 import { IconWand } from "@tabler/icons";
 import { useContext, useState } from "react";
 import { useQueryClient } from "react-query";
 
+import { Button } from "./Button";
 import { TooltipCommon } from "./MantineWrappers";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdGroupContext } from "./SdGroupContext";

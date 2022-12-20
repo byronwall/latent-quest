@@ -1,6 +1,7 @@
-import { Button, MultiSelect } from "@mantine/core";
+import { MultiSelect } from "@mantine/core";
 import { orderBy, uniq } from "lodash-es";
 
+import { Button } from "./Button";
 import { Switch } from "./MantineWrappers";
 import { SdImageSubPopover } from "./SdImageSubPopover";
 

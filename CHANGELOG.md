@@ -4,6 +4,7 @@
 
 - Add support for TailwindCSS
   - Start adding class names to remove Mantine and move over to Tailwind
+  - Remove all Button classes that point to Mantine - more styles needed
 
 ## 2022-12-04 22:44:55
 

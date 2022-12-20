@@ -1,5 +1,5 @@
 import { Stack, Title } from "@mantine/core";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 
 import { GroupNameViewEdit } from "./GroupNameViewEdit";
 import { SdGroupContext } from "./SdGroupContext";
@@ -39,38 +39,27 @@ export function ImageGrid(props: ImageGridProps) {
     return results;
   });
 
-  // push group data into the default view
-
-  // store the main image in state
-
-  // take those images and push into a table -- by default 3x3 with single image in center
-
-  // this is an array of arrays
-  // this will eventually by built by checking the CFG or prompt or other details
-
-  const qc = useQueryClient();
-
   const groupImageMap = useGroupImageMap(imageGroupData);
 
   return (
     <SdGroupContext.Provider value={{ groupImages: groupImageMap }}>
       <div>
-        <div className="container">
+        <div className="mx-auto flex max-w-2xl">
           <GroupNameViewEdit groupData={groupData} />
-        </div>
 
-        <div className="container">
-          <Title order={3}>Studies for Group</Title>
-          <Stack>
-            {imageGroupStudies.map((study) => (
-              <SdImageStudyPopover
-                key={study.id}
-                groupId={groupId}
-                imageGroupData={imageGroupData}
-                initialStudyDef={study}
-              />
-            ))}
-          </Stack>
+          <div>
+            <h2 className="text-2xl lowercase">Studies for Group</h2>
+            <div className="flex flex-col gap-2">
+              {imageGroupStudies.map((study) => (
+                <SdImageStudyPopover
+                  key={study.id}
+                  groupId={groupId}
+                  imageGroupData={imageGroupData}
+                  initialStudyDef={study}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
         <Stack style={{ width: "90vw", margin: "auto" }}>

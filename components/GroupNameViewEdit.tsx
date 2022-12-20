@@ -1,8 +1,10 @@
-import { Button, TextInput } from "@mantine/core";
+import { TextInput } from "@mantine/core";
 import { IconCircleX, IconDeviceFloppy, IconPencil } from "@tabler/icons";
 import produce from "immer";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
+
+import { Button } from "./Button";
 
 import { api_updateGroupData } from "../model/api";
 
@@ -36,14 +38,17 @@ export function GroupNameViewEdit(props: GroupNameViewEditProps) {
 
     await api_updateGroupData(newGroup);
 
-    // invalidate queries on return
-
     await qc.invalidateQueries();
   };
 
   return (
     <div style={{ display: "flex" }}>
-      <h1>Group: {groupData?.view_settings.name ?? groupData?.id}</h1>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl">viewing group</h1>
+        <h2 className="text-xl">
+          {groupData?.view_settings.name ?? groupData?.id}
+        </h2>
+      </div>
 
       {isEditing ? (
         <div>

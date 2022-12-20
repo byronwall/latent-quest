@@ -1,5 +1,7 @@
-import { Button, Textarea } from "@mantine/core";
+import { Textarea } from "@mantine/core";
 import { useEffect, useState } from "react";
+
+import { Button } from "./Button";
 
 export function TextAreaWithButton(props: {
   onChange: (newText: string) => void;

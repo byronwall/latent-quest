@@ -1,6 +1,7 @@
-import { Button, NumberInput, Title } from "@mantine/core";
+import { NumberInput, Title } from "@mantine/core";
 import { useState } from "react";
 
+import { Button } from "./Button";
 import { Switch } from "./MantineWrappers";
 
 export type OutPaintHandler = (

@@ -1,8 +1,10 @@
-import { Button, Chip, Modal, TextInput, Title } from "@mantine/core";
+import { Chip, Modal, TextInput, Title } from "@mantine/core";
 import { IconWindowMaximize } from "@tabler/icons";
 import { orderBy, uniq, uniqBy } from "lodash-es";
 import { useState } from "react";
 import { useSet } from "react-use";
+
+import { Button } from "./Button";
 
 import { useChoices } from "../model/api_hooks";
 

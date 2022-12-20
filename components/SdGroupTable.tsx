@@ -1,10 +1,11 @@
-import { Button, CopyButton, JsonInput, Popover, Table } from "@mantine/core";
+import { CopyButton, JsonInput, Popover, Table } from "@mantine/core";
 import { orderBy } from "lodash-es";
 import { useState } from "react";
 
 import { Switch } from "./MantineWrappers";
 import { SdCardViewer } from "./SdCardViewer";
 import { SdImageComp } from "./SdImageComp";
+import { Button } from "./Button";
 
 import { getTextForBreakdown } from "../libs/shared-types/src";
 
