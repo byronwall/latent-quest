@@ -17,8 +17,6 @@ interface PromptEditorProps {
   shouldAllowSelection?: boolean;
 
   onIsDirtyChange?: (isDirty: boolean) => void;
-
-  style?: React.CSSProperties;
 }
 
 const defaultBreakdown = { parts: [] };
@@ -44,16 +42,13 @@ export function PromptEditor(props: PromptEditorProps) {
   }, [promptText, setPrompt]);
 
   return (
-    <div style={{ ...props.style }}>
-      <Textarea
-        label="prompt"
-        value={promptText}
-        onChange={(evt) => setPromptText(evt.currentTarget.value)}
-        style={{ minWidth: 400, flex: 1 }}
-        autosize
-        maxRows={10}
-        minRows={3}
-      />
-    </div>
+    <Textarea
+      label="prompt"
+      value={promptText}
+      onChange={(evt) => setPromptText(evt.currentTarget.value)}
+      autosize
+      maxRows={10}
+      minRows={3}
+    />
   );
 }

@@ -108,24 +108,31 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
       <PromptEditor
         initialBreakdown={breakdown}
         onBreakdownChange={setBreakdown}
-        style={{ minWidth: 400 }}
         onIsDirtyChange={setIsPromptDirty}
         shouldAllowSelection
       />
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4 md:flex-nowrap">
+        <Select
+          label="engine"
+          placeholder="engine"
+          data={engine_choices}
+          value={engine}
+          onChange={(val: any) => setEngine(val ?? "SD 1.5")}
+          className="min-w-[140px]"
+        />
         <NumberInput
           label="cfg"
           value={cfg}
           onChange={(val) => cfgSet(val ?? 0)}
           disabled={engine === "DALL-E"}
-          style={{ width: 80 }}
+          className="shrink"
         />
         <NumberInput
           label="steps"
           value={steps}
           onChange={(val) => stepsSet(val ?? 0)}
           disabled={engine === "DALL-E"}
-          style={{ width: 80 }}
+          className="shrink"
         />
 
         <NumberInput
@@ -136,23 +143,14 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
                 className="ml-3 cursor-pointer text-blue-500 hover:text-blue-300"
                 onClick={() => seedSet(getRandomSeed())}
               >
-                random <IconArrowsShuffle size={16} className="inline" />
+                <IconArrowsShuffle size={16} className="inline" />
               </span>
             </div>
           }
           value={seed}
           onChange={(val) => seedSet(val ?? 0)}
           disabled={engine === "DALL-E"}
-          style={{ width: 150 }}
-        />
-
-        <Select
-          label="engine"
-          placeholder="engine"
-          data={engine_choices}
-          value={engine}
-          onChange={(val: any) => setEngine(val ?? "SD 1.5")}
-          style={{ width: 130 }}
+          className="min-w-[140px]"
         />
       </div>
       <div>

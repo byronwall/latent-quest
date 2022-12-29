@@ -1,5 +1,11 @@
 # Changelog
 
+## 2022-12-29 10:42:15
+
+- Improve responsive behavior of create page
+  - Remove min-width on textarea
+  - Tweak how the settings are sized
+
 ## 2022-12-28 22:59:48
 
 - Simplify the create page
