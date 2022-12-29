@@ -9,6 +9,9 @@
   - Improve styles for header text and other portions
   - Remove the Mantine comps related to layout
   - Ensure it works at small resolutions
+- Clean up the collections index page
+  - Use the same 2 column responsive layout as the create page
+  - Clean up styles
 
 ## 2022-12-19 22:03:53
 

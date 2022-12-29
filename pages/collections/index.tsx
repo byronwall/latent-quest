@@ -1,15 +1,16 @@
-import { Loader, TextInput, Title } from "@mantine/core";
+import { Loader, TextInput } from "@mantine/core";
 import Link from "next/link";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 
+import { Button } from "../../components/Button";
+import { SimpleLayout } from "../../components/SimpleLayout";
 import {
   api_createCollection,
   api_deleteCollection,
   queryFnGetCollections,
   useGetCollections,
 } from "../../model/api_collections";
-import { Button } from "../../components/Button";
 
 import type { LqDbCollection } from "../../model/collections";
 import type { GetServerSideProps } from "next";
@@ -76,45 +77,49 @@ export default function CollectionsIndexPage(props: CollectionsIndexPageProps) {
   };
 
   return (
-    <div style={{ width: "90vw", margin: "auto" }}>
-      <Title order={1}>collections</Title>
+    <SimpleLayout
+      title="collections"
+      description="Use collections to organize images.  To add images you must first create an empty collection."
+      rightChild={
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl">create new collection</h2>
+            <div className="flex gap-2">
+              <TextInput
+                value={newName}
+                onChange={(event) => setNewName(event.currentTarget.value)}
+              />
+              {isSaving ? (
+                <Loader />
+              ) : (
+                <Button onClick={handleNewCollection}>create</Button>
+              )}
+            </div>
+          </div>
 
-      <div>
-        <Title order={2}>create new collection</Title>
-        <div style={{ display: "flex" }}>
-          <TextInput
-            value={newName}
-            onChange={(event) => setNewName(event.currentTarget.value)}
-          />
-          {isSaving ? (
-            <Loader />
-          ) : (
-            <Button onClick={handleNewCollection}>create</Button>
-          )}
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl">existing collections</h2>
+
+            <ul className="space-y-2">
+              {collections.map((collection) => (
+                <li key={collection.id} className="flex items-center gap-2">
+                  <Link href={`/collections/${collection.id}`}>
+                    <a className="hover:text-blue-600">{collection.name}</a>
+                  </Link>
+
+                  <Button
+                    onClick={() => handleDeleteClick(collection)}
+                    color="red"
+                    compact
+                  >
+                    delete...
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
-
-      <div>
-        <Title order={2}>existing collections</Title>
-
-        <ul>
-          {collections.map((collection) => (
-            <li key={collection.id}>
-              <Link href={`/collections/${collection.id}`}>
-                {collection.name}
-              </Link>
-
-              <Button
-                onClick={() => handleDeleteClick(collection)}
-                color="red"
-                compact
-              >
-                delete...
-              </Button>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+      }
+    />
   );
 }
