@@ -1,4 +1,4 @@
-import { Group, Loader, NumberInput, Select, Stack } from "@mantine/core";
+import { Loader, NumberInput, Select } from "@mantine/core";
 import { IconArrowsShuffle } from "@tabler/icons";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -25,9 +25,9 @@ export const engine_choices: SdImageEngines[] = [
   "SD 1.4",
   "SD 1.5",
   "SD 2.0 512px",
-  "SD 2.0 768px",
+  // "SD 2.0 768px",
   "SD 2.1 512px",
-  "SD 2.1 768px",
+  // "SD 2.1 768px",
   "SD 2.0 inpaint",
 ];
 
@@ -104,59 +104,66 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
   };
 
   return (
-    <div>
-      <Stack>
-        <PromptEditor
-          initialBreakdown={breakdown}
-          onBreakdownChange={setBreakdown}
-          style={{ minWidth: 400 }}
-          onIsDirtyChange={setIsPromptDirty}
-          shouldAllowSelection
+    <div className="flex flex-col gap-4">
+      <PromptEditor
+        initialBreakdown={breakdown}
+        onBreakdownChange={setBreakdown}
+        style={{ minWidth: 400 }}
+        onIsDirtyChange={setIsPromptDirty}
+        shouldAllowSelection
+      />
+      <div className="flex gap-4">
+        <NumberInput
+          label="cfg"
+          value={cfg}
+          onChange={(val) => cfgSet(val ?? 0)}
+          disabled={engine === "DALL-E"}
+          style={{ width: 80 }}
         />
-        <Group align={"center"}>
-          <NumberInput
-            label="cfg"
-            value={cfg}
-            onChange={(val) => cfgSet(val ?? 0)}
-            disabled={engine === "DALL-E"}
-            style={{ width: 80 }}
-          />
-          <NumberInput
-            label="steps"
-            value={steps}
-            onChange={(val) => stepsSet(val ?? 0)}
-            disabled={engine === "DALL-E"}
-            style={{ width: 80 }}
-          />
-          <NumberInput
-            label="seed"
-            value={seed}
-            onChange={(val) => seedSet(val ?? 0)}
-            disabled={engine === "DALL-E"}
-            rightSection={
-              <Button onClick={() => seedSet(getRandomSeed())} compact>
-                <IconArrowsShuffle />
-              </Button>
-            }
-            style={{ width: 150 }}
-          />
-          <Select
-            label="engine"
-            placeholder="engine"
-            data={engine_choices}
-            value={engine}
-            onChange={(val: any) => setEngine(val ?? "SD 1.5")}
-            style={{ width: 130 }}
-          />
-          {isLoading ? (
-            <Loader />
-          ) : (
-            <Button onClick={() => onGen()} color="orange">
-              create
-            </Button>
-          )}
-        </Group>
-      </Stack>
+        <NumberInput
+          label="steps"
+          value={steps}
+          onChange={(val) => stepsSet(val ?? 0)}
+          disabled={engine === "DALL-E"}
+          style={{ width: 80 }}
+        />
+
+        <NumberInput
+          label={
+            <div>
+              seed
+              <span
+                className="ml-3 cursor-pointer text-blue-500 hover:text-blue-300"
+                onClick={() => seedSet(getRandomSeed())}
+              >
+                random <IconArrowsShuffle size={16} className="inline" />
+              </span>
+            </div>
+          }
+          value={seed}
+          onChange={(val) => seedSet(val ?? 0)}
+          disabled={engine === "DALL-E"}
+          style={{ width: 150 }}
+        />
+
+        <Select
+          label="engine"
+          placeholder="engine"
+          data={engine_choices}
+          value={engine}
+          onChange={(val: any) => setEngine(val ?? "SD 1.5")}
+          style={{ width: 130 }}
+        />
+      </div>
+      <div>
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <Button onClick={() => onGen()} color="orange">
+            create
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

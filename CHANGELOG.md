@@ -1,5 +1,15 @@
 # Changelog
 
+## 2022-12-28 22:59:48
+
+- Simplify the create page
+  - Remove the label delete things
+  - Remove extra buttons
+  - Remove engines that are not used
+  - Improve styles for header text and other portions
+  - Remove the Mantine comps related to layout
+  - Ensure it works at small resolutions
+
 ## 2022-12-19 22:03:53
 
 - Add support for TailwindCSS

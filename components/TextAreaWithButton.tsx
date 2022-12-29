@@ -67,10 +67,10 @@ export function TextAreaWithButton(props: {
         autosize
         maxRows={10}
       />
-      <Button onClick={handleAccept} disabled={!isDirty}>
+      {/* <Button onClick={handleAccept} disabled={!isDirty}>
         accept
-      </Button>
-      <Button onClick={handleCommaToPipe}>comma to pipe</Button>
+      </Button> */}
+      {/* <Button onClick={handleCommaToPipe}>comma to pipe</Button> */}
     </div>
   );
 }
