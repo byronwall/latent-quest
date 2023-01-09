@@ -1,28 +1,31 @@
+import { EventEmitter } from "events";
 import fs from "fs";
 import path from "path";
-import { EventEmitter } from "events";
 
 import { grpc } from "@improbable-eng/grpc-web";
-import { GenerationService } from "stability-sdk/gooseai/generation/generation_pb_service";
-import {
-  Artifact,
-  Request,
-  Prompt,
-  ImageParameters,
-  SamplerParameters,
-  TransformType,
-  StepParameter,
-  ArtifactType,
-  PromptParameters,
-  ScheduleParameters,
-} from "stability-sdk/gooseai/generation/generation_pb";
 import { NodeHttpTransport } from "@improbable-eng/grpc-web-node-http-transport";
-import uuid4 from "uuid4";
 import mime from "mime";
 import mkdirp from "mkdirp";
+import {
+  Artifact,
+  ArtifactType,
+  GuidanceParameters,
+  GuidancePreset,
+  ImageParameters,
+  Prompt,
+  PromptParameters,
+  Request,
+  SamplerParameters,
+  ScheduleParameters,
+  StepParameter,
+} from "stability-sdk/gooseai/generation/generation_pb";
+import { GenerationService } from "stability-sdk/gooseai/generation/generation_pb_service";
+import uuid4 from "uuid4";
 
-import { diffusionMap, randBetween } from "./sd_grpc_utils";
+import { createPromptListFromText } from "./createPromptListFromText";
+import { randBetween } from "./sd_grpc_utils";
 
+import type { diffusionMap } from "./sd_grpc_utils";
 import type { Answer } from "stability-sdk/gooseai/generation/generation_pb";
 import type TypedEmitter from "typed-emitter";
 
@@ -80,7 +83,9 @@ type StabilityApi = TypedEmitter<{
 const withDefaults: (
   draftOptions: DraftStabilityOptions & RequiredStabilityOptions
 ) => StabilityOptions = (draft) => {
-  if (!draft.prompt) throw new Error("Prompt is required");
+  if (!draft.prompt) {
+    throw new Error("Prompt is required");
+  }
 
   const requestId = draft.requestId ?? uuid4();
 
@@ -128,11 +133,15 @@ export const generate: (
     debug,
   } = withDefaults(opts);
 
-  if (!promptText) throw new Error("Prompt text is required");
+  if (!promptText) {
+    throw new Error("Prompt text is required");
+  }
 
   const api = new EventEmitter() as StabilityApi;
 
-  if (!noStore) mkdirp.sync(outDir);
+  if (!noStore) {
+    mkdirp.sync(outDir);
+  }
 
   /** Build Request **/
   const request = new Request();
@@ -141,10 +150,6 @@ export const generate: (
 
   const promptList = createPromptListFromText(promptText);
   promptList.forEach((prompt) => request.addPrompt(prompt));
-
-  console.log("promptList", promptList);
-
-  // TODO: add multiple prompts here
 
   if (imagePromptData !== null) {
     const artifact = new Artifact();
@@ -179,15 +184,19 @@ export const generate: (
   image.setSteps(steps);
   image.setSamples(samples);
 
-  const transform = new TransformType();
-  transform.setDiffusion(diffusionMap[diffusion]);
-  image.setTransform(transform);
+  // remove the transform type and allow auto choice
+
+  // const transform = new TransformType();
+  // transform.setDiffusion(diffusionMap[diffusion]);
+  // image.setTransform(transform);
 
   const schedule = new ScheduleParameters();
-  if (typeof stepSchedule.start !== "undefined")
+  if (typeof stepSchedule.start !== "undefined") {
     schedule.setStart(stepSchedule.start);
-  if (typeof stepSchedule.end !== "undefined")
+  }
+  if (typeof stepSchedule.end !== "undefined") {
     schedule.setEnd(stepSchedule.end);
+  }
 
   const step = new StepParameter();
   step.setScaledStep(0);
@@ -196,6 +205,12 @@ export const generate: (
   const sampler = new SamplerParameters();
   sampler.setCfgScale(cfgScale);
   step.setSampler(sampler);
+
+  // use Guidance to set CLIP
+  // FAST_BLUE is DreamStudio default
+  const guidanceParams = new GuidanceParameters();
+  guidanceParams.setGuidancePreset(GuidancePreset.GUIDANCE_PRESET_FAST_BLUE);
+  step.setGuidance(guidanceParams);
 
   image.addParameters(step);
 
@@ -231,10 +246,11 @@ export const generate: (
         let classifications: Artifact.AsObject | null = null;
         answer.artifactsList.forEach((artifact) => {
           if (artifact.type === ArtifactType.ARTIFACT_IMAGE) {
-            if (image !== null)
+            if (image !== null) {
               throw new Error(
                 "Unexpectedly got multiple images in single answer"
               );
+            }
             image = artifact;
           } else if (artifact.type === ArtifactType.ARTIFACT_CLASSIFICATIONS) {
             if (classifications !== null) {
@@ -248,8 +264,9 @@ export const generate: (
         });
 
         if (image !== null) {
-          if (classifications === null)
+          if (classifications === null) {
             throw new Error("Missing classifications in answer");
+          }
 
           const { id, mime: mimeType, binary, seed: innerSeed } = image;
 
@@ -263,7 +280,9 @@ export const generate: (
             )
           );
 
-          if (!noStore) fs.writeFileSync(filePath, buffer);
+          if (!noStore) {
+            fs.writeFileSync(filePath, buffer);
+          }
 
           const claz: Artifact.AsObject = classifications;
 
@@ -295,36 +314,12 @@ export const generateAsync: (
       images = [...images, payload];
     });
     api.on("end", (data) => {
-      if (!data.isOk) return reject(new Error(data.message));
+      if (!data.isOk) {
+        return reject(new Error(data.message));
+      }
       resolve({
         res: data,
         images,
       });
     });
   });
-
-function createPromptListFromText(text: string): Array<Prompt> {
-  const prompts: Prompt[] = [];
-
-  const multiPrompts = text.split("|");
-  // search prompt for | : -1 text
-
-  multiPrompts.map((promptTextAndWeight) => {
-    // find the first : and split the text
-    const pieces = promptTextAndWeight.split(":");
-
-    const promptText = pieces[0].trim();
-    const weight = Number(pieces[1] ?? 1);
-
-    const prompt = new Prompt();
-    prompt.setText(promptText);
-
-    const promptParams = new PromptParameters();
-    promptParams.setWeight(weight);
-
-    prompt.setParameters(promptParams);
-    prompts.push(prompt);
-  });
-
-  return prompts;
-}
