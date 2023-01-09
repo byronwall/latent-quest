@@ -1,8 +1,8 @@
-import { generateAsync } from "stability-client";
-
 import { getBufferFromImageUrl } from "./images/s3/[key]";
 import { pathToImg } from "./img_gen";
 import { saveImageToS3AndDb } from "./saveImageToS3AndDb";
+
+import { generateAsync } from "../../libs/db/stability-grpc";
 
 import type {
   SdImageEngines,

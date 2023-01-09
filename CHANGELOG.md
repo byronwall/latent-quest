@@ -1,16 +1,18 @@
 # Changelog
 
+## 2023-01-08 22:15:37
+
+- Bring in a copy of the stability-grpc code to modify and work internally
+
 ## 2023-01-06 22:02:11
 
-- Changes to consider:
-  - Change group view to a simple grid of images
-    - Clicking on an image provides a "focus" viewer which allows for advanced features
-  - Add the create prompt to the group interface so a new image can be quickly added to a group
+- Change group view to a simple grid of images
   - Get rid of the grouping and other more complicated features
-  - Clean up the study view to a simple list in a corner or menu
-    - Ensure that studies have a useful image or set of images to help provide a focal point
-  - Remove the toggle for a card view
-    - Consider how to use the table layout in the future -- it looks decent
+- Add the create prompt to the group interface so a new image can be quickly added to a group
+- Clean up the study view to a simple list in a corner or menu
+- Changes to consider:
+  - Clicking on an image provides a "focus" viewer which allows for advanced features
+  - Ensure that studies have a useful image or set of images to help provide a focal point
   - Edit interface should show the source image as a thumbnail - or a large thing on the side until the image editor is toggled?
 
 ## 2022-12-29 10:42:15

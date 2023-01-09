@@ -1,3 +1,8 @@
+Comments from testing live site:
+    ☐ Figure out why image variants are much slower when using the editor interface instead of the simple interface
+    ☐ Change the font size on inputs to 16px or greater to avoid zooming on iPhone
+    
+
 Things to fix after styling:
     ☐ Add the group delete feature back in
     ☐ Add color prop and compact back to Button styles
