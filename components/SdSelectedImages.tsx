@@ -32,7 +32,7 @@ export function SdSelectedImages() {
 
   return (
     <>
-      <div style={{ position: "fixed", bottom: 5, right: 5, display: "flex" }}>
+      <div className="fixed top-0 right-0 flex">
         <Button onClick={() => setModalOpened(true)}>
           Selected Images {selKeys.length}
         </Button>

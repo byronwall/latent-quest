@@ -14,9 +14,9 @@ export function MenuAddToCollection(props: MenuAddToCollectionProps) {
   const { collections } = useGetCollections();
 
   return (
-    <Menu>
+    <Menu position="bottom">
       <Menu.Target>
-        <Button rightIcon={<IconCaretUp />}>add to collection</Button>
+        <Button>add to collection</Button>
       </Menu.Target>
 
       <Menu.Dropdown>
