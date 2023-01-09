@@ -3,6 +3,11 @@
 ## 2023-01-08 22:15:37
 
 - Bring in a copy of the stability-grpc code to modify and work internally
+- Migrate the SD calls to match defaults of DreamStudio:
+  - Use CLIP guidance
+  - Read the prompt text and generate multi prompt weights
+  - Add automatic sampler selection
+  - This logic should apply based on the engine selected
 
 ## 2023-01-06 22:02:11
 

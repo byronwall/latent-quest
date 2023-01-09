@@ -2,7 +2,7 @@ import { getBufferFromImageUrl } from "./images/s3/[key]";
 import { pathToImg } from "./img_gen";
 import { saveImageToS3AndDb } from "./saveImageToS3AndDb";
 
-import { generateAsync } from "../../libs/db/stability-grpc";
+import { generateAsync } from "../../libs/db/stability-grpc/sd_grpc_index";
 
 import type {
   SdImageEngines,
