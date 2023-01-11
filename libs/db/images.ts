@@ -23,6 +23,18 @@ export async function db_insertImage(image: SdImage) {
   return data;
 }
 
+export async function db_deleteImage(id: string) {
+  // delete from supabase
+  const { error } = await supabase.from("images").delete().eq("id", id);
+
+  if (error) {
+    console.error("Error deleting image from database", error);
+    return false;
+  }
+
+  return true;
+}
+
 export async function db_getAllImages() {
   // load all from supabase
   const { data, error } = await supabase.from("images").select("*");

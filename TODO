@@ -1,3 +1,12 @@
+Process:
+    - Open a quick group modal when clicking on the magnifying glass - image only - no controls
+  - Usability tweaks:
+
+    - Ensure that scroll position is remembered when going back
+    - Ensure that middle click open a new tab
+
+    - Add warning and block when creating the same image again -- needs to be engine specific
+
 Comments from testing live site:
     ☐ Figure out why image variants are much slower when using the editor interface instead of the simple interface
     ☐ Change the font size on inputs to 16px or greater to avoid zooming on iPhone

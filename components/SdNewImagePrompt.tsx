@@ -37,6 +37,8 @@ interface SdNewImagePromptProps {
   onCreate?: (image: SdImagePlaceHolder, cb: () => void) => void;
 }
 
+const defaultEngine: SdImageEngines = "SD 2.1 512px";
+
 export function SdNewImagePrompt(props: SdNewImagePromptProps) {
   const { defaultImage } = props;
 
@@ -45,7 +47,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
 
   const [seed, seedSet] = useState(defaultImage?.seed ?? getRandomSeed());
 
-  const [engine, setEngine] = useState(defaultImage?.engine ?? "SD 1.5");
+  const [engine, setEngine] = useState(defaultImage?.engine ?? defaultEngine);
 
   const [isLoading, setIsLoading] = useState(false);
 

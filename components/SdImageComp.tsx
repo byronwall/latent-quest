@@ -1,8 +1,11 @@
 import { Modal, Stack } from "@mantine/core";
 import { IconCircleCheck, IconCircleDashed, IconZoomIn } from "@tabler/icons";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
+import { useQueryClient } from "react-query";
 
+import { Button } from "./Button";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { getImageUrl } from "./ImageList";
 import { Switch } from "./MantineWrappers";
@@ -11,9 +14,9 @@ import { SdImageEditorPopover } from "./SdImageEditorPopover";
 import { SdImageStudyPopover } from "./SdImageStudyPopover";
 import { SdImageSubPopover } from "./SdImageSubPopover";
 import { SdVariantMenu } from "./SdVariantMenu";
-import { Button } from "./Button";
 
 import { useAppStore } from "../model/store";
+import { api_deleteImage } from "../model/api_images";
 import { getTextForBreakdown } from "../libs/shared-types/src";
 import { getUniversalIdFromImage } from "../libs/helpers";
 
@@ -62,14 +65,35 @@ export function SdImageComp(props: SdImageCompProps) {
   const isSelected =
     selectedImages[getUniversalIdFromImage(image)] !== undefined;
 
+  const qc = useQueryClient();
+
   if (image === undefined) {
     return null;
   }
 
+  const handleDeleteClick = async () => {
+    // prompt to confirm
+    const shouldDelete = confirm(
+      "Are you sure you want to delete this image?  This cannot be undone and will remove the image instantly."
+    );
+    if (!shouldDelete) {
+      return;
+    }
+
+    // delete image -- fire off API request and refresh data
+    await api_deleteImage(image);
+
+    qc.invalidateQueries();
+  };
+
   return (
     <>
       <div style={{ position: "relative" }}>
-        <Image src={getImageUrl(image.url)} width={size} height={size} />
+        <div className="cursor-pointer hover:ring-4">
+          <Link href={`/image/${image.id}`}>
+            <Image src={getImageUrl(image.url)} width={size} height={size} />
+          </Link>
+        </div>
 
         {shouldShowDetails && (
           <div style={{ width: size }}>
@@ -96,12 +120,9 @@ export function SdImageComp(props: SdImageCompProps) {
                 groupId={image.groupId}
               />
 
-              {shouldShowDetails && (
-                <SdImageSubPopover
-                  availableCategories={selKeys}
-                  image={image}
-                />
-              )}
+              <SdImageSubPopover availableCategories={selKeys} image={image} />
+
+              <Button onClick={handleDeleteClick}>delete...</Button>
             </div>
           </div>
         )}

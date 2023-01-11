@@ -9,8 +9,6 @@ import type { LqDbCollection } from "../../../model/collections";
 export default async function handler(req, res) {
   const lqCollection = req.body as LqDbCollection;
 
-  console.log("req.body", req.body);
-
   if (req.method === "PUT") {
     await db_upsertCollection(lqCollection);
     res.status(200).json({ status: "ok" });
