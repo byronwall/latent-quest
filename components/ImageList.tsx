@@ -1,8 +1,7 @@
 import axios from "axios";
-import Link from "next/link";
 import { useQueryClient } from "react-query";
 
-import { SdImageComp } from "./SdImageComp";
+import { SdGroupPreview } from "./SdGroupPreview";
 import { useGetAllGroups } from "./useGetAllGroups";
 
 import type { SdImage, SdImageGroup } from "../libs/shared-types/src";
@@ -13,7 +12,7 @@ export function getImageUrl(imageUrl: string): string {
 }
 
 export interface AllGroupResponse extends SdImageGroup {
-  images: (undefined | SdImage)[];
+  images: SdImage[];
 }
 
 export function ImageList(props: ImageListProps) {
@@ -30,7 +29,9 @@ export function ImageList(props: ImageListProps) {
     const result = window.confirm(
       "Are you sure you want to delete this group?"
     );
-    if (!result) return;
+    if (!result) {
+      return;
+    }
 
     // use axios for post
     const res = await axios.delete(`/api/group/${groupId}`);
@@ -48,24 +49,11 @@ export function ImageList(props: ImageListProps) {
             <p>
               This page provides a list of all image groups you have created.
             </p>
+            <p>Groups are sorted by most recently edited.</p>
           </div>
-          {groupList.map((group) => {
-            const img = group.images[0];
-            if (img === undefined) {
-              return null;
-            }
-            return (
-              <div key={group.id} className="p-3">
-                <Link href={`/group/${group.id}`}>
-                  <div className="cursor-pointer hover:ring-2">
-                    <SdImageComp image={img} size={256} disablePopover />
-                    <p>total items: {group.images.length}</p>
-                  </div>
-                </Link>
-                <p>{group.view_settings.name} </p>
-              </div>
-            );
-          })}
+          {groupList.map((group) => (
+            <SdGroupPreview key={group.id} group={group} />
+          ))}
         </div>
       </div>
     </div>

@@ -1,5 +1,22 @@
 # Changelog
 
+## 2023-01-10 21:59:06
+
+- Improve default view for group page - split single image into small grid of 4
+  - Remove the checkbox logo
+- Sort those 4 images by date created unless the group has preferred images
+- Sort the groups by image with the most recently create image - instead of first image creation time
+- Planned:
+  - Open a quick group modal when clicking on the magnifying glass - image only - no controls
+  - Provide a landing page for a single image
+    - Extend this to host a number of advanced features
+  - Usability tweaks:
+    - Ensure that scroll position is remembered when going back
+    - Ensure that middle click open a new tab
+    - Add button to delete single images
+    - Add warning and block when creating the same image again -- needs to be engine specific
+    - Change default engine to SD 2.1
+
 ## 2023-01-08 22:15:37
 
 - Bring in a copy of the stability-grpc code to modify and work internally

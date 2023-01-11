@@ -1,5 +1,6 @@
 import { useQuery } from "react-query";
-import { AllGroupResponse } from "./ImageList";
+
+import type { AllGroupResponse } from "./ImageList";
 
 export function useGetAllGroups(initialData?: AllGroupResponse[]) {
   const { data } = useQuery({
@@ -18,6 +19,36 @@ export async function queryFnGetAllGroups() {
   const res = await fetch(url);
 
   const results = (await res.json()) as AllGroupResponse[];
+
+  // remove undefined images -- why are they in there?
+  results.forEach((group) => {
+    group.images = group.images.filter((c) => c !== undefined);
+  });
+
+  // sort the groups by max/newest date of images
+  results.sort((a, b) => {
+    const aDate = a.images.reduce((acc, cur) => {
+      if (cur === undefined) {
+        return acc;
+      }
+      if (cur.dateCreated > acc) {
+        return cur.dateCreated;
+      }
+      return acc;
+    }, "0");
+
+    const bDate = b.images.reduce((acc, cur) => {
+      if (cur === undefined) {
+        return acc;
+      }
+      if (cur.dateCreated > acc) {
+        return cur.dateCreated;
+      }
+      return acc;
+    }, "0");
+
+    return bDate > aDate ? 1 : bDate < aDate ? -1 : 0;
+  });
 
   return results;
 }

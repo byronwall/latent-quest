@@ -6,11 +6,9 @@ export default async function handler(req, res) {
 
   const result = await supabase
     .from("groups")
-    .select("id, view_settings, images(id, url)")
+    .select("id, view_settings, images(id, url, dateCreated)")
     .order("created_at", { ascending: false });
   // .limit(1, { foreignTable: "images" });
-
-  // iterate
 
   res.status(200).json(result.data);
 }
