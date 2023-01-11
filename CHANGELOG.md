@@ -9,6 +9,7 @@
 - Provide a landing page for a single image
 - Add button to delete single images
 - Change default engine to SD 2.1
+- Add basic open graph support for image pages
 
 ## 2023-01-08 22:15:37
 
