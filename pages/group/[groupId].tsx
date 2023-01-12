@@ -38,7 +38,7 @@ export default function GroupPage(props: ImageGridProps) {
           content="A tool for exploring generative art."
           key="desc"
         />
-        <meta property="og:title" content="Latent Quest Image" />
+        <meta property="og:title" content="Latent Quest Group" />
         <meta
           property="og:description"
           content="A tool for exploring generative art."
