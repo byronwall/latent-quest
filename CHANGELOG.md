@@ -4,12 +4,6 @@
 
 - Create an end point that can generate a 4 image grid for an image - use sharp or something
 - Use that end point as the OG image provider for groups and collection
-- Planned:
-
-  - Add a `starred` field to images to reflect their preferred status in a group
-
-  - Small tweaks to the create image prompt
-  - Add place holders to the group view for images that are being created -- show a spinner until the URL is available?
 
 ## 2023-01-10 21:59:06
 

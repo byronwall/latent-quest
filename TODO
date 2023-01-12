@@ -7,6 +7,11 @@ Process:
 
     - Add warning and block when creating the same image again -- needs to be engine specific
 
+  - Add a `starred` field to images to reflect their preferred status in a group
+
+  - Small tweaks to the create image prompt
+  - Add place holders to the group view for images that are being created -- show a spinner until the URL is available?
+
 Comments from testing live site:
     ☐ Figure out why image variants are much slower when using the editor interface instead of the simple interface
     ☐ Change the font size on inputs to 16px or greater to avoid zooming on iPhone
