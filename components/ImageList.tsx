@@ -11,6 +11,10 @@ export function getImageUrl(imageUrl: string): string {
   return `/api/images/s3/${imageUrl}`;
 }
 
+export function getImageGridUrl(groupId: string): string {
+  return `/api/images/grid/${groupId}`;
+}
+
 export interface AllGroupResponse extends SdImageGroup {
   images: SdImage[];
 }

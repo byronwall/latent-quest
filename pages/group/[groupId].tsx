@@ -1,4 +1,7 @@
+import Head from "next/head";
+
 import { ImageGrid } from "../../components/ImageGrid";
+import { getImageGridUrl } from "../../components/ImageList";
 import { queryFnGetImageGroup } from "../../components/useGetImageGroup";
 import { queryFnGetImageGroupStudies } from "../../components/useGetImageGroupStudies";
 
@@ -26,5 +29,23 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 };
 
 export default function GroupPage(props: ImageGridProps) {
-  return <ImageGrid {...props} />;
+  return (
+    <>
+      <Head>
+        <title>Latent Quest Group</title>
+        <meta
+          name="description"
+          content="A tool for exploring generative art."
+          key="desc"
+        />
+        <meta property="og:title" content="Latent Quest Image" />
+        <meta
+          property="og:description"
+          content="A tool for exploring generative art."
+        />
+        <meta property="og:image" content={getImageGridUrl(props.groupId)} />
+      </Head>
+      <ImageGrid {...props} />
+    </>
+  );
 }
