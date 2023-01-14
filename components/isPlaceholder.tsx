@@ -9,5 +9,5 @@ export function isPlaceholder(
 export function isFullImage(
   item: SdImage | SdImagePlaceHolder
 ): item is SdImage {
-  return "id" in item;
+  return "url" in item;
 }

@@ -7,7 +7,11 @@ import { useQueryClient } from "react-query";
 import { Button } from "./Button";
 import { PromptEditor } from "./PromptEditor";
 
-import { getBreakdownForText, getRandomSeed } from "../libs/shared-types/src";
+import {
+  getBreakdownForText,
+  getRandomSeed,
+  getUuid,
+} from "../libs/shared-types/src";
 import { api_generateImage } from "../model/api";
 
 import type {
@@ -74,6 +78,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
     }
 
     const newImgReq: SdImagePlaceHolder = {
+      id: getUuid(),
       promptBreakdown: breakdown,
       cfg: cfg,
       steps: steps,

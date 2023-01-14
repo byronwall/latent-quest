@@ -1,7 +1,6 @@
 import { isPlaceholder } from "./isPlaceholder";
 import { SdImageComp } from "./SdImageComp";
 import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
-import { Button } from "./Button";
 
 import type {
   SdImageCompProps,
@@ -22,11 +21,10 @@ type SdCardOrTableCellProps = Partial<SdImagePlaceHolderCompProps> &
     cell: SdImage | SdImagePlaceHolder;
 
     mainImage?: SdImage;
-    setMainImage?: (image: SdImage) => void;
   };
 
 export function SdCardOrTableCell(props: SdCardOrTableCellProps) {
-  const { cell, mainImage, setMainImage } = props;
+  const { cell, mainImage } = props;
 
   const content =
     cell === undefined ? (
@@ -46,19 +44,6 @@ export function SdCardOrTableCell(props: SdCardOrTableCellProps) {
       }}
     >
       {content}
-      <div style={{ display: "flex" }}>
-        {"id" in cell && mainImage && setMainImage && (
-          <>
-            <Button
-              onClick={() => setMainImage(cell)}
-              color={mainImage.id === cell.id ? "lime" : "blue"}
-              compact
-            >
-              set main
-            </Button>
-          </>
-        )}
-      </div>
     </div>
   );
 }

@@ -109,9 +109,7 @@ export interface SdGroupView {
   // add in those extra choices
 }
 
-export type SdImagePlaceHolder = Partial<
-  Omit<SdImage, "id" | "dateCreated" | "url">
-> &
+export type SdImagePlaceHolder = Partial<Omit<SdImage, "dateCreated" | "url">> &
   Pick<SdImage, "promptBreakdown" | "engine">;
 
 export type SdImgGenParams = {

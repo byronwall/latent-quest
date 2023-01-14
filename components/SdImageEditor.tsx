@@ -7,6 +7,9 @@ import { Switch } from "./MantineWrappers";
 import { SdNewImagePrompt } from "./SdNewImagePrompt";
 import { LqOutPaintControls } from "./LqOutPaintControls";
 import { Button } from "./Button";
+import { SdImageComp } from "./SdImageComp";
+import { useGetImageGroup } from "./useGetImageGroup";
+import { SdCardOrTableCell } from "./SdCardOrTableCell";
 
 import { api_generateImage } from "../model/api";
 
@@ -41,6 +44,8 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
     return ctx;
   };
+
+  const [pendingImages, setPendingImages] = useState<SdImagePlaceHolder[]>([]);
 
   const [pointSize, setPointSize] = useState(10);
 
@@ -379,6 +384,10 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
     console.log("sending image data to server", imageReqData);
 
+    // add img req to placeholders
+
+    setPendingImages((prev) => [...prev, imageReqData]);
+
     const res = await api_generateImage(imageReqData);
     callback();
 
@@ -684,15 +693,32 @@ export function SdImageEditor(props: SdImageEditorProps) {
     </div>
   );
 
+  const group = useGetImageGroup(props.image.groupId);
+
   return (
     <div>
       <div>
-        <div>
+        <div className="flex gap-2">
+          <SdImageComp image={props.image} size={256} />
           <SdNewImagePrompt
             defaultImage={props.image}
             onCreate={handleCreateClick}
           />
         </div>
+        {pendingImages.length > 0 && (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-4">
+            {pendingImages.map((image) => {
+              const groupImg = group?.imageGroup.find((c) => c.id === image.id);
+              return (
+                <SdCardOrTableCell
+                  key={image.id}
+                  cell={groupImg ?? image}
+                  size={256}
+                />
+              );
+            })}
+          </div>
+        )}
         <div>
           <Switch
             checked={hasImagePrompt}

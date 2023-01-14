@@ -7,6 +7,11 @@
 - Correct error with image grid with fewer than 4 images
 - Generating variants now forces a new seed for the placeholder - avoid boring variants
   - It will also default to the same version of SD instead of forcing 1.5
+- Improve new image prompt for editing:
+  - Add ID on the client side
+  - Create a placeholder that updates when image is complete
+  - Allow for multiple placeholders on the edit form -- do not disable create button
+  - Add quick button auto-gen N images with different seeds
 
 ## 2023-01-11 22:46:02
 

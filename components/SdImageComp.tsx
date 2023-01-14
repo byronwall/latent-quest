@@ -35,8 +35,6 @@ export type SdImageCompProps = SdImageOrPlaceholderCommonProps & {
 
   isMainImage?: boolean;
 
-  onSetMainImage?(): void;
-
   imageGroupData?: SdImage[];
 };
 
@@ -45,7 +43,6 @@ export function SdImageComp(props: SdImageCompProps) {
     image,
     size,
     disablePopover,
-    onSetMainImage,
     shouldShowDetails,
     isMainImage,
     imageGroupData,
@@ -97,11 +94,7 @@ export function SdImageComp(props: SdImageCompProps) {
 
         {shouldShowDetails && (
           <div style={{ width: size }}>
-            <SdImageBadgeBar
-              image={image}
-              onSetMainImage={onSetMainImage}
-              isMainImage={isMainImage}
-            />
+            <SdImageBadgeBar image={image} isMainImage={isMainImage} />
 
             <div
               style={{
@@ -170,11 +163,7 @@ export function SdImageComp(props: SdImageCompProps) {
       {!disablePopover && (
         <Modal opened={modalOpened} onClose={() => setModalOpened(false)}>
           <Stack>
-            <SdImageBadgeBar
-              image={image}
-              onSetMainImage={onSetMainImage}
-              isMainImage={isMainImage}
-            />
+            <SdImageBadgeBar image={image} isMainImage={isMainImage} />
             {(image.urlMaskSource || image.urlImageSource) && (
               <Switch
                 checked={shouldShowSources}
