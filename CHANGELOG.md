@@ -1,5 +1,13 @@
 # Changelog
 
+## 2023-01-13 22:32:35
+
+- Improve image caching
+  - Correct headers are `max-age` and `s-maxage`; set both for edge and client caching
+- Correct error with image grid with fewer than 4 images
+- Generating variants now forces a new seed for the placeholder - avoid boring variants
+  - It will also default to the same version of SD instead of forcing 1.5
+
 ## 2023-01-11 22:46:02
 
 - Create an end point that can generate a 4 image grid for an image - use sharp or something

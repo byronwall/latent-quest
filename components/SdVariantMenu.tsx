@@ -29,7 +29,7 @@ export function SdVariantMenu(props: SdVariantMenuProps) {
 
     const sdStrength = 1 - clampedStrength;
 
-    handleCreateVariant(image, "SD 1.5", sdStrength);
+    handleCreateVariant(image, "SD", sdStrength);
   };
 
   return (
@@ -44,7 +44,7 @@ export function SdVariantMenu(props: SdVariantMenuProps) {
         <Menu.Label>SD variants (0% = brand new image)</Menu.Label>
         {fixedStrength.map((strength) => (
           <Menu.Item
-            onClick={() => handleCreateVariant(image, "SD 1.5", strength)}
+            onClick={() => handleCreateVariant(image, "SD", strength)}
             key={strength}
           >
             {Math.round(100 * (1 - strength))}%

@@ -301,5 +301,5 @@ export type SdSubChoice =
     };
 
 export function getRandomSeed() {
-  return Math.floor(Math.random() * 1000000000);
+  return Math.floor(Math.random() * 4294967295);
 }
