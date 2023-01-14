@@ -16,6 +16,8 @@ export function SdGroupPreview(props: SdGroupPreviewProps) {
 
   // get the first 4 images if possible
 
+  const groupId = group.id;
+
   // sort images by date
 
   const { previewImages, sortedImages } = useMemo(() => {
@@ -30,17 +32,11 @@ export function SdGroupPreview(props: SdGroupPreviewProps) {
     <div className="p-2">
       <Link href={`/group/${group.id}`}>
         <div className="cursor-pointer hover:ring-2">
-          <div className="grid grid-cols-2 gap-1">
-            {previewImages.map((image) => (
-              <div key={image.id}>
-                <Image
-                  src={getImageUrl(image.url)}
-                  width={size}
-                  height={size}
-                />
-              </div>
-            ))}
-          </div>
+          <Image
+            src={`/api/images/grid/${groupId}`}
+            width={size}
+            height={size}
+          />
           <p>{group.view_settings.name} </p>
         </div>
       </Link>

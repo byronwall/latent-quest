@@ -27,7 +27,10 @@ const handler: NextApiHandler = async (req, res) => {
   const data = await createPngGridFromUrls(urls);
 
   res.setHeader("Content-Type", "image/png");
-  res.send(data);
+
+  // cache for a day
+  res.setHeader("Cache-Control", "maxage=86400, s-maxage=86400");
+  res.status(200).send(data);
 };
 
 export default handler;
