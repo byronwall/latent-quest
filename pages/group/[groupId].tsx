@@ -45,7 +45,9 @@ export default function GroupPage(props: ImageGridProps) {
         />
         <meta property="og:image" content={getImageGridUrl(props.groupId)} />
       </Head>
-      <ImageGrid {...props} />
+      <div className="p-4">
+        <ImageGrid {...props} />
+      </div>
     </>
   );
 }

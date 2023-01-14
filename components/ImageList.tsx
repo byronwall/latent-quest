@@ -46,19 +46,15 @@ export function ImageList(props: ImageListProps) {
 
   return (
     <div>
-      <div>
-        <div className="grid grid-cols-2 gap-2  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          <div className="flex flex-col gap-2 p-3">
-            <h1 className="text-3xl">image groups</h1>
-            <p>
-              This page provides a list of all image groups you have created.
-            </p>
-            <p>Groups are sorted by most recently edited.</p>
-          </div>
-          {groupList.map((group) => (
-            <SdGroupPreview key={group.id} group={group} />
-          ))}
+      <div className="grid grid-cols-2 gap-2  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="flex flex-col gap-2 p-3">
+          <h1 className="text-3xl">image groups</h1>
+          <p>This page provides a list of all image groups you have created.</p>
+          <p>Groups are sorted by most recently edited.</p>
         </div>
+        {groupList.map((group) => (
+          <SdGroupPreview key={group.id} group={group} />
+        ))}
       </div>
     </div>
   );

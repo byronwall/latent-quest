@@ -698,7 +698,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
   return (
     <div>
       <div>
-        <div className="flex gap-2">
+        <div className="flex gap-4">
           <SdImageComp image={props.image} size={256} />
           <SdNewImagePrompt
             defaultImage={props.image}
