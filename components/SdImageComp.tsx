@@ -86,7 +86,7 @@ export function SdImageComp(props: SdImageCompProps) {
   return (
     <>
       <div style={{ position: "relative" }}>
-        <div className="cursor-pointer hover:ring-4">
+        <div className="cursor-pointer hover:scale-[1.03] ">
           <Link href={`/image/${image.id}`}>
             <Image
               src={getImageUrl(image.url)}
