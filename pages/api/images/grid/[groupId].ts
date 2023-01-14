@@ -29,7 +29,7 @@ const handler: NextApiHandler = async (req, res) => {
   res.setHeader("Content-Type", "image/png");
 
   // cache for a day
-  res.setHeader("Cache-Control", "maxage=86400, s-maxage=86400");
+  // res.setHeader("Cache-Control", "maxage=86400, s-maxage=86400");
   res.status(200).send(data);
 };
 
