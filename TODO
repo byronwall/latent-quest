@@ -1,3 +1,15 @@
+Assorted while working:
+    ☐ Change font size to avoid zooming
+    ☐ Change the is loading spinner to the placeholders instead of the create button
+    ☐ Do not focus seed input after pressing for a random one
+    ☐ Change the create layout when on mobile - do not do side by side
+    ☐ Provide some quick variant menu that allows changing the prompt?
+    ☐ Add a table of info / stats to the image view page 
+    ☐ Add a means to provide feedback in the app
+    ☐ First load of group after create throws an error when loading the studies
+    ☐ Variants going from DALLe to SD do not work?
+    ☐ Change the sort order of placeholders on the create - keep the new one at the top on mobile
+
 Process:
     - Open a quick group modal when clicking on the magnifying glass - image only - no controls
   - Usability tweaks:

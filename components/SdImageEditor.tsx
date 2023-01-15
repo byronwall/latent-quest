@@ -384,16 +384,15 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
     console.log("sending image data to server", imageReqData);
 
-    // add img req to placeholders
+    // add img req to placeholders -- add to front so new images are first in list
 
-    setPendingImages((prev) => [...prev, imageReqData]);
+    setPendingImages((prev) => [imageReqData, ...prev]);
 
-    const res = await api_generateImage(imageReqData);
+    await api_generateImage(imageReqData);
+
     callback();
 
     await qc.invalidateQueries();
-
-    console.log("res", res);
   };
 
   const handleOutPaint: OutPaintHandler = async (
@@ -698,7 +697,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
   return (
     <div>
       <div>
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row">
           <SdImageComp image={props.image} size={256} />
           <SdNewImagePrompt
             defaultImage={props.image}

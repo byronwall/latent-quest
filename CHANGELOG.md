@@ -1,5 +1,12 @@
 # Changelog
 
+## 2023-01-15 13:08:47
+
+- Improve styling of create image form
+  - Add clear button
+  - Remove Mantine Textarea and force to 16px font size - avoid zoom on iOS
+- Clean up group image data flow so that study popover does not crash on new images
+
 ## 2023-01-13 22:32:35
 
 - Improve image caching

@@ -79,17 +79,11 @@ const fixedVariableChoices = [
 ] as const;
 
 export function SdImageStudy(props: SdImageStudyProps) {
-  const { initialStudyDef, imageGroupData: initialImageGroupData } = props;
+  const { initialStudyDef, imageGroupData } = props;
 
   const { studyData } = useGetStudy(initialStudyDef.id, initialStudyDef);
 
   const [studyDefState, setStudyDefState] = useState(studyData);
-
-  // use the hook which ensures updates pass through when loaded as a bare comp
-  const { imageGroup: imageGroupData } = useGetImageGroup(
-    studyDefState.groupId,
-    initialImageGroupData
-  );
 
   // useEffect(() => {
   //   // push prop changes into state
