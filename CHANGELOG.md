@@ -4,6 +4,8 @@
 
 - Add `react-textarea-autosize` to allow auto resize on textarea without Mantine
 - Improve the variant menu so that the SD engine can be changed
+- Clean up Button props
+  - Move to simple icons where possible
 
 ## 2023-01-15 13:08:47
 
