@@ -374,8 +374,10 @@ export function SdImageStudy(props: SdImageStudyProps) {
     <Loader />
   ) : (
     newItemCount > 0 && (
-      <Button onClick={handleGenAll} rightIcon={<IconWand />}>
-        gen all ({newItemCount})
+      <Button onClick={handleGenAll}>
+        <div>
+          gen all ({newItemCount})<IconWand />
+        </div>
       </Button>
     )
   );
@@ -518,7 +520,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
           </div>
           {props.newTabLink}
           {props.isSavedInDb && (
-            <Button color="red" variant="subtle" onClick={handleDeleteStudy}>
+            <Button color="red" onClick={handleDeleteStudy}>
               delete study...
             </Button>
           )}
@@ -620,9 +622,6 @@ export function SdImageStudy(props: SdImageStudyProps) {
                       {getRowColHeaderText(rowXForm, rowVar, mainImage)}
                       <Button
                         style={{ position: "absolute", top: 0, right: 0 }}
-                        compact
-                        size="xs"
-                        variant="subtle"
                         onClick={() => handleHideItem(rowVar, rowXForm)}
                       >
                         <IconEyeOff />
@@ -656,8 +655,6 @@ export function SdImageStudy(props: SdImageStudyProps) {
                       {getRowColHeaderText(col, colVar, mainImage)}
                       <Button
                         style={{ position: "absolute", top: 0, right: 0 }}
-                        compact
-                        variant="subtle"
                         onClick={() => handleHideItem(colVar, col)}
                       >
                         <IconEyeOff />
@@ -681,8 +678,6 @@ export function SdImageStudy(props: SdImageStudyProps) {
                           {getRowColHeaderText(rowXForm, rowVar, mainImage)}
                           <Button
                             style={{ position: "absolute", top: 0, right: 0 }}
-                            compact
-                            variant="subtle"
                             onClick={() => handleHideItem(rowVar, rowXForm)}
                           >
                             <IconEyeOff />

@@ -145,9 +145,7 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
     selKeys.length > 0 && (
       <Menu shadow="md" width={200}>
         <Menu.Target>
-          <Button compact color="green">
-            subs...
-          </Button>
+          <Button color="green">subs...</Button>
         </Menu.Target>
 
         <Menu.Dropdown>
@@ -167,7 +165,7 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
       </Menu>
     )
   ) : (
-    <Button color="lime" onClick={() => setIsModalOpen(true)} compact>
+    <Button color="lime" onClick={() => setIsModalOpen(true)}>
       chooser
     </Button>
   );

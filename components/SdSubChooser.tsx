@@ -107,11 +107,9 @@ export function SdSubChooser(props: SdSubChooserProps) {
               onChange={(evt) => setTagFilter(evt.currentTarget.value)}
             />
           </div>
-          <Button compact onClick={() => setActiveTag("")}>
-            show all
-          </Button>
+          <Button onClick={() => setActiveTag("")}>show all</Button>
           {allTags.map((tag) => (
-            <Button compact key={tag} onClick={() => setActiveTag(tag)}>
+            <Button key={tag} onClick={() => setActiveTag(tag)}>
               {tag}
             </Button>
           ))}
@@ -164,7 +162,7 @@ export function SdSubChooser(props: SdSubChooserProps) {
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)} compact>
+      <Button onClick={() => setIsOpen(true)}>
         <IconWindowMaximize />
       </Button>
 

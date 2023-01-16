@@ -53,7 +53,7 @@ export function SubPicker(props: SubPickerProps) {
         onReceiveSubs={onAddItem}
       />
 
-      <Button color="pink" onClick={props.onResetChoices} compact>
+      <Button color="pink" onClick={props.onResetChoices}>
         clear extras
       </Button>
 

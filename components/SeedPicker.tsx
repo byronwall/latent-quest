@@ -35,11 +35,8 @@ export function SeedPicker(props: SeedPickerProps) {
   return (
     <div style={{ display: "flex", gap: 5 }}>
       <span>seed picker</span>
-      <Button
-        onClick={() => onAddItem(getRandomSeed())}
-        rightIcon={<IconArrowsShuffle />}
-      >
-        random
+      <Button onClick={() => onAddItem(getRandomSeed())}>
+        random <IconArrowsShuffle />
       </Button>
 
       <NumberInput
@@ -48,7 +45,6 @@ export function SeedPicker(props: SeedPickerProps) {
         onChange={(value) => setSeed(value)}
         rightSection={
           <Button
-            compact
             onClick={() => {
               if (seed) {
                 onAddItem(seed);

@@ -34,11 +34,7 @@ export function ViewOrEdit(props: ViewOrEditProps) {
     <div>
       <div style={{ display: "flex" }}>
         <Title>{value}</Title>
-        <Button
-          variant="subtle"
-          compact
-          onClick={() => setIsEditing(!isEditing)}
-        >
+        <Button onClick={() => setIsEditing(!isEditing)}>
           <IconPencil />
           <IconCaretDown />
         </Button>
@@ -50,8 +46,8 @@ export function ViewOrEdit(props: ViewOrEditProps) {
             onChange={(e) => setEditText(e.currentTarget.value)}
             style={{ flex: 1 }}
           />
-          <Button onClick={handleAccept} rightIcon={<IconDeviceFloppy />}>
-            update
+          <Button onClick={handleAccept}>
+            update <IconDeviceFloppy />
           </Button>
           <Button onClick={handleCancel}>
             <IconX />

@@ -78,7 +78,6 @@ export function SdImageStudyPopover(props: SdImageStudyPopoverProps) {
           onClick={() => {
             setIsModalOpen(true);
           }}
-          compact
         >
           {activeStudyDef.title ?? "study"}...
         </Button>

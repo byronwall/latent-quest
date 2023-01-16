@@ -39,7 +39,7 @@ export function SdSelectedImages() {
 
         <MenuAddToCollection onAddToCollection={handleAddToCollection} />
 
-        <Button onClick={clearSelectedImages} color="red" variant="subtle">
+        <Button onClick={clearSelectedImages} color="red">
           <IconX />
         </Button>
       </div>

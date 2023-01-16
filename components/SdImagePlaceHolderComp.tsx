@@ -61,7 +61,7 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
           {isLoading && <Loader />}
           {!isLoading && (
             <div>
-              <Button onClick={handleClick} compact>
+              <Button onClick={handleClick}>
                 <IconWand />
               </Button>
             </div>

@@ -536,35 +536,35 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
         <div>
           <Button
-            variant={activeTool === "clear_rect" ? "filled" : "outline"}
+            // variant={activeTool === "clear_rect" ? "filled" : "outline"}
             onClick={() => setActiveTool("clear_rect")}
           >
             clear area
           </Button>
 
           <Button
-            variant={activeTool === "fill_rect" ? "filled" : "outline"}
+            // variant={activeTool === "fill_rect" ? "filled" : "outline"}
             onClick={() => setActiveTool("fill_rect")}
           >
             fill area
           </Button>
 
           <Button
-            variant={activeTool === "select_rect" ? "filled" : "outline"}
+            // variant={activeTool === "select_rect" ? "filled" : "outline"}
             onClick={() => setActiveTool("select_rect")}
           >
             select area
           </Button>
 
           <Button
-            variant={activeTool === "pencil" ? "filled" : "outline"}
+            // variant={activeTool === "pencil" ? "filled" : "outline"}
             onClick={() => setActiveTool("pencil")}
           >
             pencil
           </Button>
 
           <Button
-            variant={activeTool === "color_picker" ? "filled" : "outline"}
+            // variant={activeTool === "color_picker" ? "filled" : "outline"}
             onClick={() => setActiveTool("color_picker")}
           >
             color picker

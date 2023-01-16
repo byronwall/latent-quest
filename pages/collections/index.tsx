@@ -110,7 +110,6 @@ export default function CollectionsIndexPage(props: CollectionsIndexPageProps) {
                   <Button
                     onClick={() => handleDeleteClick(collection)}
                     color="red"
-                    compact
                   >
                     delete...
                   </Button>
