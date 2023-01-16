@@ -3,6 +3,7 @@
 ## 2023-01-15 23:20:18
 
 - Add `react-textarea-autosize` to allow auto resize on textarea without Mantine
+- Improve the variant menu so that the SD engine can be changed
 
 ## 2023-01-15 13:08:47
 
