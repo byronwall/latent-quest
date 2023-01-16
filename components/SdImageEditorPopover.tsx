@@ -1,5 +1,6 @@
 import { Modal } from "@mantine/core";
 import { useState } from "react";
+import { IconPencil } from "@tabler/icons";
 
 import { Button } from "./Button";
 import { SdImageEditor } from "./SdImageEditor";
@@ -21,8 +22,8 @@ export function SdImageEditorPopover(props: SdImageEditorPopoverProps) {
         <SdImageEditor {...props} />
       </Modal>
 
-      <Button compact color="orange" onClick={() => setIsOpen(true)}>
-        edit
+      <Button color="orange" onClick={() => setIsOpen(true)}>
+        <IconPencil />
       </Button>
     </>
   );

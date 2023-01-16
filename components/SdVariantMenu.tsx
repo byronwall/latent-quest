@@ -1,5 +1,6 @@
-import { Popover } from "@mantine/core";
+import { Popover, Tooltip } from "@mantine/core";
 import { useState } from "react";
+import { IconVersions } from "@tabler/icons";
 
 import { Button } from "./Button";
 import { handleCreateVariant } from "./handleCreateVariant";
@@ -50,7 +51,11 @@ export function SdVariantPopover(props: SdVariantPopoverProps) {
       withArrow
     >
       <Popover.Target>
-        <Button onClick={() => setIsOpened(!isOpened)}>variants...</Button>
+        <Tooltip label="Show variant creation menu">
+          <Button onClick={() => setIsOpened(!isOpened)}>
+            <IconVersions />
+          </Button>
+        </Tooltip>
       </Popover.Target>
       <Popover.Dropdown>
         <div className="flex flex-col gap-1">

@@ -1,5 +1,10 @@
 import { Modal, Stack } from "@mantine/core";
-import { IconCircleCheck, IconCircleDashed, IconZoomIn } from "@tabler/icons";
+import {
+  IconCircleCheck,
+  IconCircleDashed,
+  IconX,
+  IconZoomIn,
+} from "@tabler/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -120,7 +125,9 @@ export function SdImageComp(props: SdImageCompProps) {
 
               <SdImageSubPopover availableCategories={selKeys} image={image} />
 
-              <Button onClick={handleDeleteClick}>delete...</Button>
+              <Button onClick={handleDeleteClick}>
+                <IconX />
+              </Button>
             </div>
           </div>
         )}
@@ -138,8 +145,6 @@ export function SdImageComp(props: SdImageCompProps) {
               evt.stopPropagation();
               setModalOpened(true);
             }}
-            variant="subtle"
-            compact
           >
             <IconZoomIn />
           </Button>
@@ -157,9 +162,7 @@ export function SdImageComp(props: SdImageCompProps) {
               evt.stopPropagation();
               toggleSelectedImage(image);
             }}
-            variant={isSelected ? "filled" : "subtle"}
             color={isSelected ? "blue" : "gray"}
-            compact
           >
             {isSelected ? <IconCircleCheck /> : <IconCircleDashed />}
           </Button>
