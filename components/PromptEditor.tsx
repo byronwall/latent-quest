@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import TextareaAutosize from "react-textarea-autosize";
 
 import { useControlledUncontrolled } from "./useControlledUncontrolled";
 
@@ -58,13 +59,13 @@ export function PromptEditor(props: PromptEditorProps) {
           clear
         </p>
       </div>
-      <textarea
+      <TextareaAutosize
         id="prompt"
-        rows={4}
+        maxRows={10}
         value={promptText}
         onChange={(evt) => setPromptText(evt.currentTarget.value)}
         placeholder="Enter your prompt: photograph of a bear"
-        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5  text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+        className="block max-h-96 w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5  text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
       />
     </div>
   );

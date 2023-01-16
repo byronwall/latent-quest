@@ -1,5 +1,9 @@
 # Changelog
 
+## 2023-01-15 23:20:18
+
+- Add `react-textarea-autosize` to allow auto resize on textarea without Mantine
+
 ## 2023-01-15 13:08:47
 
 - Improve styling of create image form
