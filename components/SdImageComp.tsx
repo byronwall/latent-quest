@@ -92,12 +92,13 @@ export function SdImageComp(props: SdImageCompProps) {
     <>
       <div style={{ position: "relative" }}>
         <div className="cursor-pointer hover:scale-[1.03] ">
-          <Link href={`/image/${image.id}`}>
+          <Link href={`/image/${image.id}`} passHref>
             <Image
               src={getImageUrl(image.url)}
               width={size}
               height={size}
               className="rounded-md"
+              alt=""
             />
           </Link>
         </div>
@@ -179,13 +180,19 @@ export function SdImageComp(props: SdImageCompProps) {
                 label="show sources"
               />
             )}
-            <Image src={getImageUrl(image.url)} width={512} height={512} />
+            <Image
+              src={getImageUrl(image.url)}
+              width={512}
+              height={512}
+              alt=""
+            />
             <div style={{ display: "flex" }}>
               {shouldShowSources && image.urlImageSource && (
                 <Image
                   src={getImageUrl(image.urlImageSource)}
                   width={512}
                   height={512}
+                  alt="image"
                 />
               )}
               {shouldShowSources && image.urlMaskSource && (
@@ -194,6 +201,7 @@ export function SdImageComp(props: SdImageCompProps) {
                   width={512}
                   height={512}
                   style={{ border: "1px solid red" }}
+                  alt=""
                 />
               )}
             </div>

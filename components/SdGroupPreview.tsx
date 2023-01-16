@@ -37,6 +37,7 @@ export function SdGroupPreview(props: SdGroupPreviewProps) {
                   src={getImageUrl(image.url)}
                   width={size}
                   height={size}
+                  alt="preview image"
                 />
               </div>
             ))}
