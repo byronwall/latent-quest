@@ -1,14 +1,9 @@
 Assorted while working:
-    ☐ Change font size to avoid zooming
     ☐ Change the is loading spinner to the placeholders instead of the create button
     ☐ Do not focus seed input after pressing for a random one
-    ☐ Change the create layout when on mobile - do not do side by side
     ☐ Provide some quick variant menu that allows changing the prompt?
     ☐ Add a table of info / stats to the image view page 
     ☐ Add a means to provide feedback in the app
-    ☐ First load of group after create throws an error when loading the studies
-    ☐ Variants going from DALLe to SD do not work?
-    ☐ Change the sort order of placeholders on the create - keep the new one at the top on mobile
 
 Process:
     - Open a quick group modal when clicking on the magnifying glass - image only - no controls
@@ -28,7 +23,6 @@ Comments from testing live site:
     ☐ Figure out why image variants are much slower when using the editor interface instead of the simple interface
     ☐ Change the font size on inputs to 16px or greater to avoid zooming on iPhone
     
-
 Things to fix after styling:
     ☐ Add the group delete feature back in
     ☐ Add color prop and compact back to Button styles
@@ -112,6 +106,11 @@ Specific problems:
         ☐ Figure out why the `castle + drawbridge` image is generated multiple times
 
 Archive:
+  ✔ Change font size to avoid zooming @done(23-01-16 00:28) @project(Assorted while working)
+  ✔ Change the create layout when on mobile - do not do side by side @done(23-01-16 00:29) @project(Assorted while working)
+  ✔ First load of group after create throws an error when loading the studies @done(23-01-16 00:29) @project(Assorted while working)
+  ✔ Variants going from DALLe to SD do not work? @done(23-01-16 00:29) @project(Assorted while working)
+  ✔ Change the sort order of placeholders on the create - keep the new one at the top on mobile @done(23-01-16 00:29) @project(Assorted while working)
   ✔ Ability to edit an image in the grid @done(22-12-03 22:33) @project(Image studies)
   ✔ Give options around multi-value subs -- filter any or exact match @done(22-12-03 22:33) @project(Image studies)
   ✔ Figure out how to get the "open in new tab" link available for a just saved study @done(22-12-03 22:33) @project(Image studies)
