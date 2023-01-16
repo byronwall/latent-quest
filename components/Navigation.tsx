@@ -9,38 +9,39 @@ export function Navigation() {
   return (
     <div className="flex items-start justify-between border-0 border-b border-b-sky-300">
       <div className="flex content-center">
-        <Link href="/" passHref>
-          <NavLink label="latent.quest" active={pathname === "/"} />
-        </Link>
+        <NavLink href="/" label="latent.quest" active={pathname === "/"} />
       </div>
       <div className="flex content-center gap-2">
-        <Link href="/create" passHref>
-          <NavLink label="create" active={pathname === "/create"} />
-        </Link>
-        <Link href="/collections" passHref>
-          <NavLink label="collections" active={pathname === "/collections"} />
-        </Link>
-        <Link href="/choices" passHref>
-          <NavLink label="choice mgr" active={pathname === "/choices"} />
-        </Link>
+        <NavLink
+          href="/create"
+          label="create"
+          active={pathname === "/create"}
+        />
+
+        <NavLink
+          href="/collections"
+          label="collections"
+          active={pathname === "/collections"}
+        />
+
+        <NavLink
+          href="/choices"
+          label="choice mgr"
+          active={pathname === "/choices"}
+        />
       </div>
-      <div className="flex content-center">
-        {/* <Link href="/login" passHref>
-          <NavLink label="login" active={pathname === "/login"} />
-        </Link> */}
-      </div>
+      <div className="flex content-center" />
     </div>
   );
 }
 
 export function NavLink(props) {
-  // TODO: clean this comp up
   return (
-    <a
+    <Link
       {...props}
       className={`p-2 ${props.active && " bg-sky-300"} hover:bg-sky-100 `}
     >
       {props.label}
-    </a>
+    </Link>
   );
 }

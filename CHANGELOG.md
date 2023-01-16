@@ -1,5 +1,11 @@
 # Changelog
 
+## 2023-01-16 11:55:26
+
+- Upgrade to Next 13
+- Clean up NavLink to not double embed anchor tags
+- Add infinite scroll to the home page to avoid loading all images
+
 ## 2023-01-15 23:20:18
 
 - Add `react-textarea-autosize` to allow auto resize on textarea without Mantine

@@ -5,6 +5,8 @@ Assorted while working:
     ☐ Add a table of info / stats to the image view page 
     ☐ Add a means to provide feedback in the app
 
+☐ Add infinite scroll to group pages, collections, and other places where large lists are possible
+
 Process:
     - Open a quick group modal when clicking on the magnifying glass - image only - no controls
   - Usability tweaks:

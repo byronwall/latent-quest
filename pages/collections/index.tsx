@@ -103,8 +103,11 @@ export default function CollectionsIndexPage(props: CollectionsIndexPageProps) {
             <ul className="space-y-2">
               {collections.map((collection) => (
                 <li key={collection.id} className="flex items-center gap-2">
-                  <Link href={`/collections/${collection.id}`}>
-                    <a className="hover:text-blue-600">{collection.name}</a>
+                  <Link
+                    href={`/collections/${collection.id}`}
+                    className="hover:text-blue-600"
+                  >
+                    {collection.name}
                   </Link>
 
                   <Button
