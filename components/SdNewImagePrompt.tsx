@@ -1,4 +1,4 @@
-import { Loader, NumberInput, Select } from "@mantine/core";
+import { Loader, NumberInput } from "@mantine/core";
 import { IconArrowsShuffle } from "@tabler/icons";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -6,6 +6,7 @@ import { useQueryClient } from "react-query";
 
 import { Button } from "./Button";
 import { PromptEditor } from "./PromptEditor";
+import { SelectEngine } from "./SelectEngine";
 
 import {
   getBreakdownForText,
@@ -119,14 +120,8 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
         shouldAllowSelection
       />
       <div className="flex flex-wrap gap-4 md:flex-nowrap">
-        <Select
-          label="engine"
-          placeholder="engine"
-          data={engine_choices}
-          value={engine}
-          onChange={(val: any) => setEngine(val ?? "SD 1.5")}
-          className="min-w-[140px]"
-        />
+        <SelectEngine value={engine} onChange={setEngine} />
+
         <NumberInput
           label="cfg"
           value={cfg}

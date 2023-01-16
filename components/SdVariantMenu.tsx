@@ -1,19 +1,26 @@
-import { Menu } from "@mantine/core";
+import { Popover } from "@mantine/core";
+import { useState } from "react";
 
 import { Button } from "./Button";
 import { handleCreateVariant } from "./handleCreateVariant";
+import { SelectEngine } from "./SelectEngine";
 
-import type { SdImage } from "../libs/shared-types/src";
+import type { SdImage, SdImageEngines } from "../libs/shared-types/src";
 
-interface SdVariantMenuProps {
+interface SdVariantPopoverProps {
   image: SdImage;
 }
 
 // percentage is 1 - this number
 export const fixedStrength = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.3, 0.1];
 
-export function SdVariantMenu(props: SdVariantMenuProps) {
+export function SdVariantPopover(props: SdVariantPopoverProps) {
   const { image } = props;
+
+  const defaultSdEngine: SdImageEngines =
+    image.engine === "DALL-E" ? "SD 2.1 512px" : image.engine;
+
+  const [engine, setEngine] = useState<SdImageEngines>(defaultSdEngine);
 
   const handleCustomClick = () => {
     const strength = prompt(
@@ -29,39 +36,52 @@ export function SdVariantMenu(props: SdVariantMenuProps) {
 
     const sdStrength = 1 - clampedStrength;
 
-    handleCreateVariant(image, "SD", sdStrength);
+    handleCreateVariant(image, engine, sdStrength);
   };
 
+  const [isOpened, setIsOpened] = useState(false);
+
   return (
-    <Menu shadow="md" width={200}>
-      <Menu.Target>
-        <Button compact color="indigo">
-          variants...
-        </Button>
-      </Menu.Target>
+    <Popover
+      shadow="sm"
+      width={400}
+      opened={isOpened}
+      onClose={() => setIsOpened(false)}
+      withArrow
+    >
+      <Popover.Target>
+        <Button onClick={() => setIsOpened(!isOpened)}>variants...</Button>
+      </Popover.Target>
+      <Popover.Dropdown>
+        <div className="flex flex-col gap-1">
+          <p className="text-lg font-bold">create variant of image</p>
+          <p className="font-medium">SD variants (0% = brand new image)</p>
 
-      <Menu.Dropdown>
-        <Menu.Label>SD variants (0% = brand new image)</Menu.Label>
-        {fixedStrength.map((strength) => (
-          <Menu.Item
-            onClick={() => handleCreateVariant(image, "SD", strength)}
-            key={strength}
-          >
-            {Math.round(100 * (1 - strength))}%
-          </Menu.Item>
-        ))}
-        <Menu.Divider />
-
-        <Menu.Item onClick={handleCustomClick}>custom...</Menu.Item>
-        <Menu.Divider />
-        <Menu.Label>DALL-E</Menu.Label>
-        <Menu.Item
-          onClick={() => handleCreateVariant(image, "DALL-E")}
-          color="indigo"
-        >
-          DALL-E
-        </Menu.Item>
-      </Menu.Dropdown>
-    </Menu>
+          <div className="max-w-[160px]">
+            <SelectEngine value={engine} onChange={setEngine} />
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {fixedStrength.map((strength) => (
+              <Button
+                onClick={() => handleCreateVariant(image, engine, strength)}
+                key={strength}
+              >
+                {Math.round(100 * (1 - strength))}%
+              </Button>
+            ))}
+            <Button onClick={handleCustomClick}>custom...</Button>
+          </div>
+          <p className="font-medium">DALL-E</p>
+          <div>
+            <Button
+              onClick={() => handleCreateVariant(image, "DALL-E")}
+              color="indigo"
+            >
+              DALL-E
+            </Button>
+          </div>
+        </div>
+      </Popover.Dropdown>
+    </Popover>
   );
 }

@@ -13,7 +13,7 @@ import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdImageEditorPopover } from "./SdImageEditorPopover";
 import { SdImageStudyPopover } from "./SdImageStudyPopover";
 import { SdImageSubPopover } from "./SdImageSubPopover";
-import { SdVariantMenu } from "./SdVariantMenu";
+import { SdVariantPopover } from "./SdVariantMenu";
 
 import { useAppStore } from "../model/store";
 import { api_deleteImage } from "../model/api_images";
@@ -108,7 +108,7 @@ export function SdImageComp(props: SdImageCompProps) {
                 gap: 5,
               }}
             >
-              <SdVariantMenu image={image} />
+              <SdVariantPopover image={image} />
 
               <SdImageEditorPopover image={image} />
 

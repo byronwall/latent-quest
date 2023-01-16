@@ -7,7 +7,7 @@ export function Navigation() {
   const pathname = router.pathname;
 
   return (
-    <div className="flex border-0 border-b border-b-sky-300 items-start justify-between">
+    <div className="flex items-start justify-between border-0 border-b border-b-sky-300">
       <div className="flex content-center">
         <Link href="/" passHref>
           <NavLink label="latent.quest" active={pathname === "/"} />
@@ -25,9 +25,9 @@ export function Navigation() {
         </Link>
       </div>
       <div className="flex content-center">
-        <Link href="/login" passHref>
+        {/* <Link href="/login" passHref>
           <NavLink label="login" active={pathname === "/login"} />
-        </Link>
+        </Link> */}
       </div>
     </div>
   );
