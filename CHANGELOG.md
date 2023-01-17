@@ -6,6 +6,8 @@
 - Clean up page width on mobile - was set to 512px
 - Add padding on single image page view
 - Resolve new prompt width on mobile
+- Change width of variant menu to constrain on mobile
+- Move the infinite scroll tracker to the grid of images -- change to 4 items -- allow repeated reloads if needed
 
 ## 2023-01-16 11:55:26
 

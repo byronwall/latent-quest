@@ -45,7 +45,6 @@ export function SdVariantPopover(props: SdVariantPopoverProps) {
   return (
     <Popover
       shadow="sm"
-      // width={400}
       opened={isOpened}
       onClose={() => setIsOpened(false)}
       withArrow
@@ -58,7 +57,7 @@ export function SdVariantPopover(props: SdVariantPopoverProps) {
         </Tooltip>
       </Popover.Target>
       <Popover.Dropdown>
-        <div className="flex flex-col gap-1">
+        <div className="flex max-w-[88vw] flex-col gap-1 sm:max-w-[352px]">
           <p className="text-lg font-bold">create variant of image</p>
           <p className="font-medium">SD variants (0% = brand new image)</p>
 

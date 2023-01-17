@@ -1,7 +1,6 @@
 import axios from "axios";
-import { useQueryClient } from "react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePrevious } from "react-use";
+import { useQueryClient } from "react-query";
 
 import { SdGroupPreview } from "./SdGroupPreview";
 import { useGetAllGroups } from "./useGetAllGroups";
@@ -58,33 +57,23 @@ export function ImageList(props: ImageListProps) {
     [groupList, visibleCount]
   );
 
-  const prevImageCount = usePrevious(visibleCount);
-
   useEffect(() => {
-    const didCountChange = prevImageCount !== visibleCount;
-
-    if (didCountChange) {
-      return;
-    }
-
     if (isVisible) {
-      setVisibleCount((prev) => prev + 12);
+      setVisibleCount((prev) => prev + 4);
     }
-  }, [isVisible, prevImageCount, visibleCount]);
+  }, [isVisible]);
 
   return (
-    <div>
-      <div className="grid grid-cols-2 gap-2  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        <div className="flex flex-col gap-2 p-3">
-          <h1 className="text-3xl">image groups</h1>
-          <p>This page provides a list of all image groups you have created.</p>
-          <p>Groups are sorted by most recently edited.</p>
-        </div>
-        {visibleItems.map((group) => (
-          <SdGroupPreview key={group.id} group={group} />
-        ))}
+    <div className="mb-4 grid grid-cols-2 gap-2  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="flex flex-col gap-2 p-3">
+        <h1 className="text-3xl">image groups</h1>
+        <p>This page provides a list of all image groups you have created.</p>
+        <p>Groups are sorted by most recently edited.</p>
       </div>
-      <div ref={refEndOfList} className="mb-4 p-3" />
+      {visibleItems.map((group) => (
+        <SdGroupPreview key={group.id} group={group} />
+      ))}
+      <div ref={refEndOfList}> </div>
     </div>
   );
 }
