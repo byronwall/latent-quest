@@ -4,8 +4,12 @@ Assorted while working:
     ☐ Provide some quick variant menu that allows changing the prompt?
     ☐ Add a table of info / stats to the image view page 
     ☐ Add a means to provide feedback in the app
+    ☐ `img_gen` needs to return a 500 when failing to load a variant source
+    ☐ Some sort of issue where image fails to load when doing a variant -- likely getting a new server?
+    ☐ Move the visible indicator back into the grid -- keep a comp with margin bottom
 
 ☐ Add infinite scroll to group pages, collections, and other places where large lists are possible
+☐ Remove extra fields on variant requests
 
 Process:
     - Open a quick group modal when clicking on the magnifying glass - image only - no controls

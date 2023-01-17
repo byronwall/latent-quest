@@ -1,5 +1,9 @@
 # Changelog
 
+## 2023-01-16 22:03:58
+
+- Improve timing logic around S3 reads for variant images -- seems I was not waiting for the image to be written to disk before trying to use?
+
 ## 2023-01-16 11:55:26
 
 - Upgrade to Next 13

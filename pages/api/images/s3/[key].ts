@@ -108,6 +108,8 @@ export async function getStreamForImageUrl(imageUrl: string): Promise<Stream> {
 
   const fileExists = fs.existsSync(possibleTempPath);
 
+  console.log("possibleTempPath", possibleTempPath, fileExists);
+
   if (fileExists) {
     return fs.createReadStream(possibleTempPath);
   }
@@ -116,8 +118,6 @@ export async function getStreamForImageUrl(imageUrl: string): Promise<Stream> {
   if (badFileExists) {
     throw new Error("Bad image URL");
   }
-
-  console.log("possibleTempPath", possibleTempPath, fileExists);
 
   // load image from S3
   try {
@@ -134,6 +134,24 @@ export async function getStreamForImageUrl(imageUrl: string): Promise<Stream> {
 
     const writeStream = fs.createWriteStream(possibleTempPath);
     s3res.Body.pipe(writeStream);
+
+    // wait for the write to complete
+    await Promise.race([
+      new Promise((resolve) => {
+        writeStream.on("finish", () => {
+          console.log("writeStream finished");
+          resolve(true);
+        });
+      }),
+      new Promise((resolve) => {
+        writeStream.on("close", () => {
+          console.log("writeStream closed");
+          resolve(true);
+        });
+      }),
+    ]);
+
+    console.log("writeStream finished == read the file");
 
     const readStream = fs.createReadStream(possibleTempPath);
 
