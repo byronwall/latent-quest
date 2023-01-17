@@ -45,7 +45,7 @@ export function SdVariantPopover(props: SdVariantPopoverProps) {
   return (
     <Popover
       shadow="sm"
-      width={400}
+      // width={400}
       opened={isOpened}
       onClose={() => setIsOpened(false)}
       withArrow

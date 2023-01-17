@@ -8,7 +8,7 @@ export type SdImagePageProps = {
 export function SdImagePage(props: SdImagePageProps) {
   const { initialImage } = props;
   return (
-    <div className="mx-auto mt-8 w-96">
+    <div className="mx-auto mt-8 max-w-md p-4">
       <SdImageComp image={initialImage} size={512} shouldShowDetails />
     </div>
   );

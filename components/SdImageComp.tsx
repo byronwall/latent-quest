@@ -104,7 +104,7 @@ export function SdImageComp(props: SdImageCompProps) {
         </div>
 
         {shouldShowDetails && (
-          <div style={{ width: size }}>
+          <div>
             <SdImageBadgeBar image={image} isMainImage={isMainImage} />
 
             <div

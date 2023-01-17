@@ -53,7 +53,7 @@ export function ImageGrid(props: ImageGridProps) {
   const [shouldShowCreateForm, setShouldShowCreateForm] = useState(false);
 
   const createForm = (
-    <div className="relative col-span-2 p-2">
+    <div className="relative  p-2 sm:col-span-2">
       <div className="absolute top-2 right-2">
         <Button
           onClick={() => {
@@ -71,7 +71,7 @@ export function ImageGrid(props: ImageGridProps) {
   const childCard = shouldShowCreateForm ? (
     createForm
   ) : (
-    <div className=" flex flex-col p-4">
+    <div className=" flex flex-col gap-1 ">
       <GroupNameViewEdit groupData={groupData} />
 
       <div>
