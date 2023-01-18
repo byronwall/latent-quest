@@ -5,6 +5,7 @@ import { api_generateImage } from "./api";
 
 import { getUniversalIdFromImage } from "../libs/helpers";
 
+import type { ImgOrImgArray } from "./api";
 import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 
 interface AppStore {
@@ -15,7 +16,7 @@ interface AppStore {
 
   pendingImages: SdImagePlaceHolder[];
 
-  createImageRequest: (image: SdImagePlaceHolder) => Promise<SdImage>;
+  createImageRequest: (image: ImgOrImgArray) => Promise<SdImage>;
 }
 
 export const useAppStore = create<AppStore>((set) => ({
@@ -24,10 +25,15 @@ export const useAppStore = create<AppStore>((set) => ({
 
   createImageRequest: async (image) => {
     // generate placeholders so comps can update
+
+    const newImages = Array.isArray(image) ? image : [image];
+
     set(
       produce((draft) => {
         const { pendingImages } = draft;
-        pendingImages.push(image);
+        newImages.forEach((img) => {
+          pendingImages.push(img);
+        });
       })
     );
 
@@ -39,9 +45,12 @@ export const useAppStore = create<AppStore>((set) => ({
       produce((draft) => {
         const { pendingImages } = draft;
 
-        const index = pendingImages.findIndex((img) => img.id === image.id);
-
-        pendingImages.splice(index, 1);
+        newImages.forEach((img) => {
+          const index = pendingImages.findIndex(
+            (pendingImage) => pendingImage === img
+          );
+          pendingImages.splice(index, 1);
+        });
       })
     );
 

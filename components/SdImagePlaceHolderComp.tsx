@@ -11,7 +11,6 @@ import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdImageComp } from "./SdImageComp";
 
 import { useAppStore } from "../model/store";
-import { api_generateImage } from "../model/api";
 import { getTextForBreakdown } from "../libs/shared-types/src";
 import { getUniversalIdFromImage } from "../libs/helpers";
 
@@ -28,6 +27,7 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
   const { placeholder, size, defaultIsLoading } = props;
 
   const pendingImages = useAppStore((s) => s.pendingImages);
+  const createImageRequest = useAppStore((s) => s.createImageRequest);
 
   const knownIsLoading = pendingImages.some(
     (item) => item.id === placeholder.id
@@ -45,7 +45,7 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
 
   const handleClick = async () => {
     setIsLoading(true);
-    await api_generateImage(placeholder);
+    await createImageRequest(placeholder);
     setIsLoading(false);
 
     await queryClient.invalidateQueries();

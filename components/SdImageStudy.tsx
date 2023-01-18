@@ -32,24 +32,19 @@ import {
   itemOrArrayContains,
 } from "./transform_helpers";
 import { convertStringToType, useCustomChoiceMap } from "./useCustomChoiceMap";
-import { useGetImageGroup } from "./useGetImageGroup";
 import { useGetStudy } from "./useGetStudy";
 import { useGroupImageMap } from "./useGroupImageMap";
 import { VariantStrengthPicker } from "./VariantStrengthPicker";
 import { ViewOrEdit } from "./ViewOrEdit";
 
-import {
-  api_deleteStudy,
-  api_generateImage,
-  api_upsertStudy,
-} from "../model/api";
+import { useAppStore } from "../model/store";
+import { api_deleteStudy, api_upsertStudy } from "../model/api";
 import { getUuid } from "../libs/shared-types/src";
 import {
   getImageDiffAsTransforms,
   getUniversalIdFromImage,
 } from "../libs/helpers";
 
-import type { CommonPickerProps } from "./CommonPickerProps";
 import type {
   SdImage,
   SdImageStudyDef,
@@ -57,6 +52,7 @@ import type {
   SdImageStudyDefSettings,
   SdImagePlaceHolder,
 } from "../libs/shared-types/src";
+import type { CommonPickerProps } from "./CommonPickerProps";
 
 export interface SdImageStudyProps {
   initialStudyDef: SdImageStudyDef;
@@ -354,6 +350,8 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
   const { groupImages } = useContext(SdGroupContext);
 
+  const createImageRequest = useAppStore((s) => s.createImageRequest);
+
   const handleGenAll = async () => {
     // only run those images which are new
     const placeholders = tableData
@@ -363,7 +361,7 @@ export function SdImageStudy(props: SdImageStudyProps) {
 
     setIsBulkLoading(true);
 
-    await api_generateImage(placeholders);
+    await createImageRequest(placeholders);
 
     setIsBulkLoading(false);
 
