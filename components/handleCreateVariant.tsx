@@ -1,7 +1,7 @@
 import { queryClient } from "./queryClient";
 
-import { api_generateImage } from "../model/api";
 import { getRandomSeed } from "../libs/shared-types/src";
+import { useAppStore } from "../model/store";
 
 import type { SdImage, SdImageEngines } from "../libs/shared-types/src";
 
@@ -12,7 +12,9 @@ export async function handleCreateVariant(
 ) {
   // if engine is SD, need to match item unless it is DALL-E
 
-  await api_generateImage({
+  const createImageRequest = useAppStore.getState().createImageRequest;
+
+  await createImageRequest({
     ...item,
     seed: getRandomSeed(),
     variantSourceId: item.url,
