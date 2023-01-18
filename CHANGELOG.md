@@ -5,6 +5,7 @@
 - Add a set of pendingImages to the global store
   - Display these place holders in appropriate places
   - Add a 2px bar to the top of the site which changes color when pending images are live
+  - Use this new store at most places where images are generated
 
 ## 2023-01-16 22:03:58
 
