@@ -104,6 +104,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
     }
 
     const img = await createImageRequest(newImgReq);
+
     setIsLoading(false);
     await queryClient.invalidateQueries();
 
@@ -112,7 +113,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
       return;
     }
 
-    router.push(`/group/${img[0].groupId}`);
+    router.push(`/group/${img.groupId}`);
   };
 
   return (
