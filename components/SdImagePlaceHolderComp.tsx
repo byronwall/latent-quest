@@ -6,12 +6,13 @@ import { useUpdateEffect } from "react-use";
 
 import { Button } from "./Button";
 import { TooltipCommon } from "./MantineWrappers";
-import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdGroupContext } from "./SdGroupContext";
+import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdImageComp } from "./SdImageComp";
 
-import { getTextForBreakdown } from "../libs/shared-types/src";
+import { useAppStore } from "../model/store";
 import { api_generateImage } from "../model/api";
+import { getTextForBreakdown } from "../libs/shared-types/src";
 import { getUniversalIdFromImage } from "../libs/helpers";
 
 import type { SdImageOrPlaceholderCommonProps } from "./SdImageComp";
@@ -26,7 +27,15 @@ export type SdImagePlaceHolderCompProps = SdImageOrPlaceholderCommonProps & {
 export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
   const { placeholder, size, defaultIsLoading } = props;
 
-  const [isLoading, setIsLoading] = useState(defaultIsLoading ?? false);
+  const pendingImages = useAppStore((s) => s.pendingImages);
+
+  const knownIsLoading = pendingImages.some(
+    (item) => item.id === placeholder.id
+  );
+
+  const [isLoading, setIsLoading] = useState(
+    defaultIsLoading ?? knownIsLoading ?? false
+  );
 
   useUpdateEffect(() => {
     setIsLoading(defaultIsLoading ?? false);

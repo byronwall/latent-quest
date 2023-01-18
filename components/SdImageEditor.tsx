@@ -2,16 +2,16 @@ import { ColorPicker, Slider, Title } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 
-import { getImageUrl } from "./ImageList";
-import { Switch } from "./MantineWrappers";
-import { SdNewImagePrompt } from "./SdNewImagePrompt";
-import { LqOutPaintControls } from "./LqOutPaintControls";
 import { Button } from "./Button";
-import { SdImageComp } from "./SdImageComp";
-import { useGetImageGroup } from "./useGetImageGroup";
+import { getImageUrl } from "./ImageList";
+import { LqOutPaintControls } from "./LqOutPaintControls";
+import { Switch } from "./MantineWrappers";
 import { SdCardOrTableCell } from "./SdCardOrTableCell";
+import { SdImageComp } from "./SdImageComp";
+import { SdNewImagePrompt } from "./SdNewImagePrompt";
+import { useGetImageGroup } from "./useGetImageGroup";
 
-import { api_generateImage } from "../model/api";
+import { useAppStore } from "../model/store";
 
 import type { OutPaintHandler } from "./LqOutPaintControls";
 import type { ImgObjWithExtras } from "../model/api";
@@ -46,6 +46,8 @@ export function SdImageEditor(props: SdImageEditorProps) {
   };
 
   const [pendingImages, setPendingImages] = useState<SdImagePlaceHolder[]>([]);
+
+  const createImageRequest = useAppStore((s) => s.createImageRequest);
 
   const [pointSize, setPointSize] = useState(10);
 
@@ -388,7 +390,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
     setPendingImages((prev) => [imageReqData, ...prev]);
 
-    await api_generateImage(imageReqData);
+    await createImageRequest(imageReqData);
 
     callback();
 
