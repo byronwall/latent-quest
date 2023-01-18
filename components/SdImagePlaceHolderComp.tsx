@@ -2,6 +2,7 @@ import { Loader } from "@mantine/core";
 import { IconWand } from "@tabler/icons";
 import { useContext, useState } from "react";
 import { useQueryClient } from "react-query";
+import { useUpdateEffect } from "react-use";
 
 import { Button } from "./Button";
 import { TooltipCommon } from "./MantineWrappers";
@@ -18,12 +19,18 @@ import type { SdImagePlaceHolder } from "../libs/shared-types/src";
 
 export type SdImagePlaceHolderCompProps = SdImageOrPlaceholderCommonProps & {
   placeholder: SdImagePlaceHolder;
+
+  defaultIsLoading?: boolean;
 };
 
 export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
-  const { placeholder, size } = props;
+  const { placeholder, size, defaultIsLoading } = props;
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(defaultIsLoading ?? false);
+
+  useUpdateEffect(() => {
+    setIsLoading(defaultIsLoading ?? false);
+  }, [defaultIsLoading]);
 
   const queryClient = useQueryClient();
 
@@ -31,8 +38,6 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
     setIsLoading(true);
     await api_generateImage(placeholder);
     setIsLoading(false);
-
-    console.log("invalidate queries");
 
     await queryClient.invalidateQueries();
   };
@@ -50,9 +55,8 @@ export function SdImagePlaceHolderComp(props: SdImagePlaceHolderCompProps) {
 
   return (
     <div
+      className="h-full w-full"
       style={{
-        maxWidth: size,
-        minHeight: size,
         backgroundColor: "lightgray",
       }}
     >

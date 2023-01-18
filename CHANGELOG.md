@@ -1,5 +1,11 @@
 # Changelog
 
+## 2023-01-17 23:51:52
+
+- Add a set of pendingImages to the global store
+  - Display these place holders in appropriate places
+  - Add a 2px bar to the top of the site which changes color when pending images are live
+
 ## 2023-01-16 22:03:58
 
 - Improve timing logic around S3 reads for variant images -- seems I was not waiting for the image to be written to disk before trying to use?

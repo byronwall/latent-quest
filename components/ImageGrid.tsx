@@ -1,17 +1,19 @@
-import { useQuery } from "react-query";
-import { useMemo, useState } from "react";
 import { IconX } from "@tabler/icons";
 import { orderBy } from "lodash-es";
+import { useMemo, useState } from "react";
+import { useQuery } from "react-query";
 
+import { Button } from "./Button";
 import { GroupNameViewEdit } from "./GroupNameViewEdit";
 import { SdCardViewer } from "./SdCardViewer";
 import { SdGroupContext } from "./SdGroupContext";
 import { SdImageStudyPopover } from "./SdImageStudyPopover";
+import { SdNewImagePrompt } from "./SdNewImagePrompt";
 import { useGetImageGroup } from "./useGetImageGroup";
 import { useGetImageGroupStudies } from "./useGetImageGroupStudies";
 import { useGroupImageMap } from "./useGroupImageMap";
-import { Button } from "./Button";
-import { SdNewImagePrompt } from "./SdNewImagePrompt";
+
+import { useAppStore } from "../model/store";
 
 import type {
   SdImage,
@@ -31,6 +33,12 @@ export function ImageGrid(props: ImageGridProps) {
   // create a query for 1 id
 
   const { imageGroup: imageGroupData } = useGetImageGroup(groupId, initialData);
+
+  const pendingImages = useAppStore((s) => s.pendingImages);
+
+  const pendingForGroup = pendingImages.filter(
+    (item) => item.groupId === groupId
+  );
 
   const sortedImages = useMemo(
     () => orderBy(imageGroupData, "dateCreated", "desc"),
@@ -102,7 +110,11 @@ export function ImageGrid(props: ImageGridProps) {
 
   return (
     <SdGroupContext.Provider value={{ groupImages: groupImageMap }}>
-      <SdCardViewer imageGroupData={sortedImages} childCard={childCard} />
+      <SdCardViewer
+        imageGroupData={sortedImages}
+        childCard={childCard}
+        placeholderImages={pendingForGroup}
+      />
     </SdGroupContext.Provider>
   );
 }

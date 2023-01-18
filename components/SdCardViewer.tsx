@@ -1,15 +1,17 @@
 import { SdImageComp } from "./SdImageComp";
+import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
 
-import type { SdImage } from "../libs/shared-types/src";
+import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 
 type SdCardViewerProps = {
   imageGroupData: SdImage[];
+  placeholderImages: SdImagePlaceHolder[];
 
   childCard?: React.ReactNode;
 };
 
 export function SdCardViewer(props: SdCardViewerProps) {
-  const { imageGroupData, childCard } = props;
+  const { imageGroupData, childCard, placeholderImages } = props;
 
   const imageSize = 512;
 
@@ -17,6 +19,15 @@ export function SdCardViewer(props: SdCardViewerProps) {
     <div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 md:grid-cols-5">
         {childCard}
+        {placeholderImages.map((item: SdImagePlaceHolder) => (
+          <div key={item.id}>
+            <SdImagePlaceHolderComp
+              placeholder={item}
+              size={imageSize}
+              defaultIsLoading
+            />
+          </div>
+        ))}
         {imageGroupData.map((item: SdImage) => (
           <div key={item.id}>
             <SdImageComp

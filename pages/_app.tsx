@@ -1,4 +1,3 @@
-// import "./styles.css";
 import "../styles/globals.css";
 
 import { MantineProvider } from "@mantine/core";
@@ -8,11 +7,15 @@ import { QueryClientProvider } from "react-query";
 import { Navigation } from "../components/Navigation";
 import { queryClient } from "../components/queryClient";
 import { SdSelectedImages } from "../components/SdSelectedImages";
+import { useAppStore } from "../model/store";
 
 import type { AppProps } from "next/app";
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
+
+  const pendingImages = useAppStore((s) => s.pendingImages);
+  const isPending = pendingImages.length > 0;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -32,6 +35,7 @@ export default function App(props: AppProps) {
         }}
       >
         <div>
+          <div className={`h-0.5 ${isPending && "bg-sky-300"} `} />
           <Navigation />
         </div>
         <Component {...pageProps} />

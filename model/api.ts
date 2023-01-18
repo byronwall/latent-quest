@@ -18,7 +18,7 @@ interface SdImgGenReqExtras {
 export type ImgObj = SdImage | SdImagePlaceHolder;
 export type ImgObjWithExtras = ImgObj & SdImgGenReqExtras;
 
-type ImgOrImgArray = ImgObjWithExtras | ImgObjWithExtras[];
+export type ImgOrImgArray = ImgObjWithExtras | ImgObjWithExtras[];
 
 export async function api_generateImage(image: ImgOrImgArray) {
   // hit the img_gen api -- this will bulk process if an array is sent

@@ -8,12 +8,12 @@ import { Button } from "./Button";
 import { PromptEditor } from "./PromptEditor";
 import { SelectEngine } from "./SelectEngine";
 
+import { useAppStore } from "../model/store";
 import {
   getBreakdownForText,
   getRandomSeed,
   getUuid,
 } from "../libs/shared-types/src";
-import { api_generateImage } from "../model/api";
 
 import type {
   PromptBreakdown,
@@ -39,13 +39,15 @@ export const engine_choices: SdImageEngines[] = [
 interface SdNewImagePromptProps {
   defaultImage?: SdImage;
 
+  shouldShowLoaderAfterCreate?: boolean;
+
   onCreate?: (image: SdImagePlaceHolder, cb: () => void) => void;
 }
 
 const defaultEngine: SdImageEngines = "SD 2.1 512px";
 
 export function SdNewImagePrompt(props: SdNewImagePromptProps) {
-  const { defaultImage } = props;
+  const { defaultImage, shouldShowLoaderAfterCreate } = props;
 
   const [cfg, cfgSet] = useState(defaultImage?.cfg ?? 10);
   const [steps, stepsSet] = useState(defaultImage?.steps ?? 20);
@@ -59,6 +61,8 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
   const [breakdown, setBreakdown] = useState<PromptBreakdown>(
     defaultImage?.promptBreakdown ?? getBreakdownForText(starterPrompt)
   );
+
+  const createImageRequest = useAppStore((s) => s.createImageRequest);
 
   const queryClient = useQueryClient();
 
@@ -99,7 +103,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
       return;
     }
 
-    const img = await api_generateImage(newImgReq);
+    const img = await createImageRequest(newImgReq);
     setIsLoading(false);
     await queryClient.invalidateQueries();
 
@@ -156,7 +160,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
         />
       </div>
       <div>
-        {isLoading ? (
+        {isLoading && shouldShowLoaderAfterCreate ? (
           <Loader />
         ) : (
           <Button onClick={() => onGen()} color="orange">

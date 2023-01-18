@@ -10,6 +10,9 @@ Assorted while working:
 
 ☐ Add infinite scroll to group pages, collections, and other places where large lists are possible
 ☐ Remove extra fields on variant requests
+☐ Create a global zustand store for active requests -- funnel all reqs through there
+    ☐ Show a progress indicator at top of screen
+    ☐ Use this to show placeholders and loading status on placeholders
 
 Process:
     - Open a quick group modal when clicking on the magnifying glass - image only - no controls
