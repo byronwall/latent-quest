@@ -1,5 +1,9 @@
 # Changelog
 
+## 2023-01-18 23:08:16
+
+- Set correct `max-age` for S3 image caching -- oops
+
 ## 2023-01-17 23:51:52
 
 - Add a set of pendingImages to the global store
