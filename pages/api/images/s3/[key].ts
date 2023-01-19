@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   const fileExists = fs.existsSync(possibleTempPath);
 
   if (fileExists) {
-    res.setHeader("Cache-Control", "max-age=86400, s-maxage=86400");
+    res.setHeader("Cache-Control", "max-age=86400, public, s-maxage=86400");
     res.status(200);
     fs.createReadStream(possibleTempPath).pipe(res);
 

@@ -1,10 +1,10 @@
 import axios from "axios";
-import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
+import { Loader } from "@mantine/core";
 
 import { SdGroupPreview } from "./SdGroupPreview";
 import { useGetAllGroups } from "./useGetAllGroups";
-import useOnScreen from "./useOnScreen";
+import { useInfiniteScroll } from "./useInfiniteScroll";
 
 import type { SdImage, SdImageGroup } from "../libs/shared-types/src";
 import type { ImageListProps } from "../pages";
@@ -46,22 +46,11 @@ export function ImageList(props: ImageListProps) {
     await qc.invalidateQueries();
   };
 
-  const [visibleCount, setVisibleCount] = useState(12);
-
-  const refEndOfList = useRef<HTMLDivElement>(null);
-
-  const isVisible = useOnScreen(refEndOfList);
-
-  const visibleItems = useMemo(
-    () => groupList.slice(0, visibleCount),
-    [groupList, visibleCount]
+  const { refEndOfList, visibleItems, hasMore } = useInfiniteScroll(
+    groupList,
+    12,
+    4
   );
-
-  useEffect(() => {
-    if (isVisible) {
-      setVisibleCount((prev) => prev + 4);
-    }
-  }, [isVisible]);
 
   return (
     <div className="mb-4 grid grid-cols-2 gap-2  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -73,7 +62,9 @@ export function ImageList(props: ImageListProps) {
       {visibleItems.map((group) => (
         <SdGroupPreview key={group.id} group={group} />
       ))}
-      <div ref={refEndOfList}> </div>
+      <div ref={refEndOfList} className="grid place-items-center">
+        {hasMore && <Loader size={64} />}
+      </div>
     </div>
   );
 }
