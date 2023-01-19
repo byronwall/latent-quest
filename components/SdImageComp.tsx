@@ -90,8 +90,8 @@ export function SdImageComp(props: SdImageCompProps) {
 
   return (
     <>
-      <div style={{ position: "relative" }}>
-        <div className="cursor-pointer  ">
+      <div className="group relative">
+        <div>
           <Link href={`/image/${image.id}`} passHref>
             <Image
               src={getImageUrl(image.url)}
@@ -103,70 +103,57 @@ export function SdImageComp(props: SdImageCompProps) {
           </Link>
         </div>
 
-        {shouldShowDetails && (
-          <div>
-            <SdImageBadgeBar image={image} isMainImage={isMainImage} />
+        <div className="opacity-0 group-hover:opacity-100">
+          {shouldShowDetails && (
+            <div className="absolute bottom-0 p-1">
+              <SdImageBadgeBar image={image} isMainImage={isMainImage} />
 
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 5,
+              <div className="flex flex-wrap gap-2">
+                <SdVariantPopover image={image} />
+
+                <SdImageEditorPopover image={image} />
+
+                <SdImageStudyPopover
+                  mainImageId={image.id}
+                  imageGroupData={imageGroupData ?? []}
+                  groupId={image.groupId}
+                />
+
+                <SdImageSubPopover
+                  availableCategories={selKeys}
+                  image={image}
+                />
+
+                <Button onClick={handleDeleteClick}>
+                  <IconX />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="absolute top-0 right-0">
+            <Button
+              onClick={(evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+                setModalOpened(true);
               }}
             >
-              <SdVariantPopover image={image} />
-
-              <SdImageEditorPopover image={image} />
-
-              <SdImageStudyPopover
-                mainImageId={image.id}
-                imageGroupData={imageGroupData ?? []}
-                groupId={image.groupId}
-              />
-
-              <SdImageSubPopover availableCategories={selKeys} image={image} />
-
-              <Button onClick={handleDeleteClick}>
-                <IconX />
-              </Button>
-            </div>
+              <IconZoomIn />
+            </Button>
           </div>
-        )}
-
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-          }}
-        >
-          <Button
-            onClick={(evt) => {
-              evt.preventDefault();
-              evt.stopPropagation();
-              setModalOpened(true);
-            }}
-          >
-            <IconZoomIn />
-          </Button>
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-          }}
-        >
-          <Button
-            onClick={(evt) => {
-              evt.preventDefault();
-              evt.stopPropagation();
-              toggleSelectedImage(image);
-            }}
-            color={isSelected ? "blue" : "gray"}
-          >
-            {isSelected ? <IconCircleCheck /> : <IconCircleDashed />}
-          </Button>
+          <div className="absolute top-0 left-0">
+            <Button
+              onClick={(evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+                toggleSelectedImage(image);
+              }}
+              color={isSelected ? "blue" : "gray"}
+            >
+              {isSelected ? <IconCircleCheck /> : <IconCircleDashed />}
+            </Button>
+          </div>
         </div>
       </div>
       {!disablePopover && (

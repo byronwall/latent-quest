@@ -3,9 +3,8 @@
 ## 2023-01-18 23:08:16
 
 - Set correct `max-age` for S3 image caching -- oops
-- Planned:
-  - Add a hover overlay which shows the buttons in SdImageComp
-  - Add the infinite scroll to group views
+- Add the infinite scroll to group views
+- Add a hover overlay which shows the buttons in SdImageComp
 
 ## 2023-01-17 23:51:52
 
