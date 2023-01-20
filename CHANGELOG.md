@@ -1,5 +1,14 @@
 # Changelog
 
+## 2023-01-19 22:18:25
+
+- Planned:
+  - Provide a quantity box on the create image page and variant pop up -- these should just create the array client side and send in
+  - Create page should instantly redirect to the group page with placeholders for the new images
+  - Add quick buttons to the cfg and steps to quickly change them
+  - Change default steps to 30
+  - Consider how to combine the variant pop up with the edit modal
+
 ## 2023-01-18 23:08:16
 
 - Set correct `max-age` for S3 image caching -- oops

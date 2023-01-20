@@ -15,6 +15,8 @@ interface SdVariantPopoverProps {
 // percentage is 1 - this number
 export const fixedStrength = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.3, 0.1];
 
+export const IMAGE_COUNTS = [1, 2, 4, 6, 8];
+
 export function SdVariantPopover(props: SdVariantPopoverProps) {
   const { image } = props;
 
@@ -22,6 +24,7 @@ export function SdVariantPopover(props: SdVariantPopoverProps) {
     image.engine === "DALL-E" ? "SD 2.1 512px" : image.engine;
 
   const [engine, setEngine] = useState<SdImageEngines>(defaultSdEngine);
+  const [imageCount, setImageCount] = useState(1);
 
   const handleCustomClick = () => {
     const strength = prompt(
@@ -37,7 +40,7 @@ export function SdVariantPopover(props: SdVariantPopoverProps) {
 
     const sdStrength = 1 - clampedStrength;
 
-    handleCreateVariant(image, engine, sdStrength);
+    handleCreateVariant(image, engine, sdStrength, imageCount);
   };
 
   const [isOpened, setIsOpened] = useState(false);
@@ -59,6 +62,20 @@ export function SdVariantPopover(props: SdVariantPopoverProps) {
       <Popover.Dropdown>
         <div className="flex max-w-[88vw] flex-col gap-1 sm:max-w-[352px]">
           <p className="text-lg font-bold">create variant of image</p>
+          <div className="flex items-center gap-4">
+            <p>image count</p>
+            <div className="flex gap-1">
+              {IMAGE_COUNTS.map((count) => (
+                <Button
+                  key={count}
+                  active={imageCount === count}
+                  onClick={() => setImageCount(count)}
+                >
+                  {count}
+                </Button>
+              ))}
+            </div>
+          </div>
           <p className="font-medium">SD variants (0% = brand new image)</p>
 
           <div className="max-w-[160px]">
@@ -67,7 +84,9 @@ export function SdVariantPopover(props: SdVariantPopoverProps) {
           <div className="flex flex-wrap gap-1">
             {fixedStrength.map((strength) => (
               <Button
-                onClick={() => handleCreateVariant(image, engine, strength)}
+                onClick={() =>
+                  handleCreateVariant(image, engine, strength, imageCount)
+                }
                 key={strength}
               >
                 {Math.round(100 * (1 - strength))}%
@@ -78,7 +97,9 @@ export function SdVariantPopover(props: SdVariantPopoverProps) {
           <p className="font-medium">DALL-E</p>
           <div>
             <Button
-              onClick={() => handleCreateVariant(image, "DALL-E")}
+              onClick={() =>
+                handleCreateVariant(image, "DALL-E", undefined, imageCount)
+              }
               color="indigo"
             >
               DALL-E
