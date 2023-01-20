@@ -1,4 +1,4 @@
-import { Loader, NumberInput } from "@mantine/core";
+import { NumberInput } from "@mantine/core";
 import { IconArrowsShuffle } from "@tabler/icons";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -38,18 +38,20 @@ export const engine_choices: SdImageEngines[] = [
   "SD 2.0 inpaint",
 ];
 
+export type CreateImageHandler = (
+  image: SdImagePlaceHolder,
+  imageCount: number
+) => void;
+
 interface SdNewImagePromptProps {
   defaultImage?: SdImage;
-
-  shouldShowLoaderAfterCreate?: boolean;
-
-  onCreate?: (image: SdImagePlaceHolder, cb: () => void) => void;
+  onCreate?: CreateImageHandler;
 }
 
 const defaultEngine: SdImageEngines = "SD 2.1 512px";
 
 export function SdNewImagePrompt(props: SdNewImagePromptProps) {
-  const { defaultImage, shouldShowLoaderAfterCreate } = props;
+  const { defaultImage } = props;
 
   const [cfg, cfgSet] = useState(defaultImage?.cfg ?? 10);
   const [steps, stepsSet] = useState(defaultImage?.steps ?? 30);
@@ -60,8 +62,6 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
 
   const [imageCount, setImageCount] = useState(1);
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const [breakdown, setBreakdown] = useState<PromptBreakdown>(
     defaultImage?.promptBreakdown ?? getBreakdownForText(starterPrompt)
   );
@@ -69,23 +69,11 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
   const createImageRequest = useAppStore((s) => s.createImageRequest);
 
   const queryClient = useQueryClient();
-
   const router = useRouter();
 
   const isPartOfExistingGroup = defaultImage !== undefined;
 
-  const [isPromptDirty, setIsPromptDirty] = useState(false);
-
   const onGen = async () => {
-    if (isPromptDirty) {
-      const shouldCont = confirm(
-        "You have unsaved changes to your prompt. Are you sure you want to continue?"
-      );
-      if (!shouldCont) {
-        return;
-      }
-    }
-
     const groupId = defaultImage?.groupId ?? getUuid();
 
     const newImgReq: ImgOrImgArray = Array(imageCount)
@@ -107,21 +95,18 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
         };
       });
 
-    setIsLoading(true);
-
     if (props.onCreate) {
       // the callback allows the button to disappear
-      props.onCreate(newImgReq[0], () => {
-        setIsLoading(false);
-      });
+      // just need the first one -- the rest will be created by the receiver
+      props.onCreate(newImgReq[0], imageCount);
       return;
     }
 
+    // navigate to the new page -- placeholders will be there
     router.push(`/group/${groupId}`);
 
     await createImageRequest(newImgReq);
 
-    setIsLoading(false);
     await queryClient.invalidateQueries();
 
     if (isPartOfExistingGroup) {
@@ -135,7 +120,6 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
       <PromptEditor
         initialBreakdown={breakdown}
         onBreakdownChange={setBreakdown}
-        onIsDirtyChange={setIsPromptDirty}
         shouldAllowSelection
       />
       <div className="flex flex-wrap gap-4 md:flex-nowrap">
@@ -189,13 +173,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
         </div>
       </div>
       <div>
-        {isLoading && shouldShowLoaderAfterCreate ? (
-          <Loader />
-        ) : (
-          <Button onClick={() => onGen()} color="orange">
-            create
-          </Button>
-        )}
+        <Button onClick={() => onGen()}>create</Button>
       </div>
     </div>
   );

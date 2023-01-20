@@ -1,21 +1,22 @@
-import { ColorPicker, Slider, Title } from "@mantine/core";
-import { useEffect, useRef, useState } from "react";
-import { useQueryClient } from "react-query";
+import { ColorPicker, Slider, Title } from '@mantine/core';
+import { useEffect, useRef, useState } from 'react';
+import { useQueryClient } from 'react-query';
 
-import { Button } from "./Button";
-import { getImageUrl } from "./ImageList";
-import { LqOutPaintControls } from "./LqOutPaintControls";
-import { Switch } from "./MantineWrappers";
-import { SdCardOrTableCell } from "./SdCardOrTableCell";
-import { SdImageComp } from "./SdImageComp";
-import { SdNewImagePrompt } from "./SdNewImagePrompt";
-import { useGetImageGroup } from "./useGetImageGroup";
+import { Button } from './Button';
+import { getImageUrl } from './ImageList';
+import { LqOutPaintControls } from './LqOutPaintControls';
+import { Switch } from './MantineWrappers';
+import { SdCardOrTableCell } from './SdCardOrTableCell';
+import { SdImageComp } from './SdImageComp';
+import { SdNewImagePrompt } from './SdNewImagePrompt';
+import { useGetImageGroup } from './useGetImageGroup';
 
-import { useAppStore } from "../model/store";
+import { useAppStore } from '../model/store';
+import { getRandomSeed, getUuid } from '../libs/shared-types/src';
 
-import type { OutPaintHandler } from "./LqOutPaintControls";
-import type { ImgObjWithExtras, ImgOrImgArray } from "../model/api";
 import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
+import type { OutPaintHandler } from "./LqOutPaintControls";
+import type { ImgObjWithExtras } from "../model/api";
 
 const TOOLS = [
   "point",
@@ -325,7 +326,7 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
   const handleCreateClick = async (
     placeHolder: SdImagePlaceHolder,
-    callback: () => void
+    imageCount: number
   ) => {
     const imageReqData: ImgObjWithExtras = {
       ...placeHolder,
@@ -388,11 +389,17 @@ export function SdImageEditor(props: SdImageEditorProps) {
 
     // add img req to placeholders -- add to front so new images are first in list
 
-    setPendingImages((prev) => [imageReqData, ...prev]);
+    const imagesToCreate = Array(imageCount)
+      .fill(0)
+      .map((_, idx) => ({
+        ...imageReqData,
+        seed: idx === 0 ? imageReqData.seed : getRandomSeed(),
+        id: getUuid(),
+      }));
 
-    await createImageRequest(imageReqData);
+    setPendingImages((prev) => [...imagesToCreate, ...prev]);
 
-    callback();
+    await createImageRequest(imagesToCreate);
 
     await qc.invalidateQueries();
   };

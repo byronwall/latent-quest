@@ -15,8 +15,6 @@ interface PromptEditorProps {
   initialBreakdown: PromptBreakdown;
 
   shouldAllowSelection?: boolean;
-
-  onIsDirtyChange?: (isDirty: boolean) => void;
 }
 
 const defaultBreakdown = { parts: [] };

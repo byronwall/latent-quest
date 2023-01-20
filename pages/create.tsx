@@ -7,7 +7,7 @@ export default function CreatePrompt() {
       title="create"
       description="Use the controls to create a new image. This will also create a new
     group to hold the results."
-      rightChild={<SdNewImagePrompt shouldShowLoaderAfterCreate />}
+      rightChild={<SdNewImagePrompt />}
     />
   );
 }

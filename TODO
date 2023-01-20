@@ -13,6 +13,7 @@ Assorted while working:
 ☐ Create a global zustand store for active requests -- funnel all reqs through there
     ☐ Show a progress indicator at top of screen
     ☐ Use this to show placeholders and loading status on placeholders
+☐ Image edit form should only send 1 copy of source image -- do seed and ID on server?
 
 Process:
     - Add quick buttons to the cfg and steps to quickly change them

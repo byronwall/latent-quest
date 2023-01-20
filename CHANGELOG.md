@@ -5,6 +5,7 @@
 - Provide a quantity box on the create image page and variant pop up -- these should just create the array client side and send in
 - Create page should instantly redirect to the group page with placeholders for the new images
 - Change default steps to 30
+- Update the image edit form to allow for multiple images - requires modifying the API route max body size to 4MB from 1MB
 
 ## 2023-01-18 23:08:16
 
