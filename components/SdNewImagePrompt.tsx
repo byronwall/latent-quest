@@ -7,6 +7,7 @@ import { useQueryClient } from "react-query";
 import { Button } from "./Button";
 import { PromptEditor } from "./PromptEditor";
 import { SelectEngine } from "./SelectEngine";
+import { IMAGE_COUNTS } from "./SdVariantMenu";
 
 import { useAppStore } from "../model/store";
 import {
@@ -15,6 +16,7 @@ import {
   getUuid,
 } from "../libs/shared-types/src";
 
+import type { ImgOrImgArray } from "../model/api";
 import type {
   PromptBreakdown,
   SdImage,
@@ -50,11 +52,13 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
   const { defaultImage, shouldShowLoaderAfterCreate } = props;
 
   const [cfg, cfgSet] = useState(defaultImage?.cfg ?? 10);
-  const [steps, stepsSet] = useState(defaultImage?.steps ?? 20);
+  const [steps, stepsSet] = useState(defaultImage?.steps ?? 30);
 
   const [seed, seedSet] = useState(defaultImage?.seed ?? getRandomSeed());
 
   const [engine, setEngine] = useState(defaultImage?.engine ?? defaultEngine);
+
+  const [imageCount, setImageCount] = useState(1);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -82,28 +86,40 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
       }
     }
 
-    const newImgReq: SdImagePlaceHolder = {
-      id: getUuid(),
-      promptBreakdown: breakdown,
-      cfg: cfg,
-      steps: steps,
-      seed: seed,
-      engine: engine,
-      prevImageId: defaultImage?.id,
-      groupId: defaultImage?.groupId,
-    };
+    const groupId = defaultImage?.groupId ?? getUuid();
+
+    const newImgReq: ImgOrImgArray = Array(imageCount)
+      .fill(0)
+      .map((_, idx) => {
+        return {
+          id: getUuid(),
+          promptBreakdown: breakdown,
+          cfg: cfg,
+          steps: steps,
+
+          // if this is the first image, use the seed from the state
+          // otherwise, generate a new seed
+          seed: idx > 0 ? getRandomSeed() : seed,
+
+          engine: engine,
+          prevImageId: defaultImage?.id,
+          groupId: groupId,
+        };
+      });
 
     setIsLoading(true);
 
     if (props.onCreate) {
       // the callback allows the button to disappear
-      props.onCreate(newImgReq, () => {
+      props.onCreate(newImgReq[0], () => {
         setIsLoading(false);
       });
       return;
     }
 
-    const img = await createImageRequest(newImgReq);
+    router.push(`/group/${groupId}`);
+
+    await createImageRequest(newImgReq);
 
     setIsLoading(false);
     await queryClient.invalidateQueries();
@@ -112,8 +128,6 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
       // just be done
       return;
     }
-
-    router.push(`/group/${img.groupId}`);
   };
 
   return (
@@ -159,6 +173,20 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
           disabled={engine === "DALL-E"}
           className="min-w-[140px]"
         />
+      </div>
+      <div className="flex flex-col gap-1">
+        <p>image count</p>
+        <div className="flex gap-1">
+          {IMAGE_COUNTS.map((count) => (
+            <Button
+              key={count}
+              onClick={() => setImageCount(count)}
+              active={imageCount === count}
+            >
+              {count}
+            </Button>
+          ))}
+        </div>
       </div>
       <div>
         {isLoading && shouldShowLoaderAfterCreate ? (

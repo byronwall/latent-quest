@@ -15,6 +15,8 @@ Assorted while working:
     ☐ Use this to show placeholders and loading status on placeholders
 
 Process:
+    - Add quick buttons to the cfg and steps to quickly change them
+  - Consider how to combine the variant pop up with the edit modal
     - Open a quick group modal when clicking on the magnifying glass - image only - no controls
   - Usability tweaks:
 

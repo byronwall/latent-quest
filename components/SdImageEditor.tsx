@@ -14,7 +14,7 @@ import { useGetImageGroup } from "./useGetImageGroup";
 import { useAppStore } from "../model/store";
 
 import type { OutPaintHandler } from "./LqOutPaintControls";
-import type { ImgObjWithExtras } from "../model/api";
+import type { ImgObjWithExtras, ImgOrImgArray } from "../model/api";
 import type { SdImage, SdImagePlaceHolder } from "../libs/shared-types/src";
 
 const TOOLS = [
