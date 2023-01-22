@@ -54,15 +54,15 @@ export function InspirationMgr(props: InspirationMgrProps) {
   }, [inspirationLookup]);
 
   // pick 20 random inspirations from test data -- must be without replacement
-  const randomInspirations = useMemo(() => {
-    const randomInspirations: InspirationEntry[] = [];
-    const itemCount = Math.min(20, testData.length);
-    for (let i = 0; i < itemCount; i++) {
-      const randomIndex = Math.floor(Math.random() * testData.length);
-      randomInspirations.push(testData[randomIndex]);
-    }
-    return randomInspirations;
-  }, [testData]);
+  // const randomInspirations = useMemo(() => {
+  //   const randomInspirations: InspirationEntry[] = [];
+  //   const itemCount = Math.min(20, testData.length);
+  //   for (let i = 0; i < itemCount; i++) {
+  //     const randomIndex = Math.floor(Math.random() * testData.length);
+  //     randomInspirations.push(testData[randomIndex]);
+  //   }
+  //   return randomInspirations;
+  // }, [testData]);
 
   const [activeCategory, setActiveCategory] = useState<string>(categories[0]);
 
@@ -89,7 +89,7 @@ export function InspirationMgr(props: InspirationMgrProps) {
           ))}
         </div>
       </div>
-      <div>
+      {/* <div>
         <p>sample of 20 random modifiers or other term</p>
         <div className="flex flex-wrap gap-4">
           {randomInspirations.map((item, i) => (
@@ -103,7 +103,7 @@ export function InspirationMgr(props: InspirationMgrProps) {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
       <div>
         <p>choose a category to see examples</p>
         <div className="flex flex-wrap gap-4">
