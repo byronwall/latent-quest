@@ -1,43 +1,41 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
-
-import { useControlledUncontrolled } from "./useControlledUncontrolled";
-
-import {
-  getBreakdownForText,
-  getTextForBreakdown,
-} from "../libs/shared-types/src";
-
-import type { PromptBreakdown } from "../libs/shared-types/src";
+import { usePrevious } from "react-use";
 
 interface PromptEditorProps {
-  onBreakdownChange: (newBreakdown: PromptBreakdown) => void;
-  initialBreakdown: PromptBreakdown;
-
-  shouldAllowSelection?: boolean;
+  initialPromptText: string;
+  onPromptTextChange: (newPromptText: string) => void;
 }
 
-const defaultBreakdown = { parts: [] };
 export function PromptEditor(props: PromptEditorProps) {
-  const { initialBreakdown, onBreakdownChange, shouldAllowSelection } = props;
+  const { initialPromptText, onPromptTextChange } = props;
 
-  // controlled and uncontrolled updates
-  const [prompt, setPrompt] = useControlledUncontrolled<PromptBreakdown>(
-    initialBreakdown,
-    onBreakdownChange,
-    defaultBreakdown
-  );
+  const promptText = initialPromptText;
+  const setPromptText = onPromptTextChange;
 
-  const simpleText = getTextForBreakdown(prompt);
-
-  const [promptText, setPromptText] = useState(simpleText);
+  const prevInitialPromptText = usePrevious(initialPromptText);
+  const prevPromptText = usePrevious(promptText);
 
   useEffect(() => {
-    // update breakdown when text changes
-    const newBreakdown = getBreakdownForText(promptText);
+    if (initialPromptText !== prevInitialPromptText) {
+      setPromptText(initialPromptText);
+    }
 
-    setPrompt(newBreakdown);
-  }, [promptText, setPrompt]);
+    const didPromptChange = promptText !== prevPromptText;
+    const isStateDiffThanProps = promptText !== initialPromptText;
+    if (didPromptChange && isStateDiffThanProps) {
+      onPromptTextChange(promptText);
+    }
+  }, [
+    promptText,
+    onPromptTextChange,
+    initialPromptText,
+    prevInitialPromptText,
+    prevPromptText,
+    setPromptText,
+  ]);
+
+  console.log("prompt", promptText);
 
   return (
     <div>

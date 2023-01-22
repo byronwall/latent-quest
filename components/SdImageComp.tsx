@@ -1,4 +1,4 @@
-import { Modal, Stack } from "@mantine/core";
+import { CopyButton, Modal, Stack } from "@mantine/core";
 import {
   IconCircleCheck,
   IconCircleDashed,
@@ -19,6 +19,7 @@ import { SdImageEditorPopover } from "./SdImageEditorPopover";
 import { SdImageStudyPopover } from "./SdImageStudyPopover";
 import { SdImageSubPopover } from "./SdImageSubPopover";
 import { SdVariantPopover } from "./SdVariantMenu";
+import { createInspirationFromImage } from "./InspirationMgr";
 
 import { useAppStore } from "../model/store";
 import { api_deleteImage } from "../model/api_images";
@@ -123,6 +124,20 @@ export function SdImageComp(props: SdImageCompProps) {
                   availableCategories={selKeys}
                   image={image}
                 />
+
+                <CopyButton
+                  value={JSON.stringify(
+                    createInspirationFromImage(image),
+                    undefined,
+                    2
+                  )}
+                >
+                  {({ copied, copy }) => (
+                    <Button onClick={copy}>
+                      {copied ? "Copied url" : "Copy url"}
+                    </Button>
+                  )}
+                </CopyButton>
 
                 <Button onClick={handleDeleteClick}>
                   <IconX />

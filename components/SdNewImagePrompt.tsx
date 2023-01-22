@@ -1,8 +1,9 @@
 import { NumberInput } from "@mantine/core";
 import { IconArrowsShuffle } from "@tabler/icons";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
+import { usePrevious } from "@mantine/hooks";
 
 import { Button } from "./Button";
 import { PromptEditor } from "./PromptEditor";
@@ -13,9 +14,11 @@ import { useAppStore } from "../model/store";
 import {
   getBreakdownForText,
   getRandomSeed,
+  getTextForBreakdown,
   getUuid,
 } from "../libs/shared-types/src";
 
+import type { InspirationEntry } from "./InspirationMgr";
 import type { ImgOrImgArray } from "../model/api";
 import type {
   PromptBreakdown,
@@ -46,12 +49,14 @@ export type CreateImageHandler = (
 interface SdNewImagePromptProps {
   defaultImage?: SdImage;
   onCreate?: CreateImageHandler;
+
+  inspirationToAdd?: InspirationEntry;
 }
 
 const defaultEngine: SdImageEngines = "SD 2.1 512px";
 
 export function SdNewImagePrompt(props: SdNewImagePromptProps) {
-  const { defaultImage } = props;
+  const { defaultImage, inspirationToAdd } = props;
 
   const [cfg, cfgSet] = useState(defaultImage?.cfg ?? 10);
   const [steps, stepsSet] = useState(defaultImage?.steps ?? 30);
@@ -115,12 +120,30 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
     }
   };
 
+  const [promptText, setPromptText] = useState<string>(
+    getTextForBreakdown(breakdown)
+  );
+
+  // if inspirationToAdd is set, then we should add that value to the prompt
+  const prevInspiration = usePrevious(inspirationToAdd);
+
+  useEffect(() => {
+    if (inspirationToAdd !== prevInspiration && inspirationToAdd) {
+      const newPrompt = `${promptText}, ${inspirationToAdd.value}`;
+
+      setPromptText(newPrompt);
+    }
+  }, [breakdown, inspirationToAdd, prevInspiration, promptText]);
+
+  useEffect(() => {
+    setBreakdown(getBreakdownForText(promptText));
+  }, [promptText]);
+
   return (
     <div className="flex flex-col gap-4">
       <PromptEditor
-        initialBreakdown={breakdown}
-        onBreakdownChange={setBreakdown}
-        shouldAllowSelection
+        initialPromptText={promptText}
+        onPromptTextChange={setPromptText}
       />
       <div className="flex flex-wrap gap-4 md:flex-nowrap">
         <SelectEngine value={engine} onChange={setEngine} />

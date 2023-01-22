@@ -1,5 +1,11 @@
 # Changelog
 
+## 2023-01-21 23:47:52
+
+- Start to add support for "inspiration" on the create page
+  - Temp TS object to store images and data -- will move to DB
+- Update prompt interface to use text for longer
+
 ## 2023-01-19 22:18:25
 
 - Provide a quantity box on the create image page and variant pop up -- these should just create the array client side and send in
