@@ -1,5 +1,9 @@
 # Changelog
 
+## 2023-01-23 00:21:50
+
+- Load inspiration list from a group ID - somewhat temporary for now
+
 ## 2023-01-21 23:47:52
 
 - Start to add support for "inspiration" on the create page

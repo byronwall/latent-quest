@@ -20,6 +20,11 @@ export async function queryFnGetAllGroups() {
 
   const results = (await res.json()) as AllGroupResponse[];
 
+  if (!results) {
+    console.error("something went wrong - no images to load?");
+    return [];
+  }
+
   // remove undefined images -- why are they in there?
   results.forEach((group) => {
     group.images = group.images.filter((c) => c !== undefined);

@@ -1,8 +1,11 @@
-import { useMemo, useState } from "react";
+import { TextInput } from "@mantine/core";
 import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 
-import { inspirationTestData } from "./test_data/inspirations";
+import { Button } from "./Button";
+import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
 import { getImageUrl } from "./ImageList";
+import { queryFnGetImageGroup } from "./useGetImageGroup";
 
 import { getTextForBreakdown } from "../libs/shared-types/src";
 
@@ -17,6 +20,8 @@ export type InspirationEntry = {
   imageId: string;
 };
 
+type InspirationFromGroup = Record<string, Record<string, SdImage>>;
+
 type InspirationLookup = Record<string, InspirationEntry[]>;
 
 type InspirationMgrProps = {
@@ -26,7 +31,20 @@ type InspirationMgrProps = {
 export function InspirationMgr(props: InspirationMgrProps) {
   const { onAddInspiration } = props;
 
-  const testData = inspirationTestData;
+  const [testData, setTestData] = useState<InspirationEntry[]>([]);
+
+  useEffect(() => {
+    // load from test group
+    async function buildInitial() {
+      const testInspirs = await buildInspirationFromGroupId(
+        "3d473223-16b6-4146-998c-1dc236ae319b"
+      );
+
+      setTestData(testInspirs);
+    }
+
+    buildInitial();
+  }, []);
 
   // create a lookup table of category -> values
   const inspirationLookup = useMemo(() => {
@@ -66,13 +84,40 @@ export function InspirationMgr(props: InspirationMgrProps) {
 
   const [activeCategory, setActiveCategory] = useState<string>(categories[0]);
 
+  useEffect(() => {
+    setActiveCategory(categories[0]);
+  }, [categories]);
+
   const activeCategoryValues = useMemo(() => {
-    return inspirationLookup[activeCategory];
+    return inspirationLookup[activeCategory] ?? [];
   }, [activeCategory, inspirationLookup]);
+
+  const [testGroupId, setTestGroupId] = useState<string>("");
+
+  const handleLoadTestGroup = async () => {
+    // get the group images
+
+    const inspirations = await buildInspirationFromGroupId(testGroupId);
+
+    setTestData(inspirations);
+
+    // remove "inspir" and split into groups
+  };
 
   return (
     <div className="flex flex-col gap-2 p-4">
       <h1>inspiration</h1>
+      <div>
+        <p>build list from group ID</p>
+        <div>
+          <TextInput
+            value={testGroupId}
+            onChange={(e) => setTestGroupId(e.currentTarget.value)}
+          />
+          <Button onClick={handleLoadTestGroup}>load test group</Button>
+        </div>
+      </div>
+
       <div>
         <p>choose a base image</p>
         <div className="flex flex-wrap gap-4">
@@ -155,4 +200,52 @@ export function createInspirationFromImage(
     imageUrl: image.url,
     prompt: getTextForBreakdown(image.promptBreakdown),
   };
+}
+
+async function buildInspirationFromGroupId(testGroupId: string) {
+  const imagesFromGroup = await queryFnGetImageGroup({
+    queryKey: [testGroupId],
+  });
+
+  // parse the prompt and find those that include "inspir"
+
+  const inspirLookup = imagesFromGroup.reduce((acc, item) => {
+    const lookup = getSelectionAsLookup(item);
+
+    Object.keys(lookup).forEach((key) => {
+      if (!acc[key]) {
+        acc[key] = {};
+      }
+
+      const value = lookup[key].join(", ");
+
+      acc[key][value] = item;
+    });
+
+    return acc;
+  }, {} as InspirationFromGroup);
+
+  // convert that to InspirationEntry[] and setTestData
+
+  const inspirations: InspirationEntry[] = [];
+
+  Object.keys(inspirLookup).forEach((key) => {
+    const values = inspirLookup[key];
+
+    Object.keys(values).forEach((value) => {
+      const image = values[value];
+
+      const entry: InspirationEntry = {
+        category: key,
+        value,
+        prompt: getTextForBreakdown(image.promptBreakdown),
+        imageUrl: image.url,
+        imageId: image.id,
+      };
+
+      inspirations.push(entry);
+    });
+  });
+
+  return inspirations;
 }
