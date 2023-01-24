@@ -163,7 +163,7 @@ export function InspirationMgr(props: InspirationMgrProps) {
         <div className="flex flex-wrap gap-4">
           {activeCategoryValues.map((item, i) => (
             <div
-              key={i}
+              key={item.value}
               className=" group relative h-32 w-32 cursor-pointer border hover:z-10"
               onClick={() => onAddInspiration({ ...item })}
             >
