@@ -7,7 +7,7 @@ import {
 } from "@tabler/icons";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useQueryClient } from "react-query";
 
 import { Button } from "./Button";
@@ -44,7 +44,7 @@ export type SdImageCompProps = SdImageOrPlaceholderCommonProps & {
   imageGroupData?: SdImage[];
 };
 
-export function SdImageComp(props: SdImageCompProps) {
+function _SdImageComp(props: SdImageCompProps) {
   const {
     image,
     size,
@@ -218,3 +218,5 @@ export function SdImageComp(props: SdImageCompProps) {
     </>
   );
 }
+
+export const SdImageComp = memo(_SdImageComp);

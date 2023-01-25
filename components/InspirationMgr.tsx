@@ -1,6 +1,6 @@
 import { TextInput } from "@mantine/core";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "./Button";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
@@ -9,7 +9,7 @@ import { queryFnGetImageGroup } from "./useGetImageGroup";
 
 import { getTextForBreakdown } from "../libs/shared-types/src";
 
-import type { SdImage } from "../libs/shared-types/src";
+import type { SdImage, SdImageEngines } from "../libs/shared-types/src";
 
 export type InspirationEntry = {
   prompt: string;
@@ -28,23 +28,65 @@ type InspirationMgrProps = {
   onAddInspiration: (inspiration: InspirationEntry) => void;
 };
 
+type InspirationBase = Pick<
+  InspirationEntry,
+  "value" | "imageId" | "imageUrl"
+> & {
+  groupId: string;
+  engine: SdImageEngines;
+};
+
+const baseInspirations: InspirationBase[] = [
+  {
+    value: "symmetrical face",
+    imageUrl: "553c1fa0-27df-483e-ba76-ca37396854e9-0-2003297801.png",
+    imageId: "82923473-8add-4664-b063-34cda3101614",
+    groupId: "3d473223-16b6-4146-998c-1dc236ae319b",
+    engine: "SD 1.5",
+  },
+  {
+    value: "scenic landscape with a barn",
+    imageUrl: "495d4f60-ae9b-4214-9516-f36e72ccaf1f-0-655742724.png",
+    imageId: "5b40cf0d-62af-4859-97d0-37219784e2dc",
+    groupId: "6cd51c4c-c94d-4d89-9ed8-a4c460c4618f",
+    engine: "SD 1.5",
+  },
+  {
+    value: "dump truck on a rugged road",
+    imageId: "0c9e1840-0a29-4bed-a07d-a3dc146ed937",
+    imageUrl: "3381a75f-f64d-4ec0-8bdd-94fd7d539e0a-0-1598926896.png",
+    groupId: "0c9e1840-0a29-4bed-a07d-a3dc146ed937",
+    engine: "SD 1.5",
+  },
+  {
+    value: "wallpaper pattern with florals and woodland creatures",
+    imageId: "64180379-695c-4717-af0b-a115025d713e",
+    imageUrl: "f47a3f30-8e2b-4cb8-937a-dd9676dc93ff-0-210359331.png",
+    groupId: "e31d2919-d46b-45ee-84f4-6d1229d6eff9",
+    engine: "SD 1.5",
+  },
+];
+
 export function InspirationMgr(props: InspirationMgrProps) {
   const { onAddInspiration } = props;
 
   const [testData, setTestData] = useState<InspirationEntry[]>([]);
 
+  const [inspirGroupId, setInspirGroupId] = useState(
+    baseInspirations[0].groupId
+  );
+
+  const buildInspirationData = useCallback(async () => {
+    const testInspirs = await buildInspirationFromGroupId(inspirGroupId);
+
+    setTestData(testInspirs);
+  }, [inspirGroupId]);
+
   useEffect(() => {
     // load from test group
-    async function buildInitial() {
-      const testInspirs = await buildInspirationFromGroupId(
-        "3d473223-16b6-4146-998c-1dc236ae319b"
-      );
 
-      setTestData(testInspirs);
-    }
-
-    buildInitial();
-  }, []);
+    buildInspirationData();
+  }, [buildInspirationData]);
 
   // create a lookup table of category -> values
   const inspirationLookup = useMemo(() => {
@@ -121,15 +163,24 @@ export function InspirationMgr(props: InspirationMgrProps) {
       <div>
         <p>choose a base image</p>
         <div className="flex flex-wrap gap-4">
-          {[
-            "symmetrical face",
-            "landscape of barn",
-            "abstract",
-            "moon and stars",
-            "dump truck",
-          ].map((item) => (
-            <div key={item} className=" h-32 w-32   border">
-              <button>{item}</button>
+          {baseInspirations.map((item) => (
+            <div
+              key={item.value}
+              className="group relative h-48 w-48  border"
+              onClick={() => setInspirGroupId(item.groupId)}
+            >
+              <Image
+                src={getImageUrl(item.imageUrl)}
+                alt={item.value}
+                width={48 * 4}
+                height={48 * 4}
+              />
+
+              <div className="absolute top-0 left-0 hidden h-full w-full bg-black bg-opacity-20 p-2 group-hover:block ">
+                <p className="bg-slate-900 text-center text-white opacity-90">
+                  {item.value}
+                </p>
+              </div>
             </div>
           ))}
         </div>

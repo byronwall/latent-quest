@@ -125,12 +125,14 @@ export async function generateSdImage(sdImage: SdImgGenParams) {
     Object.assign(sdParams, variantParams);
   }
 
+  console.log("send req to DreamStudio");
   const { images } = (await generateAsync(sdParams)) as any;
+  console.log("got response from DreamStudio");
 
   if (images.length > 0) {
     const result = images[0];
 
-    const fileKey = result.filePath.replace(pathToImg + "/", "");
+    const fileKey = result.filePath.replace(`${pathToImg}/`, "");
 
     return await saveImageToS3AndDb(
       {

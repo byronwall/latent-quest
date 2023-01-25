@@ -1,5 +1,12 @@
 # Changelog
 
+## 2023-01-25 00:24:08
+
+- Add a list of base images and groupIds for the create page inspiration features
+- Improve the image generation to batch promises in groups of 4 - should avoid hammering the external APIs
+- Memoize the SdImageComp to maybe reduce renders?
+- Add some logging to image generation to track progress
+
 ## 2023-01-23 00:21:50
 
 - Load inspiration list from a group ID - somewhat temporary for now

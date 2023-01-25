@@ -1,3 +1,5 @@
+import { PromisePool } from "@supercharge/promise-pool";
+
 import { generateSdImage } from "./generateSdImage";
 
 import { getTextOnlyFromPromptPartWithLabel } from "../../components/getTextOnlyFromPromptPartWithLabel";
@@ -29,7 +31,16 @@ export default async function handler(req, res) {
     ? imgGenReqReq
     : [imgGenReqReq];
 
-  const results = await Promise.all(imgGenReqs.map(processSingleImgGenReq));
+  const { results, errors } = await PromisePool.withConcurrency(4)
+    .for(imgGenReqs)
+    .process((imgReq) => {
+      return processSingleImgGenReq(imgReq);
+    });
+
+  if (errors.length > 0) {
+    console.log("errors", errors);
+  }
+
   const goodResults = results.filter((r) => r !== undefined) as SdImage[];
 
   const end = +Date.now();
@@ -41,6 +52,7 @@ export default async function handler(req, res) {
 async function processSingleImgGenReq(
   imgGenReq: ImageGenRequest
 ): Promise<SdImage | undefined> {
+  console.log("process single image");
   const seed = imgGenReq.seed ?? getRandomSeed();
   const cfg = imgGenReq.cfg ?? 10;
   const steps = imgGenReq.steps ?? 20;
