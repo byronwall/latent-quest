@@ -1,6 +1,8 @@
 import { TextInput } from "@mantine/core";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { IconLink } from "@tabler/icons";
+import Link from "next/link";
 
 import { Button } from "./Button";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
@@ -147,33 +149,28 @@ export function InspirationMgr(props: InspirationMgrProps) {
   };
 
   return (
-    <div className="flex flex-col gap-2 p-4">
+    <div className="flex flex-col gap-2 px-16">
       <h1>inspiration</h1>
-      <div>
-        <p>build list from group ID</p>
-        <div>
-          <TextInput
-            value={testGroupId}
-            onChange={(e) => setTestGroupId(e.currentTarget.value)}
-          />
-          <Button onClick={handleLoadTestGroup}>load test group</Button>
-        </div>
-      </div>
 
-      <div>
-        <p>choose a base image</p>
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-700 text-white">
+            <p>1</p>
+          </div>
+          <p className="text-xl">choose a base image</p>
+        </div>
         <div className="flex flex-wrap gap-4">
           {baseInspirations.map((item) => (
             <div
               key={item.value}
-              className="group relative h-48 w-48  border"
+              className="group relative h-72 w-72  cursor-pointer border"
               onClick={() => setInspirGroupId(item.groupId)}
             >
               <Image
                 src={getImageUrl(item.imageUrl)}
                 alt={item.value}
-                width={48 * 4}
-                height={48 * 4}
+                width={512}
+                height={512}
               />
 
               <div className="absolute top-0 left-0 hidden h-full w-full bg-black bg-opacity-20 p-2 group-hover:block ">
@@ -185,23 +182,14 @@ export function InspirationMgr(props: InspirationMgrProps) {
           ))}
         </div>
       </div>
-      {/* <div>
-        <p>sample of 20 random modifiers or other term</p>
-        <div className="flex flex-wrap gap-4">
-          {randomInspirations.map((item, i) => (
-            <div key={i} className=" h-32 w-32  border">
-              <Image
-                src={getImageUrl(item.imageUrl)}
-                alt={item.prompt}
-                width={32 * 4}
-                height={32 * 4}
-              />
-            </div>
-          ))}
+
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-700 text-white">
+            <p>2</p>
+          </div>
+          <p className="text-xl">choose a category to explore</p>
         </div>
-      </div> */}
-      <div>
-        <p>choose a category to see examples</p>
         <div className="flex flex-wrap gap-4">
           {categories.map((item) => (
             <div key={item} className=" h-32 w-32   border">
@@ -210,29 +198,61 @@ export function InspirationMgr(props: InspirationMgrProps) {
           ))}
         </div>
       </div>
-      <div>
-        <div className="flex flex-wrap gap-4">
-          {activeCategoryValues.map((item, i) => (
-            <div
-              key={item.value}
-              className=" group relative h-32 w-32 cursor-pointer border hover:z-10"
-              onClick={() => onAddInspiration({ ...item })}
-            >
-              <Image
-                src={getImageUrl(item.imageUrl)}
-                alt={item.prompt}
-                width={32 * 4}
-                height={32 * 4}
-                className="transition-all duration-200 group-hover:scale-150"
-              />
 
-              <div className="absolute top-0 left-0 hidden h-full w-full bg-black bg-opacity-20 p-2 group-hover:block group-hover:scale-150">
-                <p className="bg-slate-900 text-center text-white opacity-90">
-                  {item.value}
-                </p>
+      <div className="flex flex-col">
+        <div className="flex gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-700 text-white">
+            <p>3</p>
+          </div>
+          <p className="text-xl">
+            click image to add to prompt... be inspired!
+          </p>
+        </div>
+        <p>
+          you can also click the link icon to open the original image prompt
+        </p>
+        <p>
+          images were generated with the same seeds and settings as the base
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2   gap-4  sm:grid-cols-3 md:grid-cols-5">
+        {activeCategoryValues.map((item, i) => (
+          <div
+            key={item.value}
+            className="group relative  cursor-pointer border  hover:z-10"
+            onClick={() => onAddInspiration({ ...item })}
+          >
+            <p className="line-clamp-1">{item.value}</p>
+            <Image
+              src={getImageUrl(item.imageUrl)}
+              alt={item.prompt}
+              width={512}
+              height={512}
+              className="transition-all duration-200 group-hover:scale-150"
+            />
+
+            <div className="absolute top-0 left-0  hidden h-full w-full flex-col justify-between bg-black bg-opacity-20 p-2 group-hover:flex group-hover:scale-150">
+              <p className="bg-slate-900 text-center text-white opacity-90">
+                {item.value}
+              </p>
+              <div className="flex w-8 justify-center rounded bg-white opacity-30">
+                <Link href={`/image/${item.imageId}`} target="_blank">
+                  <IconLink />
+                </Link>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
+      </div>
+      <div>
+        <p>build list from group ID</p>
+        <div>
+          <TextInput
+            value={testGroupId}
+            onChange={(e) => setTestGroupId(e.currentTarget.value)}
+          />
+          <Button onClick={handleLoadTestGroup}>load test group</Button>
         </div>
       </div>
     </div>
