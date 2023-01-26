@@ -144,7 +144,7 @@ export function InspirationMgr(props: InspirationMgrProps) {
   };
 
   return (
-    <div className="flex flex-col gap-2 px-16">
+    <div className="flex flex-col gap-2 px-2 md:px-16">
       <h1>find inspiration</h1>
 
       <div className="flex flex-col gap-2">
@@ -235,16 +235,21 @@ export function InspirationMgr(props: InspirationMgrProps) {
             className="group relative  cursor-pointer border  hover:z-10"
             onClick={() => onAddInspiration({ ...item })}
           >
-            <p className="line-clamp-1">{item.value}</p>
+            <div className="flex justify-between gap-1 ">
+              <p className="line-clamp-1">{item.value}</p>
+              <Link href={`/image/${item.imageId}`} target="_blank">
+                <IconLink />
+              </Link>
+            </div>
             <Image
               src={getImageUrl(item.imageUrl)}
               alt={item.prompt}
               width={512}
               height={512}
-              className="transition-all duration-200 group-hover:scale-150"
+              className="transition-all duration-200 sm:group-hover:scale-150"
             />
 
-            <div className="absolute top-0 left-0  hidden h-full w-full flex-col justify-between bg-black bg-opacity-20 p-2 group-hover:flex group-hover:scale-150">
+            <div className="absolute top-0 left-0  hidden h-full w-full flex-col justify-between bg-black bg-opacity-20 p-2 sm:group-hover:flex sm:group-hover:scale-150">
               <p className="bg-slate-900 text-center text-white opacity-90">
                 {item.value}
               </p>
