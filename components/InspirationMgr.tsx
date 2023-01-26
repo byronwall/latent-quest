@@ -67,6 +67,14 @@ const baseInspirations: InspirationBase[] = [
     groupId: "e31d2919-d46b-45ee-84f4-6d1229d6eff9",
     engine: "SD 1.5",
   },
+  {
+    engine: "SD 2.1 512px",
+    imageId: "640590f7-1212-4fec-85da-feae91ffd8b6",
+    imageUrl: "3db851c7-9f37-4adb-9b2f-6b2837b54d2f-0-508693915.png",
+    value:
+      "Tiny space ships fly around the planets, creating trails of light and shadows in their wake",
+    groupId: "170f3083-3a66-4be3-a22e-9c789ac1eaed",
+  },
 ];
 
 export function InspirationMgr(props: InspirationMgrProps) {
@@ -115,17 +123,6 @@ export function InspirationMgr(props: InspirationMgrProps) {
     return categories;
   }, [inspirationLookup]);
 
-  // pick 20 random inspirations from test data -- must be without replacement
-  // const randomInspirations = useMemo(() => {
-  //   const randomInspirations: InspirationEntry[] = [];
-  //   const itemCount = Math.min(20, testData.length);
-  //   for (let i = 0; i < itemCount; i++) {
-  //     const randomIndex = Math.floor(Math.random() * testData.length);
-  //     randomInspirations.push(testData[randomIndex]);
-  //   }
-  //   return randomInspirations;
-  // }, [testData]);
-
   const [activeCategory, setActiveCategory] = useState<string>(categories[0]);
 
   useEffect(() => {
@@ -144,13 +141,11 @@ export function InspirationMgr(props: InspirationMgrProps) {
     const inspirations = await buildInspirationFromGroupId(testGroupId);
 
     setTestData(inspirations);
-
-    // remove "inspir" and split into groups
   };
 
   return (
     <div className="flex flex-col gap-2 px-16">
-      <h1>inspiration</h1>
+      <h1>find inspiration</h1>
 
       <div className="flex flex-col gap-2">
         <div className="flex gap-2">
@@ -159,11 +154,11 @@ export function InspirationMgr(props: InspirationMgrProps) {
           </div>
           <p className="text-xl">choose a base image</p>
         </div>
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
           {baseInspirations.map((item) => (
             <div
               key={item.value}
-              className="group relative h-72 w-72  cursor-pointer border"
+              className="group relative  cursor-pointer border"
               onClick={() => setInspirGroupId(item.groupId)}
             >
               <Image
@@ -174,7 +169,7 @@ export function InspirationMgr(props: InspirationMgrProps) {
               />
 
               <div className="absolute top-0 left-0 hidden h-full w-full bg-black bg-opacity-20 p-2 group-hover:block ">
-                <p className="bg-slate-900 text-center text-white opacity-90">
+                <p className="rounded-t-sm bg-slate-900 text-center text-xl text-white opacity-90">
                   {item.value}
                 </p>
               </div>
@@ -188,14 +183,28 @@ export function InspirationMgr(props: InspirationMgrProps) {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-700 text-white">
             <p>2</p>
           </div>
-          <p className="text-xl">choose a category to explore</p>
+          <p className="text-xl">choose an inspiration type to explore</p>
         </div>
         <div className="flex flex-wrap gap-4">
-          {categories.map((item) => (
-            <div key={item} className=" h-32 w-32   border">
-              <button onClick={() => setActiveCategory(item)}>{item}</button>
-            </div>
-          ))}
+          {categories.map((category) => {
+            const displayName = category
+              .replace("inspir", "")
+              .replaceAll("_", " ");
+
+            return (
+              <div
+                key={category}
+                className={` h-32 w-32 cursor-pointer rounded  border p-2 ${
+                  category === activeCategory
+                    ? "bg-blue-700 text-white"
+                    : "bg-blue-100 text-black"
+                }`}
+                onClick={() => setActiveCategory(category)}
+              >
+                <p className="text-2xl uppercase">{displayName}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -208,15 +217,18 @@ export function InspirationMgr(props: InspirationMgrProps) {
             click image to add to prompt... be inspired!
           </p>
         </div>
-        <p>
-          you can also click the link icon to open the original image prompt
-        </p>
-        <p>
-          images were generated with the same seeds and settings as the base
-        </p>
+        <div className="px-12">
+          <p>
+            you can also click the link icon to open the original image prompt;
+            images were generated with the same seeds and settings as the base
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2   gap-4  sm:grid-cols-3 md:grid-cols-5">
+      <div
+        className="grid grid-cols-2   gap-4  sm:grid-cols-3 md:grid-cols-5"
+        key={activeCategory + inspirGroupId}
+      >
         {activeCategoryValues.map((item, i) => (
           <div
             key={item.value}
@@ -259,17 +271,13 @@ export function InspirationMgr(props: InspirationMgrProps) {
   );
 }
 
-export function createInspirationFromImage(
-  image: SdImage,
-  category = "?",
-  value = "?"
-): InspirationEntry {
+export function createInspirationFromImage(image: SdImage): InspirationBase {
   return {
-    category,
-    value,
+    engine: image.engine,
     imageId: image.id,
     imageUrl: image.url,
-    prompt: getTextForBreakdown(image.promptBreakdown),
+    value: getTextForBreakdown(image.promptBreakdown),
+    groupId: image.groupId,
   };
 }
 

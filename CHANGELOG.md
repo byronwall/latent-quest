@@ -1,5 +1,10 @@
 # Changelog
 
+## 2023-01-25 23:27:33
+
+- Improve visuals and UX on the Inspiration portion of the create page
+- Add an extra inspiration base image related to space and planets
+
 ## 2023-01-25 00:24:08
 
 - Add a list of base images and groupIds for the create page inspiration features
