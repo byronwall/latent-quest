@@ -46,12 +46,6 @@ export function ImageList(props: ImageListProps) {
     await qc.invalidateQueries();
   };
 
-  const { refEndOfList, visibleItems, hasMore } = useInfiniteScroll(
-    groupList,
-    12,
-    4
-  );
-
   return (
     <div className="mb-4 grid grid-cols-2 gap-2  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
       <div className="flex flex-col gap-2 p-3">
@@ -59,12 +53,9 @@ export function ImageList(props: ImageListProps) {
         <p>This page provides a list of all image groups you have created.</p>
         <p>Groups are sorted by most recently edited.</p>
       </div>
-      {visibleItems.map((group) => (
+      {groupList.map((group) => (
         <SdGroupPreview key={group.id} group={group} />
       ))}
-      <div ref={refEndOfList} className="grid place-items-center">
-        {hasMore && <Loader size={64} />}
-      </div>
     </div>
   );
 }

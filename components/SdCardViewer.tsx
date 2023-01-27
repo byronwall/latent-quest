@@ -18,12 +18,6 @@ export function SdCardViewer(props: SdCardViewerProps) {
 
   const imageSize = 512;
 
-  const { refEndOfList, visibleItems, hasMore } = useInfiniteScroll(
-    imageGroupData,
-    12,
-    4
-  );
-
   return (
     <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3 md:grid-cols-5">
       {childCard}
@@ -36,7 +30,7 @@ export function SdCardViewer(props: SdCardViewerProps) {
           />
         </div>
       ))}
-      {visibleItems.map((item: SdImage) => (
+      {imageGroupData.map((item: SdImage) => (
         <div key={item.id}>
           <SdImageComp
             image={item}
@@ -46,9 +40,6 @@ export function SdCardViewer(props: SdCardViewerProps) {
           />
         </div>
       ))}
-      <div ref={refEndOfList} className="grid place-items-center">
-        {hasMore && <Loader size={64} />}
-      </div>
     </div>
   );
 }

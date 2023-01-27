@@ -7,7 +7,7 @@ import {
 } from "@tabler/icons";
 import Image from "next/image";
 import Link from "next/link";
-import { memo, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 
 import { Button } from "./Button";
@@ -20,6 +20,7 @@ import { SdImageStudyPopover } from "./SdImageStudyPopover";
 import { SdImageSubPopover } from "./ImageSub/SdImageSubPopover";
 import { SdVariantPopover } from "./SdVariantMenu";
 import { createInspirationFromImage } from "./InspirationMgr";
+import { useWasEverOnScreen } from "./useWasEverOnScreen";
 
 import { useAppStore } from "../model/store";
 import { api_deleteImage } from "../model/api_images";
@@ -70,6 +71,9 @@ function _SdImageComp(props: SdImageCompProps) {
 
   const qc = useQueryClient();
 
+  const ref = useRef<HTMLDivElement>(null);
+  const wasEverOnScreen = useWasEverOnScreen(ref);
+
   if (image === undefined) {
     return null;
   }
@@ -89,7 +93,7 @@ function _SdImageComp(props: SdImageCompProps) {
     qc.invalidateQueries();
   };
 
-  return (
+  const content = (
     <>
       <div className="group relative">
         <div>
@@ -215,6 +219,14 @@ function _SdImageComp(props: SdImageCompProps) {
           </Stack>
         </Modal>
       )}
+    </>
+  );
+
+  return (
+    <>
+      <div ref={ref} className={`${!wasEverOnScreen && "h-40"}`}>
+        {wasEverOnScreen && content}
+      </div>
     </>
   );
 }

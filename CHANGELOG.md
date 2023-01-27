@@ -4,6 +4,7 @@
 
 - Add details to single image view page
   - Inculde a link back to the group
+- Improve lazy loading by removing the infinite scroll stuff
 
 ## 2023-01-25 23:27:33
 

@@ -11,6 +11,10 @@ import { useAppStore } from "../model/store";
 
 import type { AppProps } from "next/app";
 
+export function reportWebVitals(metric) {
+  console.log("web vital metrics", metric);
+}
+
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
 
