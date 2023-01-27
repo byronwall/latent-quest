@@ -75,6 +75,13 @@ const baseInspirations: InspirationBase[] = [
       "Tiny space ships fly around the planets, creating trails of light and shadows in their wake",
     groupId: "170f3083-3a66-4be3-a22e-9c789ac1eaed",
   },
+  {
+    engine: "SD 2.1 512px",
+    imageId: "edf441f4-4c61-4445-8542-e0836a8092a2",
+    imageUrl: "1b7ef8d5-67af-48f9-86f0-7f679cda9ea9-0-1452055670.png",
+    value: "Robot building a sandcastle on the beach",
+    groupId: "084f19a7-b6cb-4d19-81da-ead620c818b0",
+  },
 ];
 
 export function InspirationMgr(props: InspirationMgrProps) {
