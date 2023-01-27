@@ -1,5 +1,10 @@
 # Changelog
 
+## 2023-01-26 22:40:23
+
+- Add details to single image view page
+  - Inculde a link back to the group
+
 ## 2023-01-25 23:27:33
 
 - Improve visuals and UX on the Inspiration portion of the create page
