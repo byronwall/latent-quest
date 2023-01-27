@@ -3,7 +3,7 @@ import { orderBy, uniq } from "lodash-es";
 
 import { Button } from "./Button";
 import { Switch } from "./MantineWrappers";
-import { SdImageSubPopover } from "./SdImageSubPopover";
+import { SdImageSubPopover } from "./ImageSub/SdImageSubPopover";
 
 import type { SdImageStudyDefSettingsSub } from "../libs/shared-types/src";
 import type { CommonPickerProps } from "./CommonPickerProps";

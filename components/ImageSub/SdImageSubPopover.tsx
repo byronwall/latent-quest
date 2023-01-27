@@ -6,29 +6,28 @@ import {
   Radio,
   Stepper,
 } from "@mantine/core";
-import { Combination, Permutation, PowerSet } from "js-combinatorics";
-import { orderBy } from "lodash-es";
 import { useContext, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 import { useUpdateEffect } from "react-use";
 
-import { Button } from "./Button";
-import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
-import { SdImagePlaceHolderComp } from "./SdImagePlaceHolderComp";
-import { SdSubChooser } from "./SdSubChooser";
-import { SdGroupContext } from "./SdGroupContext";
+import { getGroupsFromMethod } from "./getGroupsFromMethod";
 
+import { Button } from "../Button";
+import { getSelectionAsLookup } from "../getSelectionFromPromptPart";
+import { SdGroupContext } from "../SdGroupContext";
+import { SdImagePlaceHolderComp } from "../SdImagePlaceHolderComp";
+import { SdSubChooser } from "../SdSubChooser";
+import { useAppStore } from "../../model/store";
+import { getTextForBreakdown } from "../../libs/shared-types/src";
 import {
   generatePlaceholderForTransform,
   getUniversalIdFromImage,
-} from "../libs/helpers";
-import { getTextForBreakdown } from "../libs/shared-types/src";
-import { api_generateImage } from "../model/api";
+} from "../../libs/helpers";
 
 import type {
   SdImage,
   SdImageTransformTextSub,
-} from "../libs/shared-types/src";
+} from "../../libs/shared-types/src";
 
 interface SdImageSubPopoverProps {
   availableCategories: string | string[];
@@ -47,6 +46,11 @@ const methods = [
   "power_set",
   "peel_off",
 ] as const;
+
+export interface ComboResult {
+  results: string[][];
+  totalPossible: bigint | number;
+}
 
 export function SdImageSubPopover(props: SdImageSubPopoverProps) {
   const { image, availableCategories, initialSelections } = props;
@@ -87,12 +91,12 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
 
   const [method, setMethod] = useState<string>("combination");
 
-  const { results: groupsToRun, totalPossible } = getGroupsFromMethod(
+  const { results: groupsToRun, totalPossible } = getGroupsFromMethod({
     activeChoices,
-    subCountPerItem ?? 1,
-    totalGenerations ?? 1,
-    method
-  );
+    subCountPerItem: subCountPerItem ?? 1,
+    totalGenerations: totalGenerations ?? 1,
+    method,
+  });
 
   const itemsToKeep = totalGenerations;
 
@@ -118,6 +122,8 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
 
   const { groupImages } = useContext(SdGroupContext);
 
+  const createImageRequest = useAppStore((s) => s.createImageRequest);
+
   const handleGenAll = async () => {
     setIsLoading(true);
 
@@ -125,7 +131,7 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
       (c) => groupImages[getUniversalIdFromImage(c)] === undefined
     );
 
-    await api_generateImage(nonExistingPlaceholders);
+    await createImageRequest(nonExistingPlaceholders);
 
     setIsLoading(false);
     await qc.invalidateQueries();
@@ -279,17 +285,19 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
                   add items to parent
                 </Button>
                 <p>Following groups will be processed:</p>
-                <ol>
+                <div className="flex flex-wrap gap-2">
                   {groupsToRun.map((group, i) => (
-                    <li key={i}>{group.join(", ")}</li>
+                    <div key={i} className=" rounded border border-black p-1">
+                      {group.join(", ")}
+                    </div>
                   ))}
-                </ol>
+                </div>
                 {isLoading ? (
                   <Loader />
                 ) : (
                   <Button onClick={handleGenAll}>generate all</Button>
                 )}
-                <div style={{ display: "flex", flexWrap: "wrap" }}>
+                <div className="grid grid-cols-3 gap-2">
                   {placeholders.map((placeholder, i) => (
                     <SdImagePlaceHolderComp
                       key={i}
@@ -308,147 +316,4 @@ export function SdImageSubPopover(props: SdImageSubPopoverProps) {
       </Modal>
     </>
   );
-}
-
-interface ComboResult {
-  results: string[][];
-  totalPossible: bigint | number;
-}
-
-function getGroupsFromMethod(
-  activeChoices: string[],
-  subCountPerItem: number,
-  totalGenerations: number,
-  method: string
-): ComboResult {
-  switch (method) {
-    case "permutation":
-      return getPermutations(activeChoices, subCountPerItem, totalGenerations);
-    case "combination":
-      return getCombinations(activeChoices, subCountPerItem, totalGenerations);
-    case "pick_n":
-      return getPickN(activeChoices, subCountPerItem, totalGenerations);
-    case "power_set":
-      return getPowerSet(activeChoices, totalGenerations);
-    case "peel_off":
-      return getPeelOff(activeChoices, totalGenerations);
-  }
-
-  throw new Error("invalid method");
-}
-
-function getPeelOff(
-  activeChoices: string[],
-  totalGenerations: number
-): ComboResult {
-  const groups: string[][] = [];
-
-  for (let i = 0; i < totalGenerations; i++) {
-    const indexToKeep = Math.floor(
-      (i / totalGenerations) * activeChoices.length
-    );
-
-    const group = activeChoices.slice(0, activeChoices.length - indexToKeep);
-    groups.push(group);
-  }
-
-  return {
-    results: groups,
-    totalPossible: activeChoices.length,
-  };
-}
-
-function getPermutations(
-  activeChoices: string[],
-  subCountPerItem: number,
-  totalCount: number
-): ComboResult {
-  const results: string[][] = [];
-
-  const allPerms = new Permutation(activeChoices, subCountPerItem);
-
-  const totalPossible = allPerms.length;
-  if (totalPossible < totalCount) {
-    return { results: Array.from(allPerms), totalPossible: allPerms.length };
-  }
-
-  for (let i = 0; i < totalCount; i++) {
-    results.push(allPerms.sample() ?? []);
-  }
-  return { results, totalPossible };
-}
-
-function getCombinations(
-  activeChoices: string[],
-  subCountPerItem: number,
-  totalCount: number
-): ComboResult {
-  const results: string[][] = [];
-
-  const allCombs = new Combination(activeChoices, subCountPerItem);
-
-  const totalPossible = allCombs.length;
-
-  if (totalPossible < totalCount) {
-    return { results: Array.from(allCombs), totalPossible };
-  }
-
-  for (let i = 0; i < totalCount; i++) {
-    results.push(allCombs.sample() ?? []);
-  }
-  return { results, totalPossible };
-}
-
-function getPickN(
-  _activeChoices: string[],
-  subCountPerItem: number,
-  totalCount: number
-): ComboResult {
-  const groupsToRun: string[][] = [];
-
-  const activeChoices = orderBy(_activeChoices, (c) => Math.random());
-
-  const itemCount = Math.min(totalCount, activeChoices.length);
-
-  for (let index = 0; index < itemCount; index++) {
-    // for i in subCountPerItem
-
-    for (let i = 0; i < subCountPerItem; i++) {
-      if (i === 0) {
-        groupsToRun.push([]);
-      }
-      const group = activeChoices[index + i];
-      groupsToRun[groupsToRun.length - 1].push(group);
-    }
-  }
-
-  return {
-    results: groupsToRun,
-    totalPossible: activeChoices.length,
-  };
-}
-
-function getPowerSet(activeChoices: string[], totalCount: number): ComboResult {
-  const results: string[][] = [];
-
-  const allPowerSets = new PowerSet(activeChoices);
-
-  const totalPossible = allPowerSets.length;
-  if (totalPossible < totalCount) {
-    const results = Array.from(allPowerSets).filter((c) => c.length > 0);
-    return { results: results, totalPossible };
-  }
-
-  for (let i = 0; i < totalCount; i++) {
-    const sample = allPowerSets.sample() ?? [];
-
-    console.log("sample", sample);
-
-    if (sample.length === 0 || sample[0] === "") {
-      continue;
-    }
-
-    results.push(sample);
-  }
-  return { results, totalPossible };
 }

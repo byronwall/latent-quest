@@ -17,7 +17,7 @@ import { Switch } from "./MantineWrappers";
 import { SdImageBadgeBar } from "./SdImageBadgeBar";
 import { SdImageEditorPopover } from "./SdImageEditorPopover";
 import { SdImageStudyPopover } from "./SdImageStudyPopover";
-import { SdImageSubPopover } from "./SdImageSubPopover";
+import { SdImageSubPopover } from "./ImageSub/SdImageSubPopover";
 import { SdVariantPopover } from "./SdVariantMenu";
 import { createInspirationFromImage } from "./InspirationMgr";
 
