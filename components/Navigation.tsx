@@ -9,7 +9,16 @@ export function Navigation() {
   return (
     <div className="flex items-start justify-between border-0 border-b border-b-sky-300">
       <div className="flex content-center">
-        <NavLink href="/" label="latent.quest" active={pathname === "/"} />
+        <NavLink
+          href="/"
+          label={
+            <div className="flex items-center gap-2">
+              <img src="/favicon.ico" alt="favicon" className="h-8 w-8" />
+              <span>latent.quest</span>
+            </div>
+          }
+          active={pathname === "/"}
+        />
       </div>
       <div className="flex content-center gap-2">
         <NavLink
