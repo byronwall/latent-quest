@@ -35,8 +35,6 @@ export function PromptEditor(props: PromptEditorProps) {
     setPromptText,
   ]);
 
-  console.log("prompt", promptText);
-
   return (
     <div>
       <div className="flex gap-2">

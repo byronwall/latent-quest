@@ -1,19 +1,41 @@
-import axios from "axios";
 import * as fs from "fs";
-import { Configuration, OpenAIApi } from "openai";
 import { join } from "path";
+
+import axios from "axios";
+import { Configuration, OpenAIApi } from "openai";
+
+import { getUuid } from "./shared-types/src";
 
 import { getBufferFromBase64 } from "../pages/api/generateSdImage";
 import { getStreamForImageUrl } from "../pages/api/images/s3/[key]";
 import { pathToImg } from "../pages/api/img_gen";
 import { saveImageToS3AndDb } from "../pages/api/saveImageToS3AndDb";
-import { getUuid, SdImgGenParams } from "./shared-types/src";
+
+import type { SdImgGenParams } from "./shared-types/src";
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 export const openai = new OpenAIApi(configuration);
+
+export async function generatePromptHelper(topic: string) {
+  const prompt = `Create a list of scene descriptions for an artist who is painting a ${topic} in various settings and times.  Include various artistic styles the painter could use.  Do not include any colons.\nFormat is scene, styles\n\n1.`;
+
+  const response = await openai.createCompletion({
+    model: "text-davinci-003",
+    prompt: prompt,
+    temperature: 0.7,
+    max_tokens: 256,
+    top_p: 1,
+    frequency_penalty: 0.16,
+    presence_penalty: 0.13,
+  });
+
+  const results = response.data;
+
+  return results.choices[0].text;
+}
 
 export async function generateDalleImage(sdImage: SdImgGenParams) {
   // see : https://beta.openai.com/docs/api-reference/images/create
@@ -45,8 +67,8 @@ export async function generateDalleImage(sdImage: SdImgGenParams) {
     const stream = getBufferFromBase64(imageData);
     const mask = getBufferFromBase64(maskData);
 
-    const imgPath = join(pathToImg, getUuid() + "-image.png");
-    const maskPath = join(pathToImg, getUuid() + "-mask.png");
+    const imgPath = join(pathToImg, `${getUuid()}-image.png`);
+    const maskPath = join(pathToImg, `${getUuid()}-mask.png`);
 
     console.log("wrote images to disk temp:", imgPath, maskPath);
 

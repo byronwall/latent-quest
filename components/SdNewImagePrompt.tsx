@@ -4,11 +4,13 @@ import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
 import { usePrevious } from "@mantine/hooks";
+import axios from "axios";
 
 import { Button } from "./Button";
 import { PromptEditor } from "./PromptEditor";
 import { SelectEngine } from "./SelectEngine";
 import { IMAGE_COUNTS } from "./SdVariantMenu";
+import { Switch } from "./MantineWrappers";
 
 import { useAppStore } from "../model/store";
 import {
@@ -17,6 +19,7 @@ import {
   getTextForBreakdown,
   getUuid,
 } from "../libs/shared-types/src";
+import { getBreakdownDelta } from "../libs/helpers";
 
 import type { InspirationEntry } from "./InspirationMgr";
 import type { ImgOrImgArray } from "../model/api";
@@ -78,27 +81,66 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
 
   const isPartOfExistingGroup = defaultImage !== undefined;
 
+  const [shouldSplitPrompt, setShouldSplitPrompt] = useState(false);
+
+  const [promptText, setPromptText] = useState<string>(
+    getTextForBreakdown(breakdown)
+  );
+
+  const promptCouldBeSplit = useMemo(() => {
+    return (
+      promptText
+        .split("\n")
+        .map((c) => c.trim())
+        .filter((c) => c !== "").length > 1
+    );
+  }, [promptText]);
+
   const onGen = async () => {
     const groupId = defaultImage?.groupId ?? getUuid();
 
-    const newImgReq: ImgOrImgArray = Array(imageCount)
+    // split on new line and remove leading number if shouldSplitPrompt
+
+    let breakDowns = [breakdown];
+
+    if (shouldSplitPrompt) {
+      breakDowns = promptText
+        .split("\n")
+        .map((c) => c.trim())
+        .filter((c) => c !== "")
+        .map((c) => c.replace(/^[0-9]+\. /, ""))
+        .map((c) => c.trim())
+        .map((c) => getBreakdownForText(c));
+
+      // generate a set of prompts for each breakdown
+    }
+
+    const seeds = Array(imageCount)
       .fill(0)
-      .map((_, idx) => {
-        return {
-          id: getUuid(),
-          promptBreakdown: breakdown,
-          cfg: cfg,
-          steps: steps,
+      .map((c) => getRandomSeed());
 
-          // if this is the first image, use the seed from the state
-          // otherwise, generate a new seed
-          seed: idx > 0 ? getRandomSeed() : seed,
+    const newImgReq: ImgOrImgArray = breakDowns.flatMap((breakdown) =>
+      Array(imageCount)
+        .fill(0)
+        .map((_, idx) => {
+          return {
+            id: getUuid(),
+            promptBreakdown: breakdown,
+            cfg: cfg,
+            steps: steps,
 
-          engine: engine,
-          prevImageId: defaultImage?.id,
-          groupId: groupId,
-        };
-      });
+            // if this is the first image, use the seed from the state
+            // otherwise, generate a new seed
+            seed: idx > 0 ? seeds[idx] : seed,
+
+            engine: engine,
+            prevImageId: defaultImage?.id,
+            groupId: groupId,
+          };
+        })
+    );
+
+    console.log("newImgReq", newImgReq);
 
     if (props.onCreate) {
       // the callback allows the button to disappear
@@ -120,10 +162,6 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
     }
   };
 
-  const [promptText, setPromptText] = useState<string>(
-    getTextForBreakdown(breakdown)
-  );
-
   // if inspirationToAdd is set, then we should add that value to the prompt
   const prevInspiration = usePrevious(inspirationToAdd);
 
@@ -138,6 +176,22 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
   useEffect(() => {
     setBreakdown(getBreakdownForText(promptText));
   }, [promptText]);
+
+  const handlePromptGpt = async () => {
+    // send a POST to /api/prompts/gpt_helper using axios
+
+    const topic = prompt("Enter a topic for the prompt: ");
+
+    if (topic === null) {
+      return;
+    }
+
+    const { data: newPrompt } = await axios.post("/api/prompts/gpt_help", {
+      topic,
+    });
+
+    setPromptText(newPrompt);
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -181,22 +235,34 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
           className="min-w-[140px]"
         />
       </div>
-      <div className="flex flex-col gap-1">
-        <p>image count</p>
-        <div className="flex gap-1">
-          {IMAGE_COUNTS.map((count) => (
-            <Button
-              key={count}
-              onClick={() => setImageCount(count)}
-              active={imageCount === count}
-            >
-              {count}
-            </Button>
-          ))}
+      <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-1">
+          <p>image count</p>
+          <div className="flex gap-1">
+            {IMAGE_COUNTS.map((count) => (
+              <Button
+                key={count}
+                onClick={() => setImageCount(count)}
+                active={imageCount === count}
+              >
+                {count}
+              </Button>
+            ))}
+          </div>
         </div>
+        {promptCouldBeSplit && (
+          <div>
+            <Switch
+              label="split prompt"
+              checked={shouldSplitPrompt}
+              onChange={setShouldSplitPrompt}
+            />
+          </div>
+        )}
       </div>
       <div>
         <Button onClick={() => onGen()}>create</Button>
+        <Button onClick={handlePromptGpt}>gpt help</Button>
       </div>
     </div>
   );

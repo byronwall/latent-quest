@@ -1,5 +1,10 @@
 # Changelog
 
+## 2023-01-27 23:06:21
+
+- Allow prompt input to be split into multiple prompts if there are line breaks
+- Connect GPT-3 to the prompt editor so that prompts can be created automatically based on a topic
+
 ## 2023-01-26 22:40:23
 
 - Add details to single image view page

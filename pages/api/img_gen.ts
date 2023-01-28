@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     ? imgGenReqReq
     : [imgGenReqReq];
 
-  const { results, errors } = await PromisePool.withConcurrency(4)
+  const { results, errors } = await PromisePool.withConcurrency(8)
     .for(imgGenReqs)
     .process((imgReq) => {
       return processSingleImgGenReq(imgReq);
