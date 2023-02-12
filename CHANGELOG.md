@@ -1,5 +1,9 @@
 # Changelog
 
+## 2023-02-12 00:05:22
+
+- Remove Link prefetching
+
 ## 2023-01-27 23:06:21
 
 - Allow prompt input to be split into multiple prompts if there are line breaks

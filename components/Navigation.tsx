@@ -49,6 +49,7 @@ export function NavLink(props) {
     <Link
       {...props}
       className={`p-2 ${props.active && " bg-sky-300"} hover:bg-sky-100 `}
+      prefetch={false}
     >
       {props.label}
     </Link>

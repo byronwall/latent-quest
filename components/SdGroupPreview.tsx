@@ -33,7 +33,7 @@ export function SdGroupPreview(props: SdGroupPreviewProps) {
   return (
     <div className={`p-2 ${!wasEverOnScreen ? "h-40" : ""} `} ref={ref}>
       {wasEverOnScreen && (
-        <Link href={`/group/${group.id}`}>
+        <Link href={`/group/${group.id}`} prefetch={false}>
           <div className="cursor-pointer hover:ring-2">
             <div className="grid grid-cols-2 gap-1">
               {previewImages.map((image) => (

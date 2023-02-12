@@ -244,7 +244,11 @@ export function InspirationMgr(props: InspirationMgrProps) {
           >
             <div className="flex justify-between gap-1 ">
               <p className="line-clamp-1">{item.value}</p>
-              <Link href={`/image/${item.imageId}`} target="_blank">
+              <Link
+                href={`/image/${item.imageId}`}
+                target="_blank"
+                prefetch={false}
+              >
                 <IconLink />
               </Link>
             </div>
@@ -261,7 +265,11 @@ export function InspirationMgr(props: InspirationMgrProps) {
                 {item.value}
               </p>
               <div className="flex w-8 justify-center rounded bg-white opacity-30">
-                <Link href={`/image/${item.imageId}`} target="_blank">
+                <Link
+                  href={`/image/${item.imageId}`}
+                  target="_blank"
+                  prefetch={false}
+                >
                   <IconLink />
                 </Link>
               </div>

@@ -106,6 +106,7 @@ export default function CollectionsIndexPage(props: CollectionsIndexPageProps) {
                   <Link
                     href={`/collections/${collection.id}`}
                     className="hover:text-blue-600"
+                    prefetch={false}
                   >
                     {collection.name}
                   </Link>

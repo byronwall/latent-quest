@@ -43,7 +43,7 @@ export function SdImagePage(props: SdImagePageProps) {
           <tr>
             <td className="border px-4 py-2">Group ID</td>
             <td className="border px-4 py-2">
-              <Link href={`/group/${initialImage.groupId}`}>
+              <Link href={`/group/${initialImage.groupId}`} prefetch={false}>
                 {initialImage.groupId}
               </Link>
             </td>
@@ -81,7 +81,10 @@ export function SdImagePage(props: SdImagePageProps) {
             <td className="border px-4 py-2">Prev Image ID</td>
             <td className="border px-4 py-2">
               {initialImage.prevImageId ? (
-                <Link href={`/image/${initialImage.prevImageId}`}>
+                <Link
+                  href={`/image/${initialImage.prevImageId}`}
+                  prefetch={false}
+                >
                   {initialImage.prevImageId}
                 </Link>
               ) : (

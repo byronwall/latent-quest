@@ -29,7 +29,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 export default function GroupPage(props: SdImageStudyProps) {
   return (
     <div style={{ width: "90vw", margin: "auto" }}>
-      <Link href={`/group/${props.initialStudyDef.groupId}`}>
+      <Link href={`/group/${props.initialStudyDef.groupId}`} prefetch={false}>
         Back to Group
       </Link>
 

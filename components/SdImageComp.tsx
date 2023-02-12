@@ -97,7 +97,7 @@ function _SdImageComp(props: SdImageCompProps) {
     <>
       <div className="group relative">
         <div>
-          <Link href={`/image/${image.id}`} passHref>
+          <Link href={`/image/${image.id}`} passHref prefetch={false}>
             <Image
               src={getImageUrl(image.url)}
               width={size}
