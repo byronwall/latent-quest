@@ -1,3 +1,6 @@
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { Auth, ThemeSupa } from "@supabase/auth-ui-react";
+
 import { ImageList } from "../components/ImageList";
 import { queryFnGetAllGroups } from "../components/useGetAllGroups";
 
@@ -21,5 +24,16 @@ export interface ImageListProps {
 }
 
 export default function Index(props: ImageListProps) {
-  return <ImageList {...props} />;
+  const session = useSession();
+  const supabase = useSupabaseClient();
+
+  return !session ? (
+    <Auth
+      supabaseClient={supabase}
+      appearance={{ theme: ThemeSupa }}
+      theme="dark"
+    />
+  ) : (
+    <ImageList {...props} />
+  );
 }

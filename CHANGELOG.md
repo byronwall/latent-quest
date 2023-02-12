@@ -1,5 +1,9 @@
 # Changelog
 
+## 2023-02-12 00:24:04
+
+- Add support for auth and sign up via Supabase
+
 ## 2023-02-12 00:05:22
 
 - Remove Link prefetching
