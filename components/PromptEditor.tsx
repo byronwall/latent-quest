@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { usePrevious } from "react-use";
@@ -35,6 +36,26 @@ export function PromptEditor(props: PromptEditorProps) {
     setPromptText,
   ]);
 
+  const handlePromptGpt = async () => {
+    // send a POST to /api/prompts/gpt_helper using axios
+
+    const topic = prompt("Enter a topic for the prompt: ");
+
+    if (topic === null) {
+      return;
+    }
+
+    const artistOrStart =
+      prompt("Enter an artist or a starting word for the prompt: ") ?? "";
+
+    const { data: newPrompt } = await axios.post("/api/prompts/gpt_help", {
+      topic,
+      artistOrStart,
+    });
+
+    setPromptText(newPrompt);
+  };
+
   return (
     <div>
       <div className="flex gap-2">
@@ -51,6 +72,12 @@ export function PromptEditor(props: PromptEditorProps) {
           }}
         >
           clear
+        </p>
+        <p
+          className="cursor-pointer text-sm text-orange-800 hover:text-orange-600"
+          onClick={handlePromptGpt}
+        >
+          use GPT-3 to create prompts
         </p>
       </div>
       <TextareaAutosize

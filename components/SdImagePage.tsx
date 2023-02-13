@@ -19,10 +19,10 @@ export function SdImagePage(props: SdImagePageProps) {
 
   return (
     <div className="mx-auto mt-8 flex max-w-lg flex-col gap-4 p-4">
+      <SdImageComp image={initialImage} size={512} shouldShowDetails />
       <div className="text-center text-2xl font-bold">
         <p>{promptText}</p>
       </div>
-      <SdImageComp image={initialImage} size={512} shouldShowDetails />
 
       <table className="w-full table-fixed">
         <thead>

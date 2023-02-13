@@ -1,16 +1,16 @@
 import { NumberInput } from "@mantine/core";
+import { usePrevious } from "@mantine/hooks";
 import { IconArrowsShuffle } from "@tabler/icons";
+import axios from "axios";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
-import { usePrevious } from "@mantine/hooks";
-import axios from "axios";
 
 import { Button } from "./Button";
-import { PromptEditor } from "./PromptEditor";
-import { SelectEngine } from "./SelectEngine";
-import { IMAGE_COUNTS } from "./SdVariantMenu";
 import { Switch } from "./MantineWrappers";
+import { PromptEditor } from "./PromptEditor";
+import { IMAGE_COUNTS } from "./SdVariantMenu";
+import { SelectEngine } from "./SelectEngine";
 
 import { useAppStore } from "../model/store";
 import {
@@ -19,7 +19,6 @@ import {
   getTextForBreakdown,
   getUuid,
 } from "../libs/shared-types/src";
-import { getBreakdownDelta } from "../libs/helpers";
 
 import type { InspirationEntry } from "./InspirationMgr";
 import type { ImgOrImgArray } from "../model/api";
@@ -177,22 +176,6 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
     setBreakdown(getBreakdownForText(promptText));
   }, [promptText]);
 
-  const handlePromptGpt = async () => {
-    // send a POST to /api/prompts/gpt_helper using axios
-
-    const topic = prompt("Enter a topic for the prompt: ");
-
-    if (topic === null) {
-      return;
-    }
-
-    const { data: newPrompt } = await axios.post("/api/prompts/gpt_help", {
-      topic,
-    });
-
-    setPromptText(newPrompt);
-  };
-
   return (
     <div className="flex flex-col gap-4">
       <PromptEditor
@@ -260,9 +243,8 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
           </div>
         )}
       </div>
-      <div>
+      <div className="flex gap-2">
         <Button onClick={() => onGen()}>create</Button>
-        <Button onClick={handlePromptGpt}>gpt help</Button>
       </div>
     </div>
   );

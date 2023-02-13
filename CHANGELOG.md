@@ -1,8 +1,12 @@
 # Changelog
 
+## 2023-02-13 00:11:51
+
+- Improve the GPT-3 prompt helper with a better prompt
+
 ## 2023-02-12 00:24:04
 
-- Add support for auth and sign up via Supabase
+- Add inital/barely workign support for auth and sign up via Supabase
 
 ## 2023-02-12 00:05:22
 

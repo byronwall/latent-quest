@@ -19,8 +19,15 @@ const configuration = new Configuration({
 
 export const openai = new OpenAIApi(configuration);
 
-export async function generatePromptHelper(topic: string) {
-  const prompt = `Create a list of scene descriptions for an artist who is painting a ${topic} in various settings and times.  Include various artistic styles the painter could use.  Do not include any colons.\nFormat is scene, styles\n\n1.`;
+export async function generatePromptHelper(
+  topic: string,
+  artistOrStart: string
+) {
+  const artistPart = artistOrStart
+    ? ` Ensure each prompt starts with "${artistOrStart}, ". `
+    : "";
+
+  const prompt = `An artist has been commissioned to do a piece focused on a "${topic}".  Please provide a description of this piece focusing on the settings, objects, times of day, colors, vibes, views, angles, people, and places it might include.  Be descriptive and aim for 10-20 words per prompt.  ${artistPart}Generate 5 total prompts..\n1.`;
 
   const response = await openai.createCompletion({
     model: "text-davinci-003",
@@ -34,7 +41,7 @@ export async function generatePromptHelper(topic: string) {
 
   const results = response.data;
 
-  return results.choices[0].text;
+  return `1. ${results.choices[0].text}`;
 }
 
 export async function generateDalleImage(sdImage: SdImgGenParams) {

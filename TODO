@@ -1,3 +1,7 @@
+Auth related:
+    ☐ Add userId to various tables
+    ☐ Account for userId when loading different routes
+
 Assorted while working:
     ☐ Change the is loading spinner to the placeholders instead of the create button
     ☐ Do not focus seed input after pressing for a random one
