@@ -82,6 +82,13 @@ const baseInspirations: InspirationBase[] = [
     value: "Robot building a sandcastle on the beach",
     groupId: "084f19a7-b6cb-4d19-81da-ead620c818b0",
   },
+  {
+    engine: "SD 1.5",
+    imageId: "23297ddb-defa-45c3-a5c2-85272d02c5e1",
+    imageUrl: "17b240ce-c048-4ec3-894e-ea7c98183f10-0-3850030430.png",
+    value: "annual knolling poster of cute monsters",
+    groupId: "11c24af8-4c2c-4ce1-bada-bc5d385c3b9e",
+  },
 ];
 
 export function InspirationMgr(props: InspirationMgrProps) {

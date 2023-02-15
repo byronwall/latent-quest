@@ -1,5 +1,9 @@
 # Changelog
 
+## 2023-02-14 22:51:42
+
+- Add an inspiration group for the monster panels
+
 ## 2023-02-13 00:11:51
 
 - Improve the GPT-3 prompt helper with a better prompt
