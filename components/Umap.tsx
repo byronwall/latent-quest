@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
+import { UMAP } from "umap-js";
 
-import {
-  ScatterplotWithBrushAndZoom,
-  ScatterPoint,
-} from "./Scatter/ScatterPlotWithBrushAndZoom";
+import { Button } from "./Button";
+import { ScatterplotWithBrushAndZoom } from "./Scatter/ScatterPlotWithBrushAndZoom";
 import { SdImageComp } from "./SdImageComp";
 
 import type { SdImage } from "../libs/shared-types/src";
@@ -15,21 +14,39 @@ export type UmapProps = {
 export function Umap(props: UmapProps) {
   const { images } = props;
 
-  const data = useMemo(
-    () => images.map((image, i) => ({ x: i, y: i, id: i, image })),
-    [images]
-  );
+  const initialData = images.map((image, i) => ({ x: i, y: i, id: i, image }));
+
+  const [data, setData] = useState(initialData);
 
   const [brushedPoints, setBrushedPoints] = useState(data);
+
+  const handleUmapClip = () => {
+    const umap = new UMAP();
+
+    const rawImageEmbedding = images.map((c) => c.embedding ?? []);
+
+    // array of [x , y] pairs
+    const embedding = umap.fit(rawImageEmbedding);
+
+    const newData = embedding.map((c, i) => ({
+      x: c[0],
+      y: c[1],
+      id: i,
+      image: images[i],
+    }));
+
+    setData(newData);
+  };
 
   return (
     <div>
       <h1>Umap</h1>
+      <Button onClick={handleUmapClip}>compute umap</Button>
       <div>
         <ScatterplotWithBrushAndZoom
           data={data}
-          width={300}
-          height={300}
+          width={600}
+          height={600}
           mode={"brush"}
           color="#cc0"
           onBrushedPoints={setBrushedPoints}
