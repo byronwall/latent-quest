@@ -68,6 +68,23 @@ export async function db_getAllImages() {
   return data as SdImage[];
 }
 
+export async function db_getAllEmbeddedImages() {
+  // load all from supabase
+  const { data, error } = await supabase
+    .from("images")
+    .select("*")
+    .not("embedding", "is", null);
+
+  if (error) {
+    console.error("Error loading images from database", error);
+    return [];
+  }
+
+  (data as SdImageSqlite[]).forEach(convertSqliteToObj);
+
+  return data as SdImage[];
+}
+
 export async function db_getSingleImages(id: string) {
   // load single from supabase using id
   const { data, error } = await supabase
