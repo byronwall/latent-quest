@@ -1,5 +1,9 @@
 # Changelog
 
+## 2023-02-22 22:42:07
+
+- Add support for computing image embeddings from replicate
+
 ## 2023-02-14 22:51:42
 
 - Add an inspiration group for the monster panels

@@ -1,7 +1,6 @@
 import { NumberInput } from "@mantine/core";
 import { usePrevious } from "@mantine/hooks";
 import { IconArrowsShuffle } from "@tabler/icons";
-import axios from "axios";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "react-query";
@@ -107,7 +106,7 @@ export function SdNewImagePrompt(props: SdNewImagePromptProps) {
         .split("\n")
         .map((c) => c.trim())
         .filter((c) => c !== "")
-        .map((c) => c.replace(/^[0-9]+\. /, ""))
+        .map((c) => c.replace(/^[0-9]+\.\s+/, ""))
         .map((c) => c.trim())
         .map((c) => getBreakdownForText(c));
 

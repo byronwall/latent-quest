@@ -6,6 +6,25 @@ export type SdImageSqlite = Omit<SdImage, "promptBreakdown"> & {
   promptBreakdown: string;
 };
 
+// function to update single image by id
+export async function db_updateImageEmbedding(
+  imageId: string,
+  embedding: number[]
+) {
+  // update in supabase
+  const { error } = await supabase
+    .from("images")
+    .update({ embedding: embedding })
+    .eq("id", imageId);
+
+  if (error) {
+    console.error("Error updating image embedding in database", error);
+    return false;
+  }
+
+  return true;
+}
+
 export async function db_insertImage(image: SdImage) {
   // insert into supabase
 
@@ -63,7 +82,7 @@ export async function db_getSingleImages(id: string) {
   }
 
   convertSqliteToObj(data as SdImageSqlite);
-  return data;
+  return data as SdImage;
 }
 
 export function convertSqliteToObj(sqliteObj: SdImageSqlite) {

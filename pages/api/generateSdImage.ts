@@ -56,6 +56,8 @@ export async function generateSdImage(sdImage: SdImgGenParams) {
     engine: engineLabelMap[engine] ?? defaultEngine,
   };
 
+  console.log("sdParams", sdParams);
+
   // if placeholder has a variant, download that image and add to json
   type VariantParams = Pick<SdParams, "imagePrompt" | "stepSchedule">;
 

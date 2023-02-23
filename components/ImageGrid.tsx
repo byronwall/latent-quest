@@ -50,7 +50,7 @@ export function ImageGrid(props: ImageGridProps) {
     initialStudies
   );
 
-  const { data: groupData } = useQuery("group:" + groupId, async () => {
+  const { data: groupData } = useQuery(`group:${groupId}`, async () => {
     const res = await fetch(`/api/group/${props.groupId}`);
     const results = (await res.json()) as SdImageGroup;
     return results;

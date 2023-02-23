@@ -1,10 +1,8 @@
 import axios from "axios";
 import { useQueryClient } from "react-query";
-import { Loader } from "@mantine/core";
 
 import { SdGroupPreview } from "./SdGroupPreview";
 import { useGetAllGroups } from "./useGetAllGroups";
-import { useInfiniteScroll } from "./useInfiniteScroll";
 
 import type { SdImage, SdImageGroup } from "../libs/shared-types/src";
 import type { ImageListProps } from "../pages";

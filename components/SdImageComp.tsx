@@ -9,6 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { memo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
+import axios from "axios";
 
 import { Button } from "./Button";
 import { getSelectionAsLookup } from "./getSelectionFromPromptPart";
@@ -93,6 +94,17 @@ function _SdImageComp(props: SdImageCompProps) {
     qc.invalidateQueries();
   };
 
+  const handleGetEmbedding = async () => {
+    // using axios
+    const res = await axios.post(`/api/images/embedding/${image.id}`);
+
+    const data = res.data;
+
+    console.log("embedding res", data);
+
+    qc.invalidateQueries();
+  };
+
   const content = (
     <>
       <div className="group relative">
@@ -142,6 +154,10 @@ function _SdImageComp(props: SdImageCompProps) {
                     </Button>
                   )}
                 </CopyButton>
+
+                {image.embedding === null && (
+                  <Button onClick={handleGetEmbedding}>embedding</Button>
+                )}
 
                 <Button onClick={handleDeleteClick}>
                   <IconX />

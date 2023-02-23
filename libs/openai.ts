@@ -24,7 +24,7 @@ export async function generatePromptHelper(
   artistOrStart: string
 ) {
   const artistPart = artistOrStart
-    ? ` Ensure each prompt starts with "${artistOrStart}, ". `
+    ? ` Ensure each prompt starts with "QQQ, ". `
     : "";
 
   const prompt = `An artist has been commissioned to do a piece focused on a "${topic}".  Please provide a description of this piece focusing on the settings, objects, times of day, colors, vibes, views, angles, people, and places it might include.  Be descriptive and aim for 10-20 words per prompt.  ${artistPart}Generate 5 total prompts..\n1.`;
@@ -41,7 +41,13 @@ export async function generatePromptHelper(
 
   const results = response.data;
 
-  return `1. ${results.choices[0].text}`;
+  let promptResults = results.choices[0].text ?? "";
+
+  if (artistOrStart) {
+    promptResults = promptResults.replace(/QQQ/g, artistOrStart);
+  }
+
+  return `1. ${promptResults}`;
 }
 
 export async function generateDalleImage(sdImage: SdImgGenParams) {

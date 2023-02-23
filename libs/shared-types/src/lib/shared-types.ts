@@ -46,6 +46,8 @@ export interface SdImage extends ContainsGroupId, CommonDbFields {
   // add a source URL later for random internet images
 
   promptBreakdown: PromptBreakdown;
+
+  embedding?: number[];
 }
 
 export interface SdImageStudyDef extends ContainsGroupId, CommonDbFields {
