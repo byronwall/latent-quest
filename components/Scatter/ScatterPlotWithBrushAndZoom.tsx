@@ -32,7 +32,7 @@ export function ScatterplotWithBrushAndZoom<T extends ScatterPoint>({
   mode = "brush",
   onBrushedPoints,
 }: ScatterplotWithBrushAndZoomProps<T>) {
-  const margin = { top: 5, right: 5, bottom: 5, left: 5 };
+  const margin = { top: 20, right: 20, bottom: 20, left: 20 };
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
@@ -138,7 +138,7 @@ export function ScatterplotWithBrushAndZoom<T extends ScatterPoint>({
       }}
       className={mode === "zoom" ? "zoomable" : "brushable"}
     >
-      <svg width={width} height={height} className="border border-black p-8">
+      <svg width={width} height={height} className="m-8 border border-black">
         <g transform={`translate(${margin.left} ${margin.top})`}>
           {data.map((d) => {
             const x = xZoomScale(d.x);

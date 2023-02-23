@@ -3,6 +3,7 @@
 ## 2023-02-22 22:42:07
 
 - Add support for computing image embeddings from replicate
+- Add support for a visual map using UMAP and the embeddings
 
 ## 2023-02-14 22:51:42
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { UMAP } from "umap-js";
 
 import { Button } from "./Button";
