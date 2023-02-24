@@ -20,8 +20,8 @@ export function Umap(props: UmapProps) {
   const { images } = props;
 
   const initialData: UmapPoint[] = images.map((image, i) => ({
-    x: i,
-    y: i,
+    x: image.embedding?.[0] ?? 0,
+    y: image.embedding?.[1] ?? 0,
     id: i,
     image,
   }));
@@ -30,42 +30,12 @@ export function Umap(props: UmapProps) {
 
   const [brushedPoints, setBrushedPoints] = useState<UmapPoint[]>(data);
 
-  const [isComputingUmap, setIsComputingUmap] = useState(false);
-
-  const handleUmapClip = () => {
-    setIsComputingUmap(true);
-    const umap = new UMAP();
-
-    const rawImageEmbedding = images.map((c) => c.embedding ?? []);
-
-    // array of [x , y] pairs
-    const embedding = umap.fit(rawImageEmbedding);
-
-    const newData = embedding.map((c, i) => ({
-      x: c[0],
-      y: c[1],
-      id: i,
-      image: images[i],
-    }));
-
-    setData(newData);
-    setIsComputingUmap(false);
-  };
-
-  useEffect(() => {
-    handleUmapClip();
-  }, []);
-
   const [hoverPoint, setHoverPoint] = useState<UmapPoint | null>(null);
 
   return (
     <div>
       <h1>Umap ({images.length})</h1>
-      {isComputingUmap ? (
-        <div>computing umap...</div>
-      ) : (
-        <Button onClick={handleUmapClip}>compute umap</Button>
-      )}
+
       <div className="flex gap-4 p-8">
         <ScatterplotWithBrushAndZoom<UmapPoint>
           data={data}

@@ -7,5 +7,9 @@ export default async function handler(req, res) {
 
   const images = await db_getImagesFromGroup(groupId);
 
+  images.forEach((c, i) => {
+    c.embedding = c.embedding === null ? null : [];
+  });
+
   res.send(images);
 }

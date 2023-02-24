@@ -47,7 +47,7 @@ export interface SdImage extends ContainsGroupId, CommonDbFields {
 
   promptBreakdown: PromptBreakdown;
 
-  embedding?: number[];
+  embedding: number[] | null;
 }
 
 export interface SdImageStudyDef extends ContainsGroupId, CommonDbFields {
