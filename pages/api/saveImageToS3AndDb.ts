@@ -29,7 +29,7 @@ export async function saveImageToS3AndDb(
   if (image.imageData) {
     // write this data to S3 and then delete from image
 
-    const imageDataS3Key = "img_" + reqParams.s3Key;
+    const imageDataS3Key = `img_${reqParams.s3Key}`;
 
     // write the image data to disk
 
@@ -48,7 +48,7 @@ export async function saveImageToS3AndDb(
   if (image.maskData) {
     // write this data to S3 and then delete from image
 
-    const maskDataS3Key = "mask_" + reqParams.s3Key;
+    const maskDataS3Key = `mask_${reqParams.s3Key}`;
 
     // write the image data to disk
 
@@ -83,6 +83,7 @@ export async function saveImageToS3AndDb(
     id: getUuid(),
     url: reqParams.s3Key,
     dateCreated: new Date().toISOString(),
+    embedding: null,
   };
 
   // need to load to S3
