@@ -1,5 +1,11 @@
 # Changelog
 
+## 2023-02-23 22:32:18
+
+- Improve size of UMAP scatter
+- Allow bulk processing of embeddings
+- UMAP hover should show the image?
+
 ## 2023-02-22 22:42:07
 
 - Add support for computing image embeddings from replicate

@@ -1,26 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UMAP } from "umap-js";
 
 import { Button } from "./Button";
 import { ScatterplotWithBrushAndZoom } from "./Scatter/ScatterPlotWithBrushAndZoom";
 import { SdImageComp } from "./SdImageComp";
 
+import type { ScatterPoint } from "./Scatter/ScatterPlotWithBrushAndZoom";
 import type { SdImage } from "../libs/shared-types/src";
 
 export type UmapProps = {
   images: SdImage[];
 };
 
+interface UmapPoint extends ScatterPoint {
+  image: SdImage;
+}
+
 export function Umap(props: UmapProps) {
   const { images } = props;
 
-  const initialData = images.map((image, i) => ({ x: i, y: i, id: i, image }));
+  const initialData: UmapPoint[] = images.map((image, i) => ({
+    x: i,
+    y: i,
+    id: i,
+    image,
+  }));
 
   const [data, setData] = useState(initialData);
 
-  const [brushedPoints, setBrushedPoints] = useState(data);
+  const [brushedPoints, setBrushedPoints] = useState<UmapPoint[]>(data);
+
+  const [isComputingUmap, setIsComputingUmap] = useState(false);
 
   const handleUmapClip = () => {
+    setIsComputingUmap(true);
     const umap = new UMAP();
 
     const rawImageEmbedding = images.map((c) => c.embedding ?? []);
@@ -36,21 +49,39 @@ export function Umap(props: UmapProps) {
     }));
 
     setData(newData);
+    setIsComputingUmap(false);
   };
+
+  useEffect(() => {
+    handleUmapClip();
+  }, []);
+
+  const [hoverPoint, setHoverPoint] = useState<UmapPoint | null>(null);
 
   return (
     <div>
-      <h1>Umap</h1>
-      <Button onClick={handleUmapClip}>compute umap</Button>
-      <div>
-        <ScatterplotWithBrushAndZoom
+      <h1>Umap ({images.length})</h1>
+      {isComputingUmap ? (
+        <div>computing umap...</div>
+      ) : (
+        <Button onClick={handleUmapClip}>compute umap</Button>
+      )}
+      <div className="flex gap-4 p-8">
+        <ScatterplotWithBrushAndZoom<UmapPoint>
           data={data}
           width={600}
-          height={600}
+          height={400}
           mode={"brush"}
           color="#cc0"
           onBrushedPoints={setBrushedPoints}
+          onHoverPoint={setHoverPoint}
         />
+
+        {hoverPoint && (
+          <div>
+            <SdImageComp image={hoverPoint.image} size={384} />
+          </div>
+        )}
       </div>
       <div className="grid grid-cols-4">
         {brushedPoints.map((c) => (

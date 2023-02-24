@@ -21,6 +21,7 @@ type ScatterplotWithBrushAndZoomProps<T extends ScatterPoint> = {
   color?: string;
   mode?: "brush" | "zoom";
   onBrushedPoints?: (points: T[]) => void;
+  onHoverPoint?: (point: T) => void;
 };
 
 export function ScatterplotWithBrushAndZoom<T extends ScatterPoint>({
@@ -31,6 +32,7 @@ export function ScatterplotWithBrushAndZoom<T extends ScatterPoint>({
   color = "tomato",
   mode = "brush",
   onBrushedPoints,
+  onHoverPoint,
 }: ScatterplotWithBrushAndZoomProps<T>) {
   const margin = { top: 20, right: 20, bottom: 20, left: 20 };
   const innerWidth = width - margin.left - margin.right;
@@ -129,6 +131,12 @@ export function ScatterplotWithBrushAndZoom<T extends ScatterPoint>({
   const hoverPoint = points?.[0].d;
   const hoverIsBrushed = brushedPoints?.includes(hoverPoint);
 
+  useEffect(() => {
+    if (onHoverPoint) {
+      onHoverPoint(hoverPoint);
+    }
+  }, [hoverPoint, onHoverPoint]);
+
   return (
     <div
       style={{
@@ -138,7 +146,7 @@ export function ScatterplotWithBrushAndZoom<T extends ScatterPoint>({
       }}
       className={mode === "zoom" ? "zoomable" : "brushable"}
     >
-      <svg width={width} height={height} className="m-8 border border-black">
+      <svg width={width} height={height} className="border border-black">
         <g transform={`translate(${margin.left} ${margin.top})`}>
           {data.map((d) => {
             const x = xZoomScale(d.x);

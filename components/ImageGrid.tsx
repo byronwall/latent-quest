@@ -1,7 +1,8 @@
 import { IconX } from "@tabler/icons";
-import { orderBy } from "lodash-es";
+import { orderBy, shuffle } from "lodash-es";
 import { useMemo, useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
+import axios from "axios";
 
 import { Button } from "./Button";
 import { GroupNameViewEdit } from "./GroupNameViewEdit";
@@ -76,6 +77,35 @@ export function ImageGrid(props: ImageGridProps) {
     </div>
   );
 
+  // count of images with null embedding
+  const imagesWithNullEmbedding = imageGroupData.filter(
+    (c) => c.embedding === null
+  );
+
+  const qc = useQueryClient();
+
+  const [isLoadingEmbedding, setIsLoadingEmbedding] = useState(false);
+
+  const handleBulkMissingEmbeddings = async () => {
+    // take 10 items from the list and hit API endpoint
+    const items = shuffle(imagesWithNullEmbedding).slice(0, 20);
+
+    setIsLoadingEmbedding(true);
+
+    // convert items to list of promises
+    const promises = items.map((image) => {
+      return axios.post(`/api/images/embedding/${image.id}`);
+    });
+
+    // wait for all promises to resolve
+    await Promise.all(promises);
+
+    // invalidate query
+    qc.invalidateQueries();
+
+    setIsLoadingEmbedding(false);
+  };
+
   const childCard = shouldShowCreateForm ? (
     createForm
   ) : (
@@ -105,6 +135,13 @@ export function ImageGrid(props: ImageGridProps) {
       >
         add image to group
       </Button>
+      {isLoadingEmbedding ? (
+        <p>loading embeddings...</p>
+      ) : (
+        <Button onClick={handleBulkMissingEmbeddings}>
+          embeddings ({imagesWithNullEmbedding.length})
+        </Button>
+      )}
     </div>
   );
 
