@@ -7,6 +7,9 @@ const nextConfig = {
     // disabling this to avoid going over limits
     unoptimized: true,
   },
+  api: {
+    responseLimit: false,
+  },
 };
 
 module.exports = nextConfig;
