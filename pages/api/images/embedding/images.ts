@@ -2,10 +2,16 @@ import { UMAP } from "umap-js";
 
 import { db_getAllEmbeddedImages } from "../../../../libs/db/images";
 
-export default async function handler(req, res) {
-  const images = await db_getAllEmbeddedImages();
+import type { NextApiHandler } from "next";
 
-  console.log("start computing UMAP embedding");
+const handler: NextApiHandler = async (req, res) => {
+  const { groupId } = req.body;
+
+  const images = await db_getAllEmbeddedImages(groupId);
+
+  // get groupId from post body param
+
+  console.log("start computing UMAP embedding", images.length, groupId);
 
   const umap = new UMAP();
 
@@ -21,4 +27,6 @@ export default async function handler(req, res) {
   console.log("done computing UMAP embedding");
 
   res.send(images);
-}
+};
+
+export default handler;

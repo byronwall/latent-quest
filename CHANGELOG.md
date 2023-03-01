@@ -1,5 +1,9 @@
 # Changelog
 
+## 2023-02-28 22:59:28
+
+- Show a UMAP display on the group page
+
 ## 2023-02-23 22:32:18
 
 - Improve size of UMAP scatter

@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-import { UMAP } from "umap-js";
+import { useEffect, useMemo, useState } from "react";
+import { useElementSize } from "@mantine/hooks";
 
-import { Button } from "./Button";
 import { ScatterplotWithBrushAndZoom } from "./Scatter/ScatterPlotWithBrushAndZoom";
 import { SdImageComp } from "./SdImageComp";
 
@@ -10,6 +9,10 @@ import type { SdImage } from "../libs/shared-types/src";
 
 export type UmapProps = {
   images: SdImage[];
+
+  onFilterChange?: (activeImages: SdImage[]) => void;
+
+  shouldHideImages?: boolean;
 };
 
 interface UmapPoint extends ScatterPoint {
@@ -17,49 +20,63 @@ interface UmapPoint extends ScatterPoint {
 }
 
 export function Umap(props: UmapProps) {
-  const { images } = props;
+  const { images, onFilterChange, shouldHideImages } = props;
 
-  const initialData: UmapPoint[] = images.map((image, i) => ({
-    x: image.embedding?.[0] ?? 0,
-    y: image.embedding?.[1] ?? 0,
-    id: i,
-    image,
-  }));
+  const initialData: UmapPoint[] = useMemo(
+    () =>
+      images.map((image, i) => ({
+        x: image.embedding?.[0] ?? 0,
+        y: image.embedding?.[1] ?? 0,
+        id: i,
+        image,
+      })),
+    [images]
+  );
 
-  const [data, setData] = useState(initialData);
-
-  const [brushedPoints, setBrushedPoints] = useState<UmapPoint[]>(data);
+  const [brushedPoints, setBrushedPoints] = useState<UmapPoint[]>(initialData);
 
   const [hoverPoint, setHoverPoint] = useState<UmapPoint | null>(null);
 
-  return (
-    <div>
-      <h1>Umap ({images.length})</h1>
+  useEffect(() => {
+    // get unique image IDs in the brushed points
+    const imageIds = new Set(brushedPoints.map((c) => c.image.id));
+    const filteredImages = images.filter((image) => imageIds.has(image.id));
 
-      <div className="flex gap-4 p-8">
-        <ScatterplotWithBrushAndZoom<UmapPoint>
-          data={data}
-          width={600}
-          height={400}
-          mode={"brush"}
-          color="#cc0"
-          onBrushedPoints={setBrushedPoints}
-          onHoverPoint={setHoverPoint}
-        />
+    onFilterChange?.(filteredImages);
+  }, [brushedPoints, images, onFilterChange]);
+
+  const { ref, width, height } = useElementSize();
+
+  return (
+    <>
+      <div className="relative flex flex-1 items-stretch gap-4 p-2">
+        <div ref={ref} className="flex-1">
+          <ScatterplotWithBrushAndZoom<UmapPoint>
+            data={initialData}
+            width={width}
+            height={height || 400}
+            mode={"brush"}
+            color="#cc0"
+            onBrushedPoints={setBrushedPoints}
+            onHoverPoint={setHoverPoint}
+          />
+        </div>
 
         {hoverPoint && (
-          <div>
+          <div className="absolute top-0 right-0 h-24 w-24">
             <SdImageComp image={hoverPoint.image} size={384} />
           </div>
         )}
       </div>
-      <div className="grid grid-cols-4">
-        {brushedPoints.map((c) => (
-          <div key={c.image.id}>
-            <SdImageComp image={c.image} size={512} />
-          </div>
-        ))}
-      </div>
-    </div>
+      {!shouldHideImages && (
+        <div className="grid grid-cols-4">
+          {brushedPoints.map((c) => (
+            <div key={c.image.id}>
+              <SdImageComp image={c.image} size={512} />
+            </div>
+          ))}
+        </div>
+      )}
+    </>
   );
 }

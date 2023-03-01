@@ -1,11 +1,13 @@
 import { IconX } from "@tabler/icons";
-import { orderBy, shuffle } from "lodash-es";
-import { useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "react-query";
 import axios from "axios";
+import { orderBy, shuffle } from "lodash-es";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "react-query";
 
 import { Button } from "./Button";
 import { GroupNameViewEdit } from "./GroupNameViewEdit";
+import { GroupUmap } from "./GroupUmap";
+import { Switch } from "./MantineWrappers";
 import { SdCardViewer } from "./SdCardViewer";
 import { SdGroupContext } from "./SdGroupContext";
 import { SdImageStudyPopover } from "./SdImageStudyPopover";
@@ -41,9 +43,15 @@ export function ImageGrid(props: ImageGridProps) {
     (item) => item.groupId === groupId
   );
 
+  const [filteredImages, setFilteredImages] = useState(imageGroupData);
+
+  useEffect(() => {
+    setFilteredImages(imageGroupData);
+  }, [imageGroupData]);
+
   const sortedImages = useMemo(
-    () => orderBy(imageGroupData, "dateCreated", "desc"),
-    [imageGroupData]
+    () => orderBy(filteredImages, "dateCreated", "desc"),
+    [filteredImages]
   );
 
   const { imageGroupStudies } = useGetImageGroupStudies(
@@ -106,6 +114,11 @@ export function ImageGrid(props: ImageGridProps) {
     setIsLoadingEmbedding(false);
   };
 
+  const [shouldShowUmap, setShouldShowUmap] = useState(false);
+
+  const hasEmbeddings = imageGroupData.some((c) => c.embedding !== null);
+  const someImageNeedsEmbedding = imagesWithNullEmbedding.length > 0;
+
   const childCard = shouldShowCreateForm ? (
     createForm
   ) : (
@@ -138,19 +151,31 @@ export function ImageGrid(props: ImageGridProps) {
       {isLoadingEmbedding ? (
         <p>loading embeddings...</p>
       ) : (
-        <Button onClick={handleBulkMissingEmbeddings}>
-          embeddings ({imagesWithNullEmbedding.length})
-        </Button>
+        someImageNeedsEmbedding && (
+          <Button onClick={handleBulkMissingEmbeddings}>
+            load embeddings ({imagesWithNullEmbedding.length})
+          </Button>
+        )
+      )}
+      {hasEmbeddings && (
+        <Switch onChange={setShouldShowUmap} label="show umap?" />
       )}
     </div>
   );
+
+  const umapChild = shouldShowUmap ? (
+    <div className="col-span-2 flex ">
+      <GroupUmap groupId={groupId} onFilterChange={setFilteredImages} />
+    </div>
+  ) : null;
 
   return (
     <SdGroupContext.Provider value={{ groupImages: groupImageMap }}>
       <SdCardViewer
         imageGroupData={sortedImages}
-        childCard={childCard}
         placeholderImages={pendingForGroup}
+        childCard={childCard}
+        childCard2={umapChild}
       />
     </SdGroupContext.Provider>
   );

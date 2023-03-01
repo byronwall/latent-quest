@@ -34,7 +34,7 @@ export function ScatterplotWithBrushAndZoom<T extends ScatterPoint>({
   onBrushedPoints,
   onHoverPoint,
 }: ScatterplotWithBrushAndZoomProps<T>) {
-  const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+  const margin = { top: 5, right: 5, bottom: 5, left: 5 };
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 

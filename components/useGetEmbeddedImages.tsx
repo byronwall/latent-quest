@@ -1,17 +1,20 @@
 import { useQuery } from "react-query";
 
-import { getAbsUrl } from "./useGetAllGroups";
+import { api_getUmapImages } from "../model/api_images";
 
 import type { SdImage } from "../libs/shared-types/src";
 
-export function useGetEmbeddedImages(initialData?: SdImage[]) {
+export function useGetEmbeddedImages(
+  initialData?: SdImage[],
+  groupId?: string
+) {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: [],
+    queryKey: groupId ? ["embeddings", groupId] : ["embeddings"],
     queryFn: queryFnGetEmbeddedImages,
     initialData,
   });
 
-  return { imageGroup: data ?? [] };
+  return { imageGroup: data ?? [], isLoading };
 }
 
 export async function queryFnGetEmbeddedImages({
@@ -19,10 +22,5 @@ export async function queryFnGetEmbeddedImages({
 }: {
   queryKey: any[];
 }) {
-  console.log("queryFnGetEmbeddedImages", queryKey);
-  const url = getAbsUrl(`/api/images/embedding/images`);
-
-  const res = await fetch(url);
-  const results = (await res.json()) as SdImage[];
-  return results;
+  return api_getUmapImages({ groupId: queryKey[1] });
 }

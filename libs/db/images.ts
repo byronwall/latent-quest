@@ -68,12 +68,15 @@ export async function db_getAllImages() {
   return data as SdImage[];
 }
 
-export async function db_getAllEmbeddedImages() {
+export async function db_getAllEmbeddedImages(groupId?: string) {
   // load all from supabase
-  const { data, error } = await supabase
-    .from("images")
-    .select("*")
-    .not("embedding", "is", null);
+  const { data, error } = groupId
+    ? await supabase
+        .from("images")
+        .select("*")
+        .not("embedding", "is", null)
+        .eq("groupId", groupId)
+    : await supabase.from("images").select("*").not("embedding", "is", null);
 
   if (error) {
     console.error("Error loading images from database", error);

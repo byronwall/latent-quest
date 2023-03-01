@@ -48,9 +48,12 @@ export async function api_getStudy(id: string) {
   return data;
 }
 
-export async function simplePost<TPostData, TResData>(url: string, data: any) {
+export async function simplePost<TPostData, TResData>(
+  url: string,
+  data: TPostData
+) {
   const res = await axios.post<TResData, AxiosResponse<TResData>, TPostData>(
-    url,
+    getAbsUrl(url),
     data as any
   );
 
